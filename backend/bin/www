@@ -1,0 +1,9 @@
+const app = require('../dist/index').default || require('../dist/index');
+
+const port = process.env.PORT || '4000';
+
+app.set('port', port);
+
+app.listen(port, () => {
+  console.log(`HouseHunt API listening on ${port}`);
+});

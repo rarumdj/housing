@@ -1,0 +1,23 @@
+import { User, Landlord } from '../models';
+
+const LandlordRepo = {
+  create: async (data: Record<string, unknown>) => Landlord.create(data),
+
+  getByUserId: async (userId: string) =>
+    Landlord.findOne({
+      where: { userId },
+      include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+    }),
+
+  updateByUserId: async (userId: string, data: Record<string, unknown>) => {
+    await Landlord.update(data, { where: { userId } });
+    return LandlordRepo.getByUserId(userId);
+  },
+
+  updateById: async (id: string, data: Record<string, unknown>) => {
+    await Landlord.update(data, { where: { id } });
+    return Landlord.findByPk(id);
+  },
+};
+
+export default LandlordRepo;

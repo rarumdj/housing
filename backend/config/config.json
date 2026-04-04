@@ -1,0 +1,30 @@
+{
+  "local": {
+    "username": "root",
+    "password": "",
+    "database": "house_hunt",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "development": {
+    "username": "root",
+    "password": "",
+    "database": "house_hunt",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "ncftyxof_ftz",
+    "password": "Ctradezone@1",
+    "database": "ncftyxof_ftz",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}

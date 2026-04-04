@@ -1,0 +1,44 @@
+export const ROLES = ['TENANT', 'LANDLORD', 'ADMIN'] as const;
+
+export const VERIFICATION_STATUSES = ['PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED'] as const;
+export const PROPERTY_STATUSES = ['DRAFT', 'PENDING_VERIFICATION', 'ACTIVE', 'RENTED', 'ARCHIVED'] as const;
+export const PROPERTY_TYPES = [
+  'SELF_CONTAINED',
+  'ONE_BEDROOM',
+  'TWO_BEDROOM',
+  'THREE_BEDROOM',
+  'FOUR_BEDROOM_PLUS',
+  'DUPLEX',
+  'BUNGALOW',
+  'FLAT',
+  'MINI_FLAT',
+] as const;
+export const MEDIA_TYPES = ['PHOTO', 'VIDEO', 'MODEL_3D', 'TOUR_360'] as const;
+export const ROOM_TYPES = [
+  'KITCHEN',
+  'BATHROOM',
+  'BEDROOM',
+  'LIVING_ROOM',
+  'DINING_ROOM',
+  'STUDY',
+  'BALCONY',
+  'STORE',
+  'OTHER',
+] as const;
+export const BOOKING_STATUSES = [
+  'APPLIED',
+  'UNDER_REVIEW',
+  'ACCEPTED',
+  'DECLINED',
+  'AWAITING_PAYMENT',
+  'PAID',
+  'ACTIVE',
+  'ENDED',
+  'CANCELLED',
+] as const;
+export const LEASE_STATUSES = ['DRAFT', 'PENDING_SIGNATURE', 'ACTIVE', 'EXPIRED', 'DISPUTED', 'TERMINATED'] as const;
+export const PAYMENT_TYPES = ['CAUTION_DEPOSIT', 'FIRST_RENT', 'RENEWAL_RENT', 'PLATFORM_FEE', 'REFUND'] as const;
+export const PAYMENT_STATUSES = ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED', 'HELD_IN_ESCROW', 'RELEASED'] as const;
+export const RENEWAL_STATUSES = ['PROPOSED', 'ACCEPTED', 'APPEALED', 'DECLINED', 'EXPIRED'] as const;
+export const SCREENING_BANDS = ['EXCELLENT', 'GOOD', 'FAIR', 'REVIEW'] as const;
+export const EMPLOYMENT_STATUSES = ['EMPLOYED', 'SELF_EMPLOYED', 'UNEMPLOYED', 'STUDENT', 'RETIRED'] as const;

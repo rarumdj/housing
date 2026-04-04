@@ -1,0 +1,78 @@
+import Joi from 'joi';
+import { PROPERTY_TYPES, ROOM_TYPES } from '../../utils/constants';
+
+const baseProperty = {
+  title: Joi.string().trim().required(),
+  description: Joi.string().trim().required(),
+  type: Joi.string().valid(...PROPERTY_TYPES).required(),
+  address: Joi.string().trim().required(),
+  lga: Joi.string().trim().required(),
+  state: Joi.string().trim().required(),
+  lat: Joi.number().required(),
+  lng: Joi.number().required(),
+  priceMonthly: Joi.number().min(0).required(),
+  priceAnnually: Joi.number().min(0).required(),
+  cautionDeposit: Joi.number().min(0).required(),
+  availableFrom: Joi.date().iso().required(),
+  isFurnished: Joi.boolean().default(false),
+  isSemiFurnished: Joi.boolean().default(false),
+  hasGenerator: Joi.boolean().default(false),
+  hasParking: Joi.boolean().default(false),
+  hasSecurity: Joi.boolean().default(false),
+  hasElevator: Joi.boolean().default(false),
+  hasPool: Joi.boolean().default(false),
+  totalRooms: Joi.number().integer().min(0).default(0),
+  floorLevel: Joi.number().integer().allow(null),
+  buildingFloors: Joi.number().integer().allow(null),
+};
+
+export const create = Joi.object(baseProperty);
+
+export const update = Joi.object({
+  title: Joi.string().trim(),
+  description: Joi.string().trim(),
+  type: Joi.string().valid(...PROPERTY_TYPES),
+  address: Joi.string().trim(),
+  lga: Joi.string().trim(),
+  state: Joi.string().trim(),
+  lat: Joi.number(),
+  lng: Joi.number(),
+  priceMonthly: Joi.number().min(0),
+  priceAnnually: Joi.number().min(0),
+  cautionDeposit: Joi.number().min(0),
+  availableFrom: Joi.date().iso(),
+  isFurnished: Joi.boolean(),
+  isSemiFurnished: Joi.boolean(),
+  hasGenerator: Joi.boolean(),
+  hasParking: Joi.boolean(),
+  hasSecurity: Joi.boolean(),
+  hasElevator: Joi.boolean(),
+  hasPool: Joi.boolean(),
+  totalRooms: Joi.number().integer().min(0),
+  floorLevel: Joi.number().integer().allow(null),
+  buildingFloors: Joi.number().integer().allow(null),
+}).min(1);
+
+export const search = Joi.object({
+  page: Joi.number().integer().min(1).default(1),
+  limit: Joi.number().integer().min(1).max(50).default(12),
+  sortBy: Joi.string().valid('newest', 'price_asc', 'price_desc').default('newest'),
+  state: Joi.string(),
+  lga: Joi.string(),
+  type: Joi.string().valid(...PROPERTY_TYPES),
+  has3DTour: Joi.boolean(),
+  isFurnished: Joi.boolean(),
+  hasGenerator: Joi.boolean(),
+  hasSecurity: Joi.boolean(),
+  hasParking: Joi.boolean(),
+  minPrice: Joi.number().min(0),
+  maxPrice: Joi.number().min(0),
+});
+
+export const room = Joi.object({
+  roomType: Joi.string().valid(...ROOM_TYPES).required(),
+  features: Joi.array().items(Joi.string()).default([]),
+  areaSqm: Joi.number().allow(null),
+  floorLevel: Joi.number().integer().allow(null),
+  notes: Joi.string().allow('', null),
+});
