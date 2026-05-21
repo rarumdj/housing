@@ -57,6 +57,8 @@ export const Lease = sequelize.define('Lease', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+  agreementUrl: DataTypes.TEXT,
+  agreementGeneratedAt: DataTypes.DATE,
 }, {
   tableName: 'leases',
   timestamps: true,

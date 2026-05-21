@@ -106,13 +106,15 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
       return;
     }
 
-    const handleNodeChanged = (event: { node: VirtualTourNode }) => {
+    const handleNodeChanged = (
+      event: (typeof virtualTourEvents.NodeChangedEvent)['prototype']
+    ) => {
       setSelectedStopId(event.node.id);
     };
 
     virtualTour.addEventListener(
       virtualTourEvents.NodeChangedEvent.type,
-      handleNodeChanged as unknown as EventListener
+      handleNodeChanged
     );
 
     viewerRef.current = viewer;
@@ -122,7 +124,7 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
     return () => {
       virtualTour.removeEventListener(
         virtualTourEvents.NodeChangedEvent.type,
-        handleNodeChanged as unknown as EventListener
+        handleNodeChanged
       );
       virtualTourRef.current = null;
       viewerRef.current = null;
@@ -130,7 +132,7 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
     };
   }, [nodes]);
 
-  if (!selectedStop || property.tourStops.length === 0) {
+  if (!selectedStop) {
     return null;
   }
 

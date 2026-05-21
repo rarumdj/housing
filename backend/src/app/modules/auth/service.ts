@@ -15,6 +15,10 @@ export async function createUser(payload: {
   lastName: string;
   role: string;
 }) {
+  if (payload.role === 'ADMIN') {
+    throw new AppError('Admin accounts cannot be created via registration', 403);
+  }
+
   const existing = await UserRepo.getByEmailOrPhone(payload.email, payload.phone);
   if (existing) {
     const field = existing.get('email') === payload.email ? 'email' : 'phone';
@@ -63,12 +67,13 @@ export async function createUser(payload: {
 }
 
 export async function login(payload: { email: string; password: string }) {
-  const user = await UserRepo.getByEmail(payload.email);
+  const email = payload.email.trim().toLowerCase();
+  const user = await UserRepo.getByEmail(email);
   if (!user) {
     throw new AppError('Invalid email or password', 401);
   }
 
-  const isPasswordValid = await bcrypt.compare(payload.password, String(user.get('passwordHash')));
+  const isPasswordValid = await bcrypt.compare(payload.password, String(user.get('passwordHash') ?? ''));
   if (!isPasswordValid) {
     throw new AppError('Invalid email or password', 401);
   }

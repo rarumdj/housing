@@ -3,14 +3,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Home, Loader2 } from 'lucide-react';
-import { authKeys, dashboardKeys, publicKeys } from '@/routes/keys';
+import { ADMIN_DEMO, authKeys, getPostLoginPath, publicKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useLoginMutation } from '@/services/auth/queries';
 import { StorageTypes } from '@/services/auth/keys';
 import { toRequestMessage } from '@/lib/utils';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
+  email: z.string().trim().toLowerCase().email('Invalid email'),
   password: z.string().min(1, 'Password required'),
 });
 
@@ -32,11 +32,7 @@ export default function LoginPage() {
     loginMutation.mutate(values, {
       onSuccess: (response) => {
         setSession(response.data, StorageTypes.session);
-        navigate(
-          response.data.user.role === 'LANDLORD'
-            ? dashboardKeys.landlord.home.path
-            : dashboardKeys.tenant.home.path
-        );
+        navigate(getPostLoginPath(response.data.user.role));
       },
     });
   };
@@ -106,6 +102,15 @@ export default function LoginPage() {
               Create one
             </Link>
           </p>
+
+          {import.meta.env.DEV ? (
+            <p className="mt-4 rounded-xl border border-dashed border-border bg-muted/40 px-3 py-2 text-center text-xs text-muted-foreground">
+              Demo admin (created by DB migrations). If you see “Invalid email or password”, run{' '}
+              <code className="rounded bg-muted px-1">yarn db:migrate</code> from the repo root, then try again:{' '}
+              <span className="font-mono text-foreground">{ADMIN_DEMO.email}</span> /{' '}
+              <span className="font-mono text-foreground">{ADMIN_DEMO.password}</span>
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

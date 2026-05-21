@@ -3,7 +3,9 @@ import LandlordRepo from '../../repositories/landlord.repo';
 import PropertyMediaRepo from '../../repositories/propertyMedia.repo';
 import PropertyRepo from '../../repositories/property.repo';
 import PropertyRoomRepo from '../../repositories/propertyRoom.repo';
+import BookingRepo from '../../repositories/booking.repo';
 import AppError from '../../utils/appError';
+import { uploadToStorage, deleteFromStorage } from '../../utils/storage';
 import { getMockPropertyById, searchMockProperties } from './mock';
 
 function shouldUseMockPropertyData(error: unknown) {
@@ -171,4 +173,100 @@ export async function getLandlordProperties(landlordId: string) {
   const properties = await PropertyRepo.getByLandlordId(landlordId);
 
   return properties.map((item) => normalizePropertyListItem(toPlain(item) as Record<string, any>));
+}
+
+function inferMediaType(mimeType: string): string {
+  if (mimeType.startsWith('video/')) return 'VIDEO';
+  if (mimeType.startsWith('image/')) return 'TOUR_360';
+  return 'PHOTO';
+}
+
+export async function uploadMedia(
+  propertyId: string,
+  landlordId: string,
+  files: Array<{ buffer: Buffer; mimetype: string; originalname: string }>,
+) {
+  const property = await PropertyRepo.getOwned(propertyId, landlordId);
+  if (!property) {
+    throw new AppError('Property not found or access denied', 404);
+  }
+
+  const existingCount = await PropertyMediaRepo.countByPropertyId(propertyId);
+  const results = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    const folder = file.mimetype.startsWith('video/') ? 'properties/videos' : 'properties/photos';
+    const url = await uploadToStorage(file.buffer, file.mimetype, folder);
+    const mediaType = inferMediaType(file.mimetype);
+
+    const media = await PropertyMediaRepo.create({
+      id: uuidv4(),
+      propertyId,
+      type: mediaType,
+      url,
+      isCover: existingCount === 0 && i === 0,
+      orderIndex: existingCount + i,
+    });
+
+    results.push(toPlain(media));
+  }
+
+  return results;
+}
+
+export async function deleteMedia(propertyId: string, landlordId: string, mediaId: string) {
+  const property = await PropertyRepo.getOwned(propertyId, landlordId);
+  if (!property) {
+    throw new AppError('Property not found or access denied', 404);
+  }
+
+  const media = await PropertyMediaRepo.getById(mediaId);
+  if (!media || media.get('propertyId') !== propertyId) {
+    throw new AppError('Media not found', 404);
+  }
+
+  await deleteFromStorage(String(media.get('url')));
+  await PropertyMediaRepo.deleteById(mediaId, propertyId);
+}
+
+export async function setCoverMedia(propertyId: string, landlordId: string, mediaId: string) {
+  const property = await PropertyRepo.getOwned(propertyId, landlordId);
+  if (!property) {
+    throw new AppError('Property not found or access denied', 404);
+  }
+
+  await PropertyMediaRepo.setCover(mediaId, propertyId);
+}
+
+export async function deleteProperty(id: string, landlordId: string) {
+  const property = await PropertyRepo.getOwned(id, landlordId);
+  if (!property) {
+    throw new AppError('Property not found or access denied', 404);
+  }
+
+  const status = String(property.get('status'));
+  if (!['DRAFT', 'ARCHIVED'].includes(status)) {
+    throw new AppError('Only draft or archived properties can be deleted', 400);
+  }
+
+  await PropertyRepo.updateOwned(id, landlordId, { status: 'ARCHIVED' });
+}
+
+export async function getPropertyActivity(propertyId: string, landlordId: string) {
+  const property = await PropertyRepo.getOwned(propertyId, landlordId);
+  if (!property) {
+    throw new AppError('Property not found or access denied', 404);
+  }
+
+  const detailed = await PropertyRepo.getDetailedById(propertyId);
+  const bookings = await BookingRepo.getByPropertyIdsAndStatuses(
+    [propertyId],
+    ['APPLIED', 'UNDER_REVIEW', 'ACCEPTED', 'AWAITING_PAYMENT', 'PAID', 'ACTIVE', 'DECLINED', 'ENDED', 'CANCELLED'],
+  );
+
+  return {
+    property: toPlain(detailed),
+    bookings: bookings.map((b) => toPlain(b)),
+  };
 }

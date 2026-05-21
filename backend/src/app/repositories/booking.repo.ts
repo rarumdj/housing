@@ -1,6 +1,18 @@
 import { Op } from 'sequelize';
 import { Booking, Lease, Payment, Property, Tenant, User } from '../models';
 
+const TENANT_PROFILE_ATTRIBUTES = [
+  'id', 'userId', 'employmentStatus', 'employerName', 'monthlyIncome',
+  'maritalStatus', 'dateOfBirth', 'nationality',
+  'nationalIdType', 'nationalIdNumber',
+  'businessName', 'businessType', 'jobTitle', 'annualIncome',
+  'bankName', 'accountNumber',
+  'nextOfKinName', 'nextOfKinPhone', 'nextOfKinRelationship', 'nextOfKinAddress',
+  'currentAddress', 'reasonForMoving', 'numberOfOccupants', 'hasPets',
+  'emergencyContactName', 'emergencyContactPhone',
+  'screeningBand', 'kycStatus', 'isOnboarded',
+];
+
 const BookingRepo = {
   create: async (data: Record<string, unknown>) => Booking.create(data),
 
@@ -42,6 +54,28 @@ const BookingRepo = {
           model: Tenant,
           as: 'tenant',
           include: [{ model: User, as: 'user' }],
+        },
+      ],
+    }),
+
+  getApplicationWithTenantProfile: async (id: string) =>
+    Booking.findByPk(id, {
+      include: [
+        {
+          model: Tenant,
+          as: 'tenant',
+          attributes: TENANT_PROFILE_ATTRIBUTES,
+          include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+        },
+        {
+          model: Property,
+          as: 'property',
+          attributes: ['id', 'title', 'address', 'lga', 'state', 'priceAnnually', 'priceMonthly', 'cautionDeposit', 'type', 'landlordId'],
+        },
+        {
+          model: Lease,
+          as: 'lease',
+          attributes: ['id', 'status', 'rentStartDate', 'rentEndDate', 'monthlyRent', 'annualRent', 'pdfUrl', 'agreementUrl', 'agreementGeneratedAt'],
         },
       ],
     }),
@@ -93,6 +127,36 @@ const BookingRepo = {
         { model: Payment, as: 'payments' },
       ],
     }),
+
+  getByPropertyIdsWithDetails: async (propertyIds: string[], statuses?: string[]) => {
+    const where: Record<string, unknown> = { propertyId: { [Op.in]: propertyIds } };
+    if (statuses && statuses.length > 0) {
+      where.status = { [Op.in]: statuses };
+    }
+
+    return Booking.findAll({
+      where,
+      include: [
+        {
+          model: Tenant,
+          as: 'tenant',
+          attributes: [...TENANT_PROFILE_ATTRIBUTES],
+          include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+        },
+        {
+          model: Property,
+          as: 'property',
+          attributes: ['id', 'title', 'address', 'lga', 'state', 'priceAnnually'],
+        },
+        {
+          model: Lease,
+          as: 'lease',
+          attributes: ['id', 'rentStartDate', 'rentEndDate', 'status', 'monthlyRent', 'annualRent', 'pdfUrl', 'agreementUrl'],
+        },
+      ],
+      order: [['appliedAt', 'DESC']],
+    });
+  },
 };
 
 export default BookingRepo;

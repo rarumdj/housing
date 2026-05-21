@@ -2,8 +2,10 @@ import sequelize from './db';
 import { Booking } from './booking';
 import { Landlord } from './landlord';
 import { Lease } from './lease';
+import { Message } from './message';
 import { Notification } from './notification';
 import { Payment } from './payment';
+import { PlatformFee } from './platformFee';
 import { Property } from './property';
 import { PropertyMedia } from './propertyMedia';
 import { PropertyRoom } from './propertyRoom';
@@ -58,6 +60,12 @@ Payment.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 Lease.hasMany(Renewal, { foreignKey: 'leaseId', as: 'renewals' });
 Renewal.belongsTo(Lease, { foreignKey: 'leaseId', as: 'lease' });
 
+User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
+User.hasMany(Message, { foreignKey: 'recipientId', as: 'receivedMessages' });
+Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
+Message.belongsTo(User, { foreignKey: 'recipientId', as: 'recipient' });
+Message.belongsTo(Property, { foreignKey: 'propertyId', as: 'property' });
+
 export {
   sequelize,
   User,
@@ -70,8 +78,10 @@ export {
   Booking,
   Lease,
   Payment,
+  PlatformFee,
   Renewal,
   Notification,
+  Message,
   VideoSession,
 };
 

@@ -1,12 +1,23 @@
+import fs from 'fs';
+import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { env } from './env';
+
+const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
+
+export function getUploadsDir() {
+  return UPLOADS_DIR;
+}
 
 export async function uploadToStorage(buffer: Buffer, mimeType: string, folder: string) {
   const extension = mimeType.split('/')[1] || 'bin';
   const key = `${folder}/${uuidv4()}.${extension}`;
 
   if (!env.cloudinary.url || !env.cloudinary.preset) {
-    return `local://${key}`;
+    const dest = path.join(UPLOADS_DIR, key);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, buffer);
+    return `/uploads/${key}`;
   }
 
   const formData = new FormData();
@@ -35,7 +46,7 @@ export async function uploadToStorage(buffer: Buffer, mimeType: string, folder: 
     public_id?: string;
   };
 
-  return payload.secure_url || payload.url || payload.public_id || `local://${key}`;
+  return payload.secure_url || payload.url || payload.public_id || `/uploads/${key}`;
 }
 
 export async function getPresignedUrl(key: string, expiresIn = 3600) {
@@ -44,5 +55,8 @@ export async function getPresignedUrl(key: string, expiresIn = 3600) {
 }
 
 export async function deleteFromStorage(key: string) {
-  void key;
+  if (key.startsWith('/uploads/')) {
+    const filePath = path.join(UPLOADS_DIR, key.replace('/uploads/', ''));
+    fs.unlink(filePath, () => {});
+  }
 }

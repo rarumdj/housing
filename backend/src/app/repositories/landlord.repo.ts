@@ -3,6 +3,11 @@ import { User, Landlord } from '../models';
 const LandlordRepo = {
   create: async (data: Record<string, unknown>) => Landlord.create(data),
 
+  getById: async (id: string) =>
+    Landlord.findByPk(id, {
+      include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+    }),
+
   getByUserId: async (userId: string) =>
     Landlord.findOne({
       where: { userId },

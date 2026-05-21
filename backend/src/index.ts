@@ -4,8 +4,11 @@ import Routes from './app/routes';
 import sequelize from './app/models/db';
 import './app/models';
 import { env } from './app/utils/env';
+import { getUploadsDir } from './app/utils/storage';
 
 const app: Application = express();
+
+app.use('/uploads', express.static(getUploadsDir()));
 
 app.get('/', (_req, res) => {
   res.status(200).json({

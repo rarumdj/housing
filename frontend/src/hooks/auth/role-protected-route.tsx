@@ -16,12 +16,11 @@ export function RoleProtectedRoute({ children, roles }: RoleProtectedRouteProps)
   }
 
   if (roles?.length && user && !roles.includes(user.role)) {
-    return (
-      <Navigate
-        to={user.role === 'LANDLORD' ? dashboardKeys.landlord.home.path : dashboardKeys.tenant.home.path}
-        replace
-      />
-    );
+    const home =
+      user.role === 'ADMIN' ? dashboardKeys.admin.home.path :
+      user.role === 'LANDLORD' ? dashboardKeys.landlord.home.path :
+      dashboardKeys.tenant.home.path;
+    return <Navigate to={home} replace />;
   }
 
   return <>{children}</>;

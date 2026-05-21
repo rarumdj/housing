@@ -103,6 +103,58 @@ const PropertyRepo = {
 
   getIdsByLandlordId: async (landlordId: string) => Property.findAll({ where: { landlordId }, attributes: ['id'] }),
 
+  listAll: async (filters: { status?: string; verificationStatus?: string; page?: number; limit?: number }) => {
+    const where: Record<string, unknown> = {};
+    if (filters.status) where.status = filters.status;
+    if (filters.verificationStatus) where.verificationStatus = filters.verificationStatus;
+
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? 20;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await Property.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [['createdAt', 'DESC']],
+      distinct: true,
+      include: [
+        {
+          model: Landlord,
+          as: 'owner',
+          include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName', 'email'] }],
+        },
+        {
+          model: PropertyMedia,
+          as: 'media',
+          required: false,
+          separate: true,
+          order: [
+            ['isCover', 'DESC'],
+            ['orderIndex', 'ASC'],
+          ],
+        },
+      ],
+    });
+
+    return { properties: rows, meta: { total: count, page, limit, pages: Math.max(1, Math.ceil(count / limit)) } };
+  },
+
+  updateById: async (id: string, data: Record<string, unknown>) => {
+    await Property.update(data, { where: { id } });
+    return Property.findByPk(id);
+  },
+
+  countByStatus: async () => {
+    const { fn: seqFn, col: seqCol } = require('sequelize');
+    const results = await Property.findAll({
+      attributes: ['status', [seqFn('COUNT', seqCol('id')), 'count']],
+      group: ['status'],
+      raw: true,
+    });
+    return results as unknown as Array<{ status: string; count: number }>;
+  },
+
   buildSearchFilter: (filters: Record<string, unknown>) => {
     const filter: Record<string, unknown> = {
       status: 'ACTIVE',

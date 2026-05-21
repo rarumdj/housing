@@ -50,3 +50,15 @@ export async function confirmMoveIn(req: Request, res: Response) {
   const data = await BookingService.confirmMoveIn(req.params.id, String(req.user?.id));
   return sendSuccess(res, { data });
 }
+
+export async function cancel(req: Request, res: Response) {
+  const landlordId = await getLandlordId(String(req.user?.id));
+  const data = await BookingService.cancel(req.params.id, landlordId);
+  return sendSuccess(res, { data });
+}
+
+export async function applicationDetail(req: Request, res: Response) {
+  const landlordId = await getLandlordId(String(req.user?.id));
+  const data = await BookingService.getApplicationDetail(req.params.id, landlordId);
+  return sendSuccess(res, { data });
+}
