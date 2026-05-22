@@ -31,7 +31,7 @@ export function PropertyCard({ property, className }: { property: Property; clas
         }
         <div className="absolute top-3 left-3 flex gap-1.5">
           <span className="px-2 py-1 rounded-lg bg-background/90 backdrop-blur-sm text-xs font-medium">{TYPE_LABELS[property.type] ?? property.type}</span>
-          {isVerified && <span className="px-2 py-1 rounded-lg bg-emerald-500/90 text-white text-xs font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3"/>Verified</span>}
+          {isVerified && <span className="px-2 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3"/>Verified</span>}
           {has3D && <span className="px-2 py-1 rounded-lg bg-orange-500/90 text-white text-xs font-medium flex items-center gap-1"><Video className="w-3 h-3"/>3D</span>}
         </div>
       </div>

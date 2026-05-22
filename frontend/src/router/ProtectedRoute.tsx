@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
+import { getPostLoginPath } from '@/routes/keys';
 import { useAuthStore } from '@/store/authStore';
 
 export function ProtectedRoute({ role }: { role?: 'LANDLORD' | 'TENANT' | 'ADMIN' }) {
@@ -6,7 +7,7 @@ export function ProtectedRoute({ role }: { role?: 'LANDLORD' | 'TENANT' | 'ADMIN
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   if (role && user?.role !== role) {
-    return <Navigate to={user?.role === 'LANDLORD' ? '/landlord/dashboard' : '/dashboard'} replace />;
+    return <Navigate to={getPostLoginPath(user?.role ?? 'TENANT')} replace />;
   }
 
   return <Outlet />;

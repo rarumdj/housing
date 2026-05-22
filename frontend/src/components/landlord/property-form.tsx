@@ -4,6 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
 import { cn, formatNaira } from '@/lib/utils';
+import { FormInput } from '@/components/forms/form-input';
+import FormTextarea from '@/components/forms/form-textarea';
+import { FormSelect } from '@/components/forms/form-select';
+import FormCheckbox from '@/components/forms/form-checkbox';
+import { CustomButton } from '@/components/button';
+import { FieldGroup } from '@/components/ui/field';
 import { MediaUploader } from './media-uploader';
 import type { PropertyMedia } from '@/types/domain';
 
@@ -85,7 +91,7 @@ export function PropertyForm({
     },
   });
 
-  const { register, handleSubmit, formState: { errors }, watch } = form;
+  const { control, handleSubmit, watch } = form;
   const values = watch();
 
   const canProceed = () => {
@@ -93,10 +99,6 @@ export function PropertyForm({
     if (step === 1) return values.priceAnnually > 0 && !!values.availableFrom;
     return true;
   };
-
-  const inputClass = 'w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
-  const labelClass = 'mb-1.5 block text-sm font-medium';
-  const errorClass = 'mt-1 text-xs text-destructive';
 
   return (
     <div>
@@ -121,115 +123,75 @@ export function PropertyForm({
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {step === 0 && (
-          <div className="space-y-5">
+          <FieldGroup className="gap-5">
             <h2 className="text-lg font-bold">Basic Details</h2>
 
-            <div>
-              <label className={labelClass}>Title</label>
-              <input {...register('title')} placeholder="e.g. Modern 2-Bedroom Apartment in Lekki" className={inputClass} />
-              {errors.title && <p className={errorClass}>{errors.title.message}</p>}
-            </div>
+            <FormInput
+              control={control}
+              name="title"
+              label="Title"
+              placeholder="e.g. Modern 2-Bedroom Apartment in Lekki"
+            />
 
-            <div>
-              <label className={labelClass}>Description</label>
-              <textarea {...register('description')} rows={4} placeholder="Describe the property..." className={cn(inputClass, 'resize-none')} />
-              {errors.description && <p className={errorClass}>{errors.description.message}</p>}
+            <FormTextarea
+              control={control}
+              name="description"
+              label="Description"
+              rows={4}
+              placeholder="Describe the property..."
+            />
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormSelect
+                control={control}
+                name="type"
+                label="Property Type"
+                placeholder="Select type"
+                options={PROPERTY_TYPES.map((t) => ({
+                  value: t.value,
+                  label: t.label,
+                  searchLabel: t.label,
+                }))}
+              />
+              <FormInput control={control} name="state" label="State" placeholder="e.g. Lagos" />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Property Type</label>
-                <select {...register('type')} className={inputClass}>
-                  <option value="">Select type</option>
-                  {PROPERTY_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>{t.label}</option>
-                  ))}
-                </select>
-                {errors.type && <p className={errorClass}>{errors.type.message}</p>}
-              </div>
-
-              <div>
-                <label className={labelClass}>State</label>
-                <input {...register('state')} placeholder="e.g. Lagos" className={inputClass} />
-                {errors.state && <p className={errorClass}>{errors.state.message}</p>}
-              </div>
+              <FormInput control={control} name="lga" label="LGA" placeholder="e.g. Eti-Osa" />
+              <FormInput control={control} name="address" label="Address" placeholder="Full street address" />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>LGA</label>
-                <input {...register('lga')} placeholder="e.g. Eti-Osa" className={inputClass} />
-                {errors.lga && <p className={errorClass}>{errors.lga.message}</p>}
-              </div>
-              <div>
-                <label className={labelClass}>Address</label>
-                <input {...register('address')} placeholder="Full street address" className={inputClass} />
-                {errors.address && <p className={errorClass}>{errors.address.message}</p>}
-              </div>
+              <FormInput control={control} name="lat" label="Latitude" type="number" step="any" />
+              <FormInput control={control} name="lng" label="Longitude" type="number" step="any" />
             </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Latitude</label>
-                <input {...register('lat')} type="number" step="any" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Longitude</label>
-                <input {...register('lng')} type="number" step="any" className={inputClass} />
-              </div>
-            </div>
-          </div>
+          </FieldGroup>
         )}
 
         {step === 1 && (
-          <div className="space-y-5">
+          <FieldGroup className="gap-5">
             <h2 className="text-lg font-bold">Pricing</h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Monthly Rent (NGN)</label>
-                <input {...register('priceMonthly')} type="number" min={0} className={inputClass} />
-                {errors.priceMonthly && <p className={errorClass}>{errors.priceMonthly.message}</p>}
-              </div>
-              <div>
-                <label className={labelClass}>Annual Rent (NGN)</label>
-                <input {...register('priceAnnually')} type="number" min={0} className={inputClass} />
-                {errors.priceAnnually && <p className={errorClass}>{errors.priceAnnually.message}</p>}
-              </div>
+              <FormInput control={control} name="priceMonthly" label="Monthly Rent (NGN)" type="number" min={0} />
+              <FormInput control={control} name="priceAnnually" label="Annual Rent (NGN)" type="number" min={0} />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className={labelClass}>Caution Deposit (NGN)</label>
-                <input {...register('cautionDeposit')} type="number" min={0} className={inputClass} />
-                {errors.cautionDeposit && <p className={errorClass}>{errors.cautionDeposit.message}</p>}
-              </div>
-              <div>
-                <label className={labelClass}>Available From</label>
-                <input {...register('availableFrom')} type="date" className={inputClass} />
-                {errors.availableFrom && <p className={errorClass}>{errors.availableFrom.message}</p>}
-              </div>
+              <FormInput control={control} name="cautionDeposit" label="Caution Deposit (NGN)" type="number" min={0} />
+              <FormInput control={control} name="availableFrom" label="Available From" type="date" />
             </div>
-          </div>
+          </FieldGroup>
         )}
 
         {step === 2 && (
-          <div className="space-y-5">
+          <FieldGroup className="gap-5">
             <h2 className="text-lg font-bold">Amenities & Specifications</h2>
 
             <div className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <label className={labelClass}>Total Rooms</label>
-                <input {...register('totalRooms')} type="number" min={0} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Floor Level</label>
-                <input {...register('floorLevel')} type="number" min={0} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Building Floors</label>
-                <input {...register('buildingFloors')} type="number" min={0} className={inputClass} />
-              </div>
+              <FormInput control={control} name="totalRooms" label="Total Rooms" type="number" min={0} />
+              <FormInput control={control} name="floorLevel" label="Floor Level" type="number" min={0} />
+              <FormInput control={control} name="buildingFloors" label="Building Floors" type="number" min={0} />
             </div>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
@@ -242,13 +204,15 @@ export function PropertyForm({
                 { key: 'hasElevator', label: 'Elevator' },
                 { key: 'hasPool', label: 'Pool' },
               ] as const).map(({ key, label }) => (
-                <label key={key} className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3 transition-colors hover:bg-muted/50">
-                  <input type="checkbox" {...register(key)} className="h-4 w-4 rounded border-border text-primary focus:ring-primary" />
-                  <span className="text-sm">{label}</span>
-                </label>
+                <div
+                  key={key}
+                  className="rounded-xl border border-border p-3 transition-colors hover:bg-muted/50"
+                >
+                  <FormCheckbox control={control} name={key} label={label} />
+                </div>
               ))}
             </div>
-          </div>
+          </FieldGroup>
         )}
 
         {step === 3 && (

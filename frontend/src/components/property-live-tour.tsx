@@ -171,7 +171,7 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full bg-rose-400" />
               <span className="h-3 w-3 rounded-full bg-amber-300" />
-              <span className="h-3 w-3 rounded-full bg-emerald-400" />
+              <span className="h-3 w-3 rounded-full bg-primary" />
             </div>
             <p className="font-semibold text-white">
               {property.title} / {selectedStop.label}

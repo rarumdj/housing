@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from 'react';
 import { Navigate } from 'react-router-dom';
-import { authKeys, dashboardKeys } from '@/routes/keys';
+import { authKeys, getPostLoginPath } from '@/routes/keys';
 import { useAuthManager } from './use-auth-manager';
 import type { UserRole } from '@/types/domain';
 
@@ -16,11 +16,7 @@ export function RoleProtectedRoute({ children, roles }: RoleProtectedRouteProps)
   }
 
   if (roles?.length && user && !roles.includes(user.role)) {
-    const home =
-      user.role === 'ADMIN' ? dashboardKeys.admin.home.path :
-      user.role === 'LANDLORD' ? dashboardKeys.landlord.home.path :
-      dashboardKeys.tenant.home.path;
-    return <Navigate to={home} replace />;
+    return <Navigate to={getPostLoginPath(user.role)} replace />;
   }
 
   return <>{children}</>;

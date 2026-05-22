@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, ChevronDown, Home, LogOut, Search, User } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { dashboardKeys, authKeys, publicKeys } from '@/routes/keys';
+import { authKeys, dashboardKeys, getPostLoginPath, publicKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useLogoutMutation } from '@/services/auth/queries';
 import { getInitials } from '@/lib/utils';
@@ -76,7 +76,7 @@ export function Navbar() {
                 {open ? (
                   <div className="absolute right-0 z-50 mt-2 w-52 rounded-xl border border-border bg-background p-1 shadow-lg">
                     <Link
-                      to={user.role === 'LANDLORD' ? dashboardKeys.landlord.home.path : dashboardKeys.tenant.home.path}
+                      to={getPostLoginPath(user.role)}
                       onClick={() => setOpen(false)}
                       className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors hover:bg-muted"
                     >

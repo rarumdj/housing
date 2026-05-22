@@ -8,10 +8,11 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint src --ext .ts",
-    "db:migrate": "sequelize-cli db:migrate --config config/config.json --env development",
-    "db:migrate:local": "sequelize-cli db:migrate --config config/config.json --env local",
-    "db:migrate:undo": "sequelize-cli db:migrate:undo --config config/config.json --env development",
-    "db:create": "sequelize-cli db:create --config config/config.json --env development"
+    "db:migrate": "sequelize-cli db:migrate --config config/config.cjs --env development",
+    "db:migrate:local": "sequelize-cli db:migrate --config config/config.cjs --env local",
+    "db:migrate:docker": "sequelize-cli db:migrate --config config/config.cjs --env docker",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo --config config/config.cjs --env development",
+    "db:create": "sequelize-cli db:create --config config/config.cjs --env development"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.540.0",

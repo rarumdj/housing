@@ -5,6 +5,9 @@ import { dashboardKeys } from '@/routes/keys';
 import { cn, formatNaira } from '@/lib/utils';
 import { useAdminFeesQuery, useCreateFeeMutation, useUpdateFeeMutation, useDeleteFeeMutation } from '@/services/admin/queries';
 import type { PlatformFee } from '@/types/domain';
+import { TextInput } from '@/components/forms/atoms/text-input';
+import { FieldGroup, FieldLabel } from '@/components/ui/field';
+import { CustomButton } from '@/components/button';
 
 const SAMPLE_RENT = 5000000;
 
@@ -65,8 +68,6 @@ export default function AdminFeesPage() {
 
   const totalSampleFees = fees.filter((f) => f.isActive).reduce((s, f) => s + calcAmount(f), 0);
 
-  const inputClass = 'w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary';
-
   return (
     <div className="min-h-screen bg-muted/10">
       <div className="container max-w-4xl py-8">
@@ -109,38 +110,72 @@ export default function AdminFeesPage() {
               <h3 className="font-bold">{editingId ? 'Edit Fee' : 'New Fee'}</h3>
               <button onClick={() => setShowForm(false)} className="rounded-lg p-1 hover:bg-muted"><X className="h-4 w-4" /></button>
             </div>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Name</label>
-                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Agency Fee" className={inputClass} required />
+            <form onSubmit={handleSubmit}>
+              <FieldGroup className="gap-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <FieldLabel>Name</FieldLabel>
+                    <TextInput
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="e.g. Agency Fee"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <FieldLabel>Slug</FieldLabel>
+                    <TextInput
+                      value={form.slug}
+                      onChange={(e) =>
+                        setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })
+                      }
+                      placeholder="e.g. agency_fee"
+                      required
+                      disabled={!!editingId}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Slug</label>
-                  <input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '_') })} placeholder="e.g. agency_fee" className={inputClass} required disabled={!!editingId} />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <FieldLabel>Type</FieldLabel>
+                    <select
+                      value={form.type}
+                      onChange={(e) => setForm({ ...form, type: e.target.value as 'PERCENTAGE' | 'FLAT' })}
+                      className="flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"
+                    >
+                      <option value="PERCENTAGE">Percentage (%)</option>
+                      <option value="FLAT">Flat Amount (NGN)</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <FieldLabel>Value {form.type === 'PERCENTAGE' ? '(%)' : '(NGN)'}</FieldLabel>
+                    <TextInput
+                      type="number"
+                      value={form.value}
+                      onChange={(e) => setForm({ ...form, value: e.target.value })}
+                      min={0}
+                      step={form.type === 'PERCENTAGE' ? '0.1' : '1'}
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Type</label>
-                  <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as 'PERCENTAGE' | 'FLAT' })} className={inputClass}>
-                    <option value="PERCENTAGE">Percentage (%)</option>
-                    <option value="FLAT">Flat Amount (NGN)</option>
-                  </select>
+                <div className="space-y-1.5">
+                  <FieldLabel>Description</FieldLabel>
+                  <TextInput
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Optional description"
+                  />
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium">Value {form.type === 'PERCENTAGE' ? '(%)' : '(NGN)'}</label>
-                  <input type="number" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })} min={0} step={form.type === 'PERCENTAGE' ? '0.1' : '1'} className={inputClass} required />
-                </div>
-              </div>
-              <div>
-                <label className="mb-1 block text-sm font-medium">Description</label>
-                <input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Optional description" className={inputClass} />
-              </div>
-              <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-                {createMutation.isPending || updateMutation.isPending ? <Loader2 className="inline h-4 w-4 animate-spin" /> : null}
-                {editingId ? ' Save Changes' : ' Create Fee'}
-              </button>
+                <CustomButton
+                  type="submit"
+                  variant="primary"
+                  loading={createMutation.isPending || updateMutation.isPending}
+                  disabled={createMutation.isPending || updateMutation.isPending}
+                >
+                  {editingId ? 'Save Changes' : 'Create Fee'}
+                </CustomButton>
+              </FieldGroup>
             </form>
           </div>
         )}

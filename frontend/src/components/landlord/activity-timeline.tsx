@@ -5,10 +5,10 @@ import type { LandlordBooking } from '@/types/domain';
 const STATUS_CONFIG: Record<string, { icon: typeof Clock; color: string; label: string }> = {
   APPLIED: { icon: Clock, color: 'text-yellow-600 bg-yellow-50', label: 'Applied' },
   UNDER_REVIEW: { icon: AlertCircle, color: 'text-orange-600 bg-orange-50', label: 'Under Review' },
-  ACCEPTED: { icon: Check, color: 'text-emerald-600 bg-emerald-50', label: 'Accepted' },
-  DECLINED: { icon: XCircle, color: 'text-red-600 bg-red-50', label: 'Declined' },
-  AWAITING_PAYMENT: { icon: CreditCard, color: 'text-blue-600 bg-blue-50', label: 'Awaiting Payment' },
-  PAID: { icon: CreditCard, color: 'text-emerald-600 bg-emerald-50', label: 'Paid' },
+  ACCEPTED: { icon: Check, color: 'text-primary bg-primary/10', label: 'Accepted' },
+  DECLINED: { icon: XCircle, color: 'text-destructive bg-destructive/10', label: 'Declined' },
+  AWAITING_PAYMENT: { icon: CreditCard, color: 'text-brand-700 bg-brand-100', label: 'Awaiting Payment' },
+  PAID: { icon: CreditCard, color: 'text-primary bg-primary/10', label: 'Paid' },
   ACTIVE: { icon: Home, color: 'text-primary bg-primary/10', label: 'Active' },
   ENDED: { icon: XCircle, color: 'text-muted-foreground bg-muted', label: 'Ended' },
   CANCELLED: { icon: XCircle, color: 'text-muted-foreground bg-muted', label: 'Cancelled' },
@@ -92,7 +92,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                   {isActionable && onAccept && (
                     <button
                       onClick={() => onAccept(booking.id)}
-                      className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-emerald-700"
+                      className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                     >
                       Accept
                     </button>
@@ -100,7 +100,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                   {isActionable && onDecline && (
                     <button
                       onClick={() => onDecline(booking.id)}
-                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+                      className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
                     >
                       Decline
                     </button>

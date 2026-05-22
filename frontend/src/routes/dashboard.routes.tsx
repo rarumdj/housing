@@ -23,7 +23,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.tenant.home.path,
     element: (
-      <RoleProtectedRoute roles={['TENANT', 'ADMIN']}>
+      <RoleProtectedRoute roles={['TENANT']}>
         <TenantDashboardPage />
       </RoleProtectedRoute>
     ),
@@ -39,7 +39,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.tenant.applications.path,
     element: (
-      <RoleProtectedRoute roles={['TENANT', 'ADMIN']}>
+      <RoleProtectedRoute roles={['TENANT']}>
         <TenantApplicationsPage />
       </RoleProtectedRoute>
     ),
@@ -48,7 +48,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.home.path,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <LandlordDashboardPage />
       </RoleProtectedRoute>
     ),
@@ -56,7 +56,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.properties.path,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <LandlordPropertiesPage />
       </RoleProtectedRoute>
     ),
@@ -64,7 +64,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.create.path,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <CreatePropertyPage />
       </RoleProtectedRoute>
     ),
@@ -72,7 +72,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.detail.paramPath,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <LandlordPropertyDetailPage />
       </RoleProtectedRoute>
     ),
@@ -80,7 +80,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.edit.paramPath,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <EditPropertyPage />
       </RoleProtectedRoute>
     ),
@@ -88,7 +88,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.messages.path,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <LandlordMessagesPage />
       </RoleProtectedRoute>
     ),
@@ -96,7 +96,7 @@ export const dashboardRoutes: AppRouteObject[] = [
   {
     path: dashboardKeys.landlord.applicationReview.paramPath,
     element: (
-      <RoleProtectedRoute roles={['LANDLORD', 'ADMIN']}>
+      <RoleProtectedRoute roles={['LANDLORD']}>
         <ApplicationReviewPage />
       </RoleProtectedRoute>
     ),

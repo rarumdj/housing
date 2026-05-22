@@ -24,6 +24,14 @@
     --input: 20 5.9% 90%;
     --ring: 24.6 95% 53.1%;
     --radius: 0.75rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 20 14.3% 4.1%;
+    --sidebar-primary: 24.6 95% 53.1%;
+    --sidebar-primary-foreground: 60 9.1% 97.8%;
+    --sidebar-accent: 60 4.8% 95.9%;
+    --sidebar-accent-foreground: 24 9.8% 10%;
+    --sidebar-border: 20 5.9% 90%;
+    --sidebar-ring: 24.6 95% 53.1%;
   }
 
   .dark {
@@ -46,6 +54,14 @@
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 20.5 90.2% 48.2%;
+    --sidebar-background: 24 9.8% 10%;
+    --sidebar-foreground: 60 9.1% 97.8%;
+    --sidebar-primary: 20.5 90.2% 48.2%;
+    --sidebar-primary-foreground: 60 9.1% 97.8%;
+    --sidebar-accent: 12 6.5% 15.1%;
+    --sidebar-accent-foreground: 60 9.1% 97.8%;
+    --sidebar-border: 12 6.5% 15.1%;
+    --sidebar-ring: 20.5 90.2% 48.2%;
   }
 }
 
@@ -100,8 +116,55 @@
   }
 
   .bg-shimmer {
-    background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--accent)) 50%, hsl(var(--muted)) 75%);
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--muted)) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
+  }
+
+  .animate-page-reveal {
+    animation: page-reveal 0.5s ease-out forwards;
+  }
+
+  .animate-reveal-soft {
+    animation: reveal-soft 0.45s ease-out forwards;
+  }
+
+  .reveal-delay-1 {
+    animation-delay: 80ms;
+  }
+
+  .reveal-delay-2 {
+    animation-delay: 160ms;
+  }
+
+  .reveal-delay-3 {
+    animation-delay: 240ms;
+  }
+
+  /* Line tabs: sliding orange underline (wider than label) */
+  [data-slot='tabs-list'][data-variant='line'] {
+    --tab-indicator-inset: 8px;
+  }
+
+  [data-slot='tabs-list'][data-variant='line'] .tabs-line-indicator {
+    left: calc(var(--active-tab-left) - var(--tab-indicator-inset));
+    width: calc(var(--active-tab-width) + var(--tab-indicator-inset) * 2);
+    transition:
+      left 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+      width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-slot='tabs-list'][data-variant='line'] .tabs-line-indicator[hidden] {
+    display: none;
+  }
+
+  [data-slot='tabs-list'][data-variant='line'] [data-slot='tabs-trigger'][data-active],
+  [data-slot='tabs-list'][data-variant='line'] [data-slot='tabs-trigger'][aria-selected='true'] {
+    color: hsl(var(--primary));
   }
 }

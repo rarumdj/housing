@@ -8,10 +8,11 @@ export default defineConfig({
     alias: { '@': path.resolve(__dirname, './src') },
   },
   server: {
-    port: 5173,
+    host: '0.0.0.0',
+    port: Number(process.env.VITE_PORT || 5173),
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:4000',
         changeOrigin: true,
       },
     },

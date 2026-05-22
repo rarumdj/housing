@@ -4,6 +4,10 @@ import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Pencil, User, 
 import { dashboardKeys } from '@/routes/keys';
 import { useTenantProfileQuery, useCompleteOnboardingMutation, useUpdateTenantProfileMutation } from '@/services/tenant/queries';
 import type { TenantProfilePayload, EmploymentStatus, MaritalStatus, NationalIdType } from '@/types/domain';
+import { TextInput } from '@/components/forms/atoms/text-input';
+import { Textarea } from '@/components/ui/textarea';
+import { FieldLabel } from '@/components/ui/field';
+import { cn } from '@/lib/utils';
 
 const STEPS = [
   { key: 'personal', label: 'Personal', icon: User },
@@ -29,18 +33,17 @@ function Input({
   required?: boolean;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-foreground">
-        {label} {required && <span className="text-red-500">*</span>}
-      </span>
-      <input
+    <div className="space-y-1.5">
+      <FieldLabel>
+        {label} {required ? <span className="text-destructive">*</span> : null}
+      </FieldLabel>
+      <TextInput
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
-    </label>
+    </div>
   );
 }
 
@@ -58,14 +61,17 @@ function Select({
   required?: boolean;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-foreground">
-        {label} {required && <span className="text-red-500">*</span>}
-      </span>
+    <div className="space-y-1.5">
+      <FieldLabel>
+        {label} {required ? <span className="text-destructive">*</span> : null}
+      </FieldLabel>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+        className={cn(
+          'flex h-10 w-full rounded-lg border border-input bg-background px-3 text-sm',
+          'focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20'
+        )}
       >
         <option value="">Select…</option>
         {options.map((o) => (
@@ -74,11 +80,11 @@ function Select({
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
 
-function Textarea({
+function TextareaField({
   label,
   value,
   onChange,
@@ -90,16 +96,15 @@ function Textarea({
   placeholder?: string;
 }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block text-sm font-medium text-foreground">{label}</span>
-      <textarea
+    <div className="space-y-1.5">
+      <FieldLabel>{label}</FieldLabel>
+      <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={3}
-        className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
-    </label>
+    </div>
   );
 }
 
@@ -285,13 +290,13 @@ export default function TenantOnboardingPage() {
                     onChange={(v) => set('numberOfOccupants', Number(v) || 1)}
                   />
                 </div>
-                <Textarea
+                <TextareaField
                   label="Current Address"
                   value={form.currentAddress ?? ''}
                   onChange={(v) => set('currentAddress', v)}
                   placeholder="Your current residential address"
                 />
-                <Textarea
+                <TextareaField
                   label="Reason for Moving"
                   value={form.reasonForMoving ?? ''}
                   onChange={(v) => set('reasonForMoving', v)}
@@ -451,7 +456,7 @@ export default function TenantOnboardingPage() {
                     required
                   />
                 </div>
-                <Textarea
+                <TextareaField
                   label="Next of Kin Address"
                   value={form.nextOfKinAddress ?? ''}
                   onChange={(v) => set('nextOfKinAddress', v)}

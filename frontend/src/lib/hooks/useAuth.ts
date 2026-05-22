@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import api from '@/lib/api';
+import { getPostLoginPath } from '@/routes/keys';
 import { useAuthStore } from '@/store/authStore';
 
 export function useLogin() {
@@ -13,8 +14,7 @@ export function useLogin() {
     onSuccess: (data) => {
       setTokens(data.accessToken, data.refreshToken);
       setUser(data.user);
-      const role = data.user.role;
-      navigate(role === 'LANDLORD' ? '/landlord/dashboard' : '/dashboard');
+      navigate(getPostLoginPath(data.user.role));
     },
   });
 }

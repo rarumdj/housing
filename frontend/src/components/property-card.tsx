@@ -52,7 +52,7 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
             {typeLabels[property.type] ?? property.type}
           </span>
           {isVerified ? (
-            <span className="flex items-center gap-1 rounded-lg bg-emerald-500/90 px-2 py-1 text-xs font-medium text-white">
+            <span className="flex items-center gap-1 rounded-lg bg-primary px-2 py-1 text-xs font-medium text-primary-foreground">
               <CheckCircle className="h-3 w-3" />
               Verified
             </span>

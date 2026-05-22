@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { dashboardKeys } from '@/routes/keys';
 import { cn, formatNaira } from '@/lib/utils';
+import { SearchField } from '@/components/forms/search-field';
 import { useMyPropertiesQuery, useDeletePropertyMutation } from '@/services/properties/queries';
 
 const STATUS_FILTERS = ['ALL', 'ACTIVE', 'RENTED', 'DRAFT', 'PENDING_VERIFICATION', 'ARCHIVED'] as const;
@@ -54,16 +55,12 @@ export default function LandlordPropertiesPage() {
 
         {/* Search + Filters */}
         <div className="mb-6 space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search properties..."
-              className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+          <SearchField
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search properties..."
+          />
 
           <div className="flex flex-wrap gap-1">
             {STATUS_FILTERS.map((s) => (

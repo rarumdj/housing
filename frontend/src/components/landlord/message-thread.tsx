@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Send, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TextInput } from '@/components/forms/atoms/text-input';
+import { CustomButton } from '@/components/button';
 import type { Message } from '@/types/domain';
 
 interface MessageThreadProps {
@@ -80,20 +82,22 @@ export function MessageThread({
       {/* Input */}
       <form onSubmit={handleSubmit} className="border-t border-border p-4">
         <div className="flex items-center gap-2">
-          <input
+          <TextInput
             type="text"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 rounded-xl border border-border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="flex-1"
           />
-          <button
+          <CustomButton
             type="submit"
+            variant="primary"
+            size="icon"
             disabled={!body.trim() || isSending}
-            className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
-          >
-            {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </button>
+            loading={isSending}
+            icon={!isSending ? <Send className="h-4 w-4" /> : undefined}
+            aria-label="Send message"
+          />
         </div>
       </form>
     </div>

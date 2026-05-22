@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { LayoutGrid, List, Loader2, Search, SlidersHorizontal } from 'lucide-react';
 import { PropertyCard } from '@/components/property-card';
 import { NIGERIAN_STATES } from '@/lib/utils';
+import { TextInput } from '@/components/forms/atoms/text-input';
+import { FieldLabel } from '@/components/ui/field';
 import { usePropertiesQuery } from '@/services/properties/queries';
 
 const propertyTypes = [
@@ -105,23 +107,23 @@ export default function SearchPage() {
           {showFilters ? (
             <div className="mt-4 flex flex-wrap gap-4 border-t border-border pt-4">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Min price (annual)</label>
-                <input
+                <FieldLabel className="mb-1 text-xs text-muted-foreground">Min price (annual)</FieldLabel>
+                <TextInput
                   type="number"
                   value={filters.minPrice}
                   onChange={(event) => setFilter('minPrice', event.target.value)}
                   placeholder="₦0"
-                  className="w-36 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
+                  className="w-36"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Max price (annual)</label>
-                <input
+                <FieldLabel className="mb-1 text-xs text-muted-foreground">Max price (annual)</FieldLabel>
+                <TextInput
                   type="number"
                   value={filters.maxPrice}
                   onChange={(event) => setFilter('maxPrice', event.target.value)}
                   placeholder="No limit"
-                  className="w-36 rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none"
+                  className="w-36"
                 />
               </div>
               <div className="flex flex-wrap items-end gap-2">

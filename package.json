@@ -11,7 +11,13 @@
     "build": "npm run build --workspace=backend && npm run build --workspace=frontend",
     "lint": "npm run lint --workspace=backend && npm run lint --workspace=frontend",
     "db:migrate": "npm run db:migrate --workspace=backend",
-    "db:studio": "npm run db:studio --workspace=backend"
+    "docker:up": "docker compose up --build",
+    "docker:up:detached": "docker compose up --build -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f api frontend",
+    "docker:logs:api": "docker compose logs -f api",
+    "docker:logs:frontend": "docker compose logs -f frontend",
+    "docker:migrate": "docker compose exec api npx sequelize-cli db:migrate --config config/config.cjs --env docker"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Home, Search, Bell, LogOut, User, ChevronDown, Menu } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { getPostLoginPath } from '@/routes/keys';
 import { useLogout } from '@/lib/hooks/useAuth';
 import { getInitials } from '@/lib/utils';
 import { useState } from 'react';
@@ -44,7 +45,7 @@ export function Navbar() {
                 </button>
                 {open && (
                   <div className="absolute right-0 mt-2 w-52 rounded-xl border border-border bg-background shadow-lg p-1 z-50">
-                    <Link to={user.role === 'LANDLORD' ? '/landlord/dashboard' : '/dashboard'} onClick={() => setOpen(false)}
+                    <Link to={getPostLoginPath(user.role)} onClick={() => setOpen(false)}
                       className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-muted transition-colors">
                       <User className="w-4 h-4" /> Dashboard
                     </Link>
