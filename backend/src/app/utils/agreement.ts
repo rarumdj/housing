@@ -43,15 +43,15 @@ interface AgreementData {
   generatedAt: Date;
 }
 
-function formatCurrency(amount: number): string {
+const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN' }).format(amount);
-}
+};
 
-function formatDate(d: string | Date): string {
+const formatDate = (d: string | Date): string => {
   return new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+};
 
-export async function generateAgreementPdf(data: AgreementData): Promise<{ filePath: string; url: string; hash: string }> {
+export const generateAgreementPdf = async (data: AgreementData): Promise<{ filePath: string; url: string; hash: string }> => {
   const uploadsDir = getUploadsDir();
   const dir = path.join(uploadsDir, 'agreements');
   fs.mkdirSync(dir, { recursive: true });

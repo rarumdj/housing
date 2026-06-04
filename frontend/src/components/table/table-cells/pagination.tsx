@@ -30,10 +30,7 @@ export type PaginateProps = {
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50, 100];
 
-function getPageNumbers(
-  currentPage: number,
-  totalPages: number
-): (number | { type: 'ellipsis'; position: 'start' | 'end' })[] {
+const getPageNumbers = (currentPage: number, totalPages: number): (number | { type: 'ellipsis'; position: 'start' | 'end' })[] => {
   const pages: (number | { type: 'ellipsis'; position: 'start' | 'end' })[] = [];
 
   if (totalPages <= 7) {
@@ -57,7 +54,7 @@ function getPageNumbers(
 
   if (pages[pages.length - 1] !== totalPages) pages.push(totalPages);
   return pages;
-}
+};
 
 const Pagination = (meta: PaginateProps) => {
   const {

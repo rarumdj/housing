@@ -8,6 +8,8 @@ build
 .env
 .env.*
 !.env.docker.example
+!.env.example
+!**/.env.example
 coverage
 *.log
 .DS_Store

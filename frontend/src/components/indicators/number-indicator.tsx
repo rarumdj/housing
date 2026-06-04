@@ -13,7 +13,7 @@ export interface StepperProps {
   onStepClick?: (stepId: number) => void;
 }
 
-export function Stepper({ steps, activeStep, className, onStepClick }: StepperProps) {
+export const Stepper = ({ steps, activeStep, className, onStepClick }: StepperProps) => {
   return (
     <nav
       className={cn('flex flex-wrap items-center gap-1 text-sm', className)}
@@ -82,4 +82,4 @@ export function Stepper({ steps, activeStep, className, onStepClick }: StepperPr
       })}
     </nav>
   );
-}
+};

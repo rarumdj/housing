@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { StatusType } from '../filters/configs';
 import type { SortItemsProps } from './types';
 
-function toParamKey(value: string) {
+const toParamKey = (value: string) => {
   return value
     .trim()
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
@@ -34,7 +34,7 @@ function toParamKey(value: string) {
         : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
     )
     .join('');
-}
+};
 
 const SortItems = ({
   onSort,

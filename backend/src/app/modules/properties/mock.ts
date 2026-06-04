@@ -158,7 +158,7 @@ export const mockProperties: MockProperty[] = [
   },
 ];
 
-export function searchMockProperties(filters: Record<string, unknown>) {
+export const searchMockProperties = (filters: Record<string, unknown>) => {
   const page = Number(filters.page || 1);
   const limit = Number(filters.limit || 12);
   const sortBy = String(filters.sortBy || 'newest');
@@ -199,9 +199,9 @@ export function searchMockProperties(filters: Record<string, unknown>) {
       pages: Math.max(1, Math.ceil(total / limit)),
     },
   };
-}
+};
 
-export function getMockPropertyById(id: string) {
+export const getMockPropertyById = (id: string) => {
   const property = mockProperties.find((item) => item.id === id);
   if (!property) return null;
 
@@ -209,4 +209,4 @@ export function getMockPropertyById(id: string) {
     ...property,
     _count: { rooms: property.rooms.length },
   };
-}
+};

@@ -13,7 +13,7 @@ type FormComboboxProps<T extends FieldValues> = {
   className?: string;
 };
 
-function FormCombobox<T extends FieldValues>({
+const FormCombobox = <T extends FieldValues,>({
   name,
   control,
   label,
@@ -22,7 +22,7 @@ function FormCombobox<T extends FieldValues>({
   description,
   options,
   className,
-}: FormComboboxProps<T>) {
+}: FormComboboxProps<T>) => {
   return (
     <FormSelect
       name={name}
@@ -36,6 +36,6 @@ function FormCombobox<T extends FieldValues>({
       className={className}
     />
   );
-}
+};
 
 export default FormCombobox;

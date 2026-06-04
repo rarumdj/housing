@@ -2,7 +2,7 @@ import { useEffect, type PropsWithChildren } from 'react';
 import { configureAxiosAuth } from '@/lib/axios';
 import { authStore } from './auth-store';
 
-export default function AuthProvider({ children }: PropsWithChildren) {
+const AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     configureAxiosAuth({
       getAccessToken: () => authStore.getSnapshot().accessToken,
@@ -11,4 +11,6 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   return children;
-}
+};
+
+export default AuthProvider;

@@ -10,14 +10,14 @@ type FormTextareaProps<T extends FieldValues> = React.ComponentProps<typeof Text
   description?: string;
 };
 
-function FormTextarea<T extends FieldValues>({
+const FormTextarea = <T extends FieldValues,>({
   name,
   control,
   label,
   placeholder,
   description,
   ...inputProps
-}: FormTextareaProps<T>) {
+}: FormTextareaProps<T>) => {
   return (
     <FormController
       name={name}
@@ -34,6 +34,6 @@ function FormTextarea<T extends FieldValues>({
       )}
     />
   );
-}
+};
 
 export default FormTextarea;

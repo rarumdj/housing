@@ -83,10 +83,10 @@ export interface PasswordInputProps extends InputProps {
 }
 
 const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
-  function PasswordInput(
+  (
     { className, size, checklist = false, wrapperClassName, disabled, value, ...props },
     ref
-  ) {
+  ) => {
     const [showPassword, setShowPassword] = React.useState(false);
     const isToggleDisabled = disabled || value === '' || value === undefined;
 

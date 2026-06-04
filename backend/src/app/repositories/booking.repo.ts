@@ -1,5 +1,6 @@
 import { Op } from 'sequelize';
 import { Booking, Lease, Payment, Property, Tenant, User } from '../models';
+import { identifierWhere } from '../utils/utils';
 
 const TENANT_PROFILE_ATTRIBUTES = [
   'id', 'userId', 'employmentStatus', 'employerName', 'monthlyIncome',
@@ -28,12 +29,14 @@ const BookingRepo = {
     }),
 
   getWithProperty: async (id: string) =>
-    Booking.findByPk(id, {
+    Booking.findOne({
+      where: identifierWhere(id),
       include: [{ model: Property, as: 'property' }],
     }),
 
   getWithPaymentContext: async (id: string) =>
-    Booking.findByPk(id, {
+    Booking.findOne({
+      where: identifierWhere(id),
       include: [
         {
           model: Property,
@@ -48,7 +51,8 @@ const BookingRepo = {
     }),
 
   getWithTenant: async (id: string) =>
-    Booking.findByPk(id, {
+    Booking.findOne({
+      where: identifierWhere(id),
       include: [
         {
           model: Tenant,
@@ -59,18 +63,19 @@ const BookingRepo = {
     }),
 
   getApplicationWithTenantProfile: async (id: string) =>
-    Booking.findByPk(id, {
+    Booking.findOne({
+      where: identifierWhere(id),
       include: [
         {
           model: Tenant,
           as: 'tenant',
           attributes: TENANT_PROFILE_ATTRIBUTES,
-          include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+          include: [{ model: User, as: 'user', attributes: ['id', 'code', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
         },
         {
           model: Property,
           as: 'property',
-          attributes: ['id', 'title', 'address', 'lga', 'state', 'priceAnnually', 'priceMonthly', 'cautionDeposit', 'type', 'landlordId'],
+          attributes: ['id', 'code', 'title', 'address', 'lga', 'state', 'priceAnnually', 'priceMonthly', 'cautionDeposit', 'type', 'landlordId'],
         },
         {
           model: Lease,
@@ -81,8 +86,9 @@ const BookingRepo = {
     }),
 
   update: async (id: string, data: Record<string, unknown>) => {
-    await Booking.update(data, { where: { id } });
-    return Booking.findByPk(id);
+    const where = identifierWhere(id);
+    await Booking.update(data, { where });
+    return Booking.findOne({ where });
   },
 
   getByTenantId: async (tenantId: string) => Booking.findAll({ where: { tenantId }, attributes: ['id'] }),
@@ -97,17 +103,17 @@ const BookingRepo = {
         {
           model: Tenant,
           as: 'tenant',
-          include: [{ model: User, as: 'user', attributes: ['firstName', 'lastName', 'email', 'phone'] }],
+          include: [{ model: User, as: 'user', attributes: ['code', 'firstName', 'lastName', 'email', 'phone'] }],
         },
         {
           model: Property,
           as: 'property',
-          attributes: ['id', 'title'],
+          attributes: ['id', 'code', 'title'],
         },
         {
           model: Lease,
           as: 'lease',
-          attributes: ['id', 'rentEndDate', 'status'],
+          attributes: ['id', 'code', 'rentEndDate', 'status'],
         },
       ],
     }),
@@ -141,17 +147,17 @@ const BookingRepo = {
           model: Tenant,
           as: 'tenant',
           attributes: [...TENANT_PROFILE_ATTRIBUTES],
-          include: [{ model: User, as: 'user', attributes: ['id', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
+          include: [{ model: User, as: 'user', attributes: ['id', 'code', 'firstName', 'lastName', 'email', 'phone', 'avatarUrl'] }],
         },
         {
           model: Property,
           as: 'property',
-          attributes: ['id', 'title', 'address', 'lga', 'state', 'priceAnnually'],
+          attributes: ['id', 'code', 'title', 'address', 'lga', 'state', 'priceAnnually'],
         },
         {
           model: Lease,
           as: 'lease',
-          attributes: ['id', 'rentStartDate', 'rentEndDate', 'status', 'monthlyRent', 'annualRent', 'pdfUrl', 'agreementUrl'],
+          attributes: ['id', 'code', 'rentStartDate', 'rentEndDate', 'status', 'monthlyRent', 'annualRent', 'pdfUrl', 'agreementUrl'],
         },
       ],
       order: [['appliedAt', 'DESC']],

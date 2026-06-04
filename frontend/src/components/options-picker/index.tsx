@@ -9,12 +9,12 @@ interface OptionsPickerProps {
   className?: string;
 }
 
-export function OptionsPicker({
+export const OptionsPicker = ({
   label,
   isSelected = false,
   onClick,
   className,
-}: OptionsPickerProps) {
+}: OptionsPickerProps) => {
   return (
     <button
       type="button"
@@ -32,4 +32,4 @@ export function OptionsPicker({
       {label}
     </button>
   );
-}
+};

@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { authKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 
-export default function ProtectedLayout() {
+const ProtectedLayout = () => {
   const { isAuthenticated } = useAuthManager();
 
   if (!isAuthenticated) {
@@ -10,4 +10,6 @@ export default function ProtectedLayout() {
   }
 
   return <Outlet />;
-}
+};
+
+export default ProtectedLayout;

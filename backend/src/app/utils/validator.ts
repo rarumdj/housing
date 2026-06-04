@@ -3,7 +3,7 @@ import Joi from 'joi';
 
 type Source = 'body' | 'query' | 'params';
 
-export function validate(schema: Joi.ObjectSchema, source: Source = 'body') {
+export const validate = (schema: Joi.ObjectSchema, source: Source = 'body') => {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error, value } = schema.validate(req[source], {
       abortEarly: false,
@@ -22,4 +22,4 @@ export function validate(schema: Joi.ObjectSchema, source: Source = 'body') {
     req[source] = value;
     return next();
   };
-}
+};

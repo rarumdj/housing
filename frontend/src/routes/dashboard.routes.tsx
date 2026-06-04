@@ -1,6 +1,8 @@
 import type { AppRouteObject } from './types';
 import { dashboardKeys } from './keys';
 import { RoleProtectedRoute } from '@/hooks/auth/role-protected-route';
+import { LandlordOnboardingGuard } from '@/hooks/auth/landlord-onboarding-guard';
+import LandlordOnboardingPage from '@/pages/dashboard/landlord/onboarding';
 import TenantDashboardPage from '@/pages/dashboard/tenant';
 import TenantOnboardingPage from '@/pages/dashboard/tenant/onboarding';
 import TenantApplicationsPage from '@/pages/dashboard/tenant/applications';
@@ -46,6 +48,14 @@ export const dashboardRoutes: AppRouteObject[] = [
   },
   // ── Landlord ──
   {
+    path: dashboardKeys.landlord.onboarding.path,
+    element: (
+      <RoleProtectedRoute roles={['LANDLORD']}>
+        <LandlordOnboardingPage />
+      </RoleProtectedRoute>
+    ),
+  },
+  {
     path: dashboardKeys.landlord.home.path,
     element: (
       <RoleProtectedRoute roles={['LANDLORD']}>
@@ -65,7 +75,9 @@ export const dashboardRoutes: AppRouteObject[] = [
     path: dashboardKeys.landlord.create.path,
     element: (
       <RoleProtectedRoute roles={['LANDLORD']}>
-        <CreatePropertyPage />
+        <LandlordOnboardingGuard>
+          <CreatePropertyPage />
+        </LandlordOnboardingGuard>
       </RoleProtectedRoute>
     ),
   },

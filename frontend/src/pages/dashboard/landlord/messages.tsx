@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { useConversationsQuery, useThreadQuery, useSendMessageMutation } from '@/services/messages/queries';
 import { MessageThread } from '@/components/landlord/message-thread';
 
-export default function LandlordMessagesPage() {
+const LandlordMessagesPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuthManager();
@@ -34,13 +34,13 @@ export default function LandlordMessagesPage() {
   }, [initialRecipient, initialProperty]);
 
   const getOtherUser = (conv: typeof conversations[0]) => {
-    if (conv.senderId === user?.id) return conv.recipient;
+    if (conv.sender?.code === user?.code) return conv.recipient;
     return conv.sender;
   };
 
   const selectedConv = conversations.find((c) => {
     const other = getOtherUser(c);
-    return other.id === selectedRecipient;
+    return other.code === selectedRecipient;
   });
 
   const recipientName = selectedConv
@@ -87,14 +87,14 @@ export default function LandlordMessagesPage() {
               <div className="divide-y divide-border overflow-y-auto">
                 {conversations.map((conv) => {
                   const other = getOtherUser(conv);
-                  const isSelected = other.id === selectedRecipient;
+                  const isSelected = other.code === selectedRecipient;
 
                   return (
                     <button
-                      key={conv.id}
+                      key={conv.code}
                       onClick={() => {
-                        setSelectedRecipient(other.id);
-                        setSelectedProperty(conv.propertyId ?? undefined);
+                        setSelectedRecipient(other.code);
+                        setSelectedProperty(conv.property?.code ?? undefined);
                       }}
                       className={cn(
                         'w-full p-4 text-left transition-colors hover:bg-muted/50',
@@ -118,7 +118,7 @@ export default function LandlordMessagesPage() {
                             </p>
                           )}
                         </div>
-                        {!conv.readAt && conv.recipientId === user?.id && (
+                        {!conv.readAt && conv.recipient?.code === user?.code && (
                           <div className="h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
                         )}
                       </div>
@@ -134,7 +134,7 @@ export default function LandlordMessagesPage() {
             {selectedRecipient ? (
               <MessageThread
                 messages={messages}
-                currentUserId={user?.id ?? ''}
+                currentUserCode={user?.code ?? ''}
                 recipientName={recipientName}
                 propertyTitle={selectedConv?.property?.title}
                 onSend={handleSend}
@@ -154,4 +154,6 @@ export default function LandlordMessagesPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LandlordMessagesPage;

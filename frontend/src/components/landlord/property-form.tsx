@@ -68,7 +68,7 @@ interface PropertyFormProps {
   mode?: 'create' | 'edit';
 }
 
-export function PropertyForm({
+export const PropertyForm = ({
   defaultValues,
   existingMedia = [],
   onSubmit,
@@ -79,7 +79,7 @@ export function PropertyForm({
   isSubmitting,
   isUploading,
   mode = 'create',
-}: PropertyFormProps) {
+}: PropertyFormProps) => {
   const [step, setStep] = useState(0);
 
   const form = useForm<PropertyFormValues>({
@@ -343,4 +343,4 @@ export function PropertyForm({
       </form>
     </div>
   );
-}
+};

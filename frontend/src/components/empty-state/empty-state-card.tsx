@@ -12,14 +12,14 @@ type EmptyStateCardProps = {
   className?: string;
 };
 
-export function EmptyStateCard({
+export const EmptyStateCard = ({
   title,
   description,
   buttonName = '',
   buttonIcon,
   onButtonClick,
   className,
-}: EmptyStateCardProps) {
+}: EmptyStateCardProps) => {
   return (
     <section
       className={cn(
@@ -55,4 +55,4 @@ export function EmptyStateCard({
       </div>
     </section>
   );
-}
+};

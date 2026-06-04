@@ -147,11 +147,11 @@
   }
 
   /* Line tabs: sliding orange underline (wider than label) */
-  [data-slot='tabs-list'][data-variant='line'] {
+  [data-slot="tabs-list"][data-variant="line"] {
     --tab-indicator-inset: 8px;
   }
 
-  [data-slot='tabs-list'][data-variant='line'] .tabs-line-indicator {
+  [data-slot="tabs-list"][data-variant="line"] .tabs-line-indicator {
     left: calc(var(--active-tab-left) - var(--tab-indicator-inset));
     width: calc(var(--active-tab-width) + var(--tab-indicator-inset) * 2);
     transition:
@@ -159,12 +159,38 @@
       width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  [data-slot='tabs-list'][data-variant='line'] .tabs-line-indicator[hidden] {
+  [data-slot="tabs-list"][data-variant="line"] .tabs-line-indicator[hidden] {
     display: none;
   }
 
-  [data-slot='tabs-list'][data-variant='line'] [data-slot='tabs-trigger'][data-active],
-  [data-slot='tabs-list'][data-variant='line'] [data-slot='tabs-trigger'][aria-selected='true'] {
+  [data-slot="tabs-list"][data-variant="line"]
+    [data-slot="tabs-trigger"][data-active],
+  [data-slot="tabs-list"][data-variant="line"]
+    [data-slot="tabs-trigger"][aria-selected="true"] {
     color: hsl(var(--primary));
+  }
+
+  .PhoneInput {
+    --PhoneInputCountryFlag-height: 1.25rem;
+    --PhoneInputCountryFlag-borderColor: transparent;
+    --PhoneInputCountrySelectArrow-color: transparent;
+  }
+
+  .PhoneInput .PhoneInputInput {
+    border: 0;
+    box-shadow: none;
+    min-height: 0;
+  }
+
+  [data-slot='phone-flag'] {
+    line-height: 0;
+  }
+
+  [data-slot='phone-flag'] svg {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    max-height: none;
   }
 }

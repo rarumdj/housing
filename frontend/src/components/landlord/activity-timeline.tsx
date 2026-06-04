@@ -22,7 +22,7 @@ interface ActivityTimelineProps {
   onMessage?: (tenantUserId: string, propertyId: string) => void;
 }
 
-export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMessage }: ActivityTimelineProps) {
+export const ActivityTimeline = ({ bookings, onAccept, onDecline, onCancel, onMessage }: ActivityTimelineProps) => {
   if (bookings.length === 0) {
     return (
       <div className="py-12 text-center">
@@ -43,7 +43,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
         const isCancellable = ['APPLIED', 'UNDER_REVIEW', 'ACCEPTED', 'AWAITING_PAYMENT'].includes(booking.status);
 
         return (
-          <div key={booking.id} className="rounded-xl border border-border p-4">
+          <div key={booking.code} className="rounded-xl border border-border p-4">
             <div className="flex items-start gap-3">
               <div className={cn('flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full', config.color)}>
                 <Icon className="h-4 w-4" />
@@ -91,7 +91,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                 <div className="mt-3 flex flex-wrap gap-2">
                   {isActionable && onAccept && (
                     <button
-                      onClick={() => onAccept(booking.id)}
+                      onClick={() => onAccept(booking.code)}
                       className="rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                     >
                       Accept
@@ -99,7 +99,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                   )}
                   {isActionable && onDecline && (
                     <button
-                      onClick={() => onDecline(booking.id)}
+                      onClick={() => onDecline(booking.code)}
                       className="rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
                     >
                       Decline
@@ -107,7 +107,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                   )}
                   {isCancellable && onCancel && (
                     <button
-                      onClick={() => onCancel(booking.id)}
+                      onClick={() => onCancel(booking.code)}
                       className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
                     >
                       Cancel
@@ -115,7 +115,7 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
                   )}
                   {tenant && onMessage && (
                     <button
-                      onClick={() => onMessage(tenant.id, booking.propertyId)}
+                      onClick={() => onMessage(tenant.code, booking.property?.code ?? '')}
                       className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
                     >
                       Message
@@ -129,4 +129,4 @@ export function ActivityTimeline({ bookings, onAccept, onDecline, onCancel, onMe
       })}
     </div>
   );
-}
+};

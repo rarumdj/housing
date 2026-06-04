@@ -5,7 +5,7 @@ import { formatNaira } from '@/lib/utils';
 import { useAdminOverviewQuery, useAdminRevenueQuery } from '@/services/admin/queries';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-export default function AdminDashboardPage() {
+const AdminDashboardPage = () => {
   const { data: overviewData, isLoading } = useAdminOverviewQuery();
   const { data: revenueData } = useAdminRevenueQuery();
 
@@ -25,7 +25,9 @@ export default function AdminDashboardPage() {
   const chartData = Array.from(monthlyMap.values()).slice(-12);
 
   const getUserCount = (role: string) =>
-    overview?.usersByRole.find((r) => r.role === role)?.count ?? 0;
+    Number(overview?.usersByRole.find((r) => r.role === role)?.count ?? 0);
+
+  const totalUsers = overview?.usersByRole.reduce((sum, r) => sum + Number(r.count), 0) ?? 0;
 
   const getPropertyCount = (status: string) =>
     overview?.propertiesByStatus.find((s) => s.status === status)?.count ?? 0;
@@ -54,11 +56,12 @@ export default function AdminDashboardPage() {
             <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
               <Users className="h-5 w-5" />
             </div>
-            <p className="font-display text-2xl font-bold">{getUserCount('LANDLORD') + getUserCount('TENANT')}</p>
+            <p className="font-display text-2xl font-bold">{totalUsers}</p>
             <p className="mt-0.5 text-sm text-muted-foreground">Total Users</p>
-            <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
+            <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
               <span>{getUserCount('LANDLORD')} landlords</span>
               <span>{getUserCount('TENANT')} tenants</span>
+              <span>{getUserCount('ADMIN')} admins</span>
             </div>
           </Link>
 
@@ -169,4 +172,6 @@ export default function AdminDashboardPage() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminDashboardPage;

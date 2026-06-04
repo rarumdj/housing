@@ -5,12 +5,17 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('messages', {
       id: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
+        autoIncrement: true,
         primaryKey: true,
+      },
+      code: {
+        type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       senderId: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         field: 'senderId',
         references: { model: 'users', key: 'id' },
@@ -18,7 +23,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       recipientId: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: false,
         field: 'recipientId',
         references: { model: 'users', key: 'id' },
@@ -26,7 +31,7 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       propertyId: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: true,
         field: 'propertyId',
         references: { model: 'properties', key: 'id' },
@@ -34,7 +39,7 @@ module.exports = {
         onDelete: 'SET NULL',
       },
       bookingId: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
         allowNull: true,
         field: 'bookingId',
         references: { model: 'bookings', key: 'id' },

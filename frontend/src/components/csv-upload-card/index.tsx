@@ -25,14 +25,14 @@ type CsvUploadCardProps = {
   className?: string;
 };
 
-function formatUploadSize(file: File, uploadProgress: number) {
+const formatUploadSize = (file: File, uploadProgress: number) => {
   const totalKb = Math.max(1, Math.round(file.size / 1024));
   const uploadedKb = Math.round((uploadProgress / 100) * totalKb);
 
   return `${uploadedKb} KB of ${totalKb} KB`;
-}
+};
 
-export function CsvUploadCard({
+export const CsvUploadCard = ({
   file,
   uploadProgress,
   isDragging,
@@ -48,7 +48,7 @@ export function CsvUploadCard({
   accept = '.csv',
   maxSizeLabel = '10MB',
   className,
-}: CsvUploadCardProps) {
+}: CsvUploadCardProps) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const isUploadComplete = uploadProgress === 100;
   const isUploading = uploadProgress > 0 && uploadProgress < 100;
@@ -221,4 +221,4 @@ export function CsvUploadCard({
       </label>
     </div>
   );
-}
+};

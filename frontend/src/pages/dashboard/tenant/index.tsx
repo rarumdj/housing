@@ -5,7 +5,7 @@ import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useTenantBookingsQuery, useTenantProfileQuery } from '@/services/tenant/queries';
 import { formatDate, formatNaira } from '@/lib/utils';
 
-export default function TenantDashboardPage() {
+const TenantDashboardPage = () => {
   const { user } = useAuthManager();
   const { data } = useTenantBookingsQuery();
   const { data: profileData } = useTenantProfileQuery();
@@ -114,4 +114,6 @@ export default function TenantDashboardPage() {
       </div>
     </div>
   );
-}
+};
+
+export default TenantDashboardPage;

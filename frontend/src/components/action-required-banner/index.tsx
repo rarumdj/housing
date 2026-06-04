@@ -12,7 +12,7 @@ type ActionRequiredBannerProps = {
   className?: string;
 };
 
-export function ActionRequiredBanner({
+export const ActionRequiredBanner = ({
   message,
   actionLabel = "Action required",
   onAction,
@@ -20,7 +20,7 @@ export function ActionRequiredBanner({
   onDismiss,
   dismissLabel = "Dismiss",
   className,
-}: ActionRequiredBannerProps) {
+}: ActionRequiredBannerProps) => {
   const dismissControl =
     showDismissButton && onDismiss ? (
       <button
@@ -59,4 +59,4 @@ export function ActionRequiredBanner({
       </div>
     </div>
   );
-}
+};

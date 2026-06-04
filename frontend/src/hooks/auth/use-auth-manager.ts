@@ -5,7 +5,7 @@ import type { AuthSession } from '@/types/domain';
 
 type StorageType = (typeof StorageTypes)[keyof typeof StorageTypes];
 
-export function useAuthManager() {
+export const useAuthManager = () => {
   const auth = useAuthStore();
 
   return useMemo(
@@ -25,4 +25,4 @@ export function useAuthManager() {
     }),
     [auth]
   );
-}
+};

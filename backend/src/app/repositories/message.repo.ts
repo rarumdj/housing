@@ -1,10 +1,11 @@
 import { Op, fn, col, literal, type GroupOption } from 'sequelize';
 import { Message, User, Property } from '../models';
+import { identifierWhere } from '../utils/utils';
 
 const MessageRepo = {
   create: async (data: Record<string, unknown>) => Message.create(data),
 
-  getById: async (id: string) => Message.findByPk(id),
+  getById: async (id: string) => Message.findOne({ where: identifierWhere(id) }),
 
   getConversations: async (userId: string) => {
     const caseExpr = `CASE WHEN senderId = '${userId.replace(/'/g, "''")}' THEN recipientId ELSE senderId END`;
@@ -29,9 +30,9 @@ const MessageRepo = {
     const lastMessages = await Message.findAll({
       where: { id: { [Op.in]: messageIds } },
       include: [
-        { model: User, as: 'sender', attributes: ['id', 'firstName', 'lastName', 'avatarUrl'] },
-        { model: User, as: 'recipient', attributes: ['id', 'firstName', 'lastName', 'avatarUrl'] },
-        { model: Property, as: 'property', attributes: ['id', 'title'], required: false },
+        { model: User, as: 'sender', attributes: ['id', 'code', 'firstName', 'lastName', 'avatarUrl'] },
+        { model: User, as: 'recipient', attributes: ['id', 'code', 'firstName', 'lastName', 'avatarUrl'] },
+        { model: Property, as: 'property', attributes: ['id', 'code', 'title'], required: false },
       ],
       order: [['createdAt', 'DESC']],
     });
@@ -54,7 +55,7 @@ const MessageRepo = {
     return Message.findAll({
       where,
       include: [
-        { model: User, as: 'sender', attributes: ['id', 'firstName', 'lastName', 'avatarUrl'] },
+        { model: User, as: 'sender', attributes: ['id', 'code', 'firstName', 'lastName', 'avatarUrl'] },
       ],
       order: [['createdAt', 'ASC']],
     });
@@ -63,7 +64,7 @@ const MessageRepo = {
   markRead: async (id: string, userId: string) => {
     await Message.update(
       { readAt: new Date() },
-      { where: { id, recipientId: userId, readAt: null } },
+      { where: { ...identifierWhere(id), recipientId: userId, readAt: null } },
     );
   },
 

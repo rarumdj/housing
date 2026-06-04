@@ -4,10 +4,8 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Building2, Home, User } from 'lucide-react';
-import { authKeys, dashboardKeys, publicKeys } from '@/routes/keys';
-import { useAuthManager } from '@/hooks/auth/use-auth-manager';
+import { authKeys, publicKeys } from '@/routes/keys';
 import { useRegisterMutation } from '@/services/auth/queries';
-import { StorageTypes } from '@/services/auth/keys';
 import { toRequestMessage } from '@/lib/utils';
 import { CustomButton } from '@/components/button';
 import { FormInput } from '@/components/forms/form-input';
@@ -27,13 +25,12 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
+const RegisterPage = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const defaultRole = (params.get('role') === 'LANDLORD' ? 'LANDLORD' : 'TENANT') as 'LANDLORD' | 'TENANT';
   const [role, setRole] = useState<'LANDLORD' | 'TENANT'>(defaultRole);
   const registerMutation = useRegisterMutation();
-  const { setSession } = useAuthManager();
   const { control, handleSubmit, setValue, register } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { role: defaultRole },
@@ -47,12 +44,9 @@ export default function RegisterPage() {
   const onSubmit = (values: RegisterFormValues) => {
     registerMutation.mutate(values, {
       onSuccess: (response) => {
-        setSession(response.data, StorageTypes.session);
-        navigate(
-          response.data.user.role === 'LANDLORD'
-            ? dashboardKeys.landlord.home.path
-            : dashboardKeys.tenant.home.path
-        );
+        navigate(authKeys.emailVerify.build(response.data.intentCode), {
+          state: { email: response.data.email },
+        });
       },
     });
   };
@@ -174,4 +168,6 @@ export default function RegisterPage() {
       </div>
     </div>
   );
-}
+};
+
+export default RegisterPage;

@@ -5,58 +5,71 @@ import { env } from './env';
 
 const UPLOADS_DIR = path.resolve(process.cwd(), 'uploads');
 
-export function getUploadsDir() {
+export const getUploadsDir = () => {
   return UPLOADS_DIR;
-}
+};
 
-export async function uploadToStorage(buffer: Buffer, mimeType: string, folder: string) {
+const getCloudinaryCloudName = (): string | null => {
+  if (env.cloudinary.cloudName) return env.cloudinary.cloudName;
+  const match = env.cloudinary.url.match(/\/v1_1\/([^/]+)/);
+  return match ? match[1] : null;
+};
+
+const isCloudinaryConfigured = (): boolean => {
+  return Boolean(env.cloudinary.preset && getCloudinaryCloudName());
+};
+
+export const uploadToStorage = async (buffer: Buffer, mimeType: string, folder: string) => {
   const extension = mimeType.split('/')[1] || 'bin';
   const key = `${folder}/${uuidv4()}.${extension}`;
 
-  if (!env.cloudinary.url || !env.cloudinary.preset) {
+  if (!isCloudinaryConfigured()) {
     const dest = path.join(UPLOADS_DIR, key);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.writeFileSync(dest, buffer);
     return `/uploads/${key}`;
   }
 
+  const cloudName = getCloudinaryCloudName();
+  // `auto` lets images, videos and raw files (e.g. PDFs) all upload through one endpoint.
+  const endpoint = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+
   const formData = new FormData();
-  const file = new File([buffer], key, { type: mimeType });
+  const file = new File([buffer], `${uuidv4()}.${extension}`, { type: mimeType });
   formData.append('file', file);
+  // Unsigned upload: only the preset (and optional folder) — never the api_key,
+  // otherwise Cloudinary expects a signature and rejects the request.
   formData.append('upload_preset', env.cloudinary.preset);
   formData.append('folder', folder);
-  formData.append('public_id', key.replace(/\.[^.]+$/, ''));
 
-  if (env.cloudinary.apiKey) {
-    formData.append('api_key', env.cloudinary.apiKey);
-  }
-
-  const response = await fetch(env.cloudinary.url, {
+  const response = await fetch(endpoint, {
     method: 'POST',
     body: formData,
   });
 
-  if (!response.ok) {
-    throw new Error(`Cloudinary upload failed with status ${response.status}`);
-  }
-
-  const payload = await response.json() as {
+  const payload = (await response.json().catch(() => ({}))) as {
     secure_url?: string;
     url?: string;
     public_id?: string;
+    error?: { message?: string };
   };
 
-  return payload.secure_url || payload.url || payload.public_id || `/uploads/${key}`;
-}
+  if (!response.ok || !payload.secure_url) {
+    const reason = payload.error?.message || `status ${response.status}`;
+    throw new Error(`Cloudinary upload failed: ${reason}`);
+  }
 
-export async function getPresignedUrl(key: string, expiresIn = 3600) {
+  return payload.secure_url;
+};
+
+export const getPresignedUrl = async (key: string, expiresIn = 3600) => {
   void expiresIn;
   return key;
-}
+};
 
-export async function deleteFromStorage(key: string) {
+export const deleteFromStorage = async (key: string) => {
   if (key.startsWith('/uploads/')) {
     const filePath = path.join(UPLOADS_DIR, key.replace('/uploads/', ''));
     fs.unlink(filePath, () => {});
   }
-}
+};

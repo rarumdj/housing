@@ -12,7 +12,7 @@ interface MediaUploaderProps {
   uploading?: boolean;
 }
 
-export function MediaUploader({ existingMedia = [], onUpload, onDelete, onSetCover, uploading }: MediaUploaderProps) {
+export const MediaUploader = ({ existingMedia = [], onUpload, onDelete, onSetCover, uploading }: MediaUploaderProps) => {
   const [previews, setPreviews] = useState<Array<{ file: File; url: string }>>([]);
 
   const onDrop = useCallback(
@@ -74,7 +74,7 @@ export function MediaUploader({ existingMedia = [], onUpload, onDelete, onSetCov
       {(existingMedia.length > 0 || previews.length > 0) && (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
           {existingMedia.map((media) => (
-            <div key={media.id} className="group relative overflow-hidden rounded-xl border border-border">
+            <div key={media.code ?? media.url} className="group relative overflow-hidden rounded-xl border border-border">
               {isVideo(media.url, media.type) ? (
                 <div className="relative aspect-video bg-muted">
                   <video src={media.url} className="h-full w-full object-cover" />
@@ -94,10 +94,10 @@ export function MediaUploader({ existingMedia = [], onUpload, onDelete, onSetCov
                     Cover
                   </span>
                 )}
-                {!media.isCover && onSetCover && media.id && (
+                {!media.isCover && onSetCover && media.code && (
                   <button
                     type="button"
-                    onClick={() => onSetCover(media.id!)}
+                    onClick={() => onSetCover(media.code!)}
                     className="rounded bg-background/80 p-1 text-xs hover:bg-background"
                     title="Set as cover"
                   >
@@ -105,10 +105,10 @@ export function MediaUploader({ existingMedia = [], onUpload, onDelete, onSetCov
                   </button>
                 )}
                 <div className="flex-1" />
-                {onDelete && media.id && (
+                {onDelete && media.code && (
                   <button
                     type="button"
-                    onClick={() => onDelete(media.id!)}
+                    onClick={() => onDelete(media.code!)}
                     className="rounded bg-destructive/80 p-1 text-destructive-foreground hover:bg-destructive"
                   >
                     <X className="h-3.5 w-3.5" />
@@ -141,4 +141,4 @@ export function MediaUploader({ existingMedia = [], onUpload, onDelete, onSetCov
       )}
     </div>
   );
-}
+};

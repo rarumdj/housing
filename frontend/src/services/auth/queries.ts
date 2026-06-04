@@ -1,7 +1,13 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import authApi from './api';
 import { AuthApiKeys } from './keys';
-import type { LoginPayload, LogoutPayload, RegisterPayload } from './types';
+import type {
+  LoginPayload,
+  LogoutPayload,
+  RegisterPayload,
+  EmailIntentPayload,
+  ConfirmEmailPayload,
+} from './types';
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -14,6 +20,20 @@ export const useRegisterMutation = () => {
   return useMutation({
     mutationKey: [AuthApiKeys.register],
     mutationFn: (payload: RegisterPayload) => authApi.register(payload),
+  });
+};
+
+export const useEmailIntentMutation = () => {
+  return useMutation({
+    mutationKey: [AuthApiKeys.emailIntent],
+    mutationFn: (payload: EmailIntentPayload) => authApi.createEmailIntent(payload),
+  });
+};
+
+export const useConfirmEmailMutation = () => {
+  return useMutation({
+    mutationKey: [AuthApiKeys.confirmEmail],
+    mutationFn: (payload: ConfirmEmailPayload) => authApi.confirmEmail(payload),
   });
 };
 

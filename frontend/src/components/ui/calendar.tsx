@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ChevronDown } from '@untitledui/icons';
 
-function Calendar({
+const Calendar = ({
   className,
   classNames,
   showOutsideDays = true,
@@ -16,7 +16,7 @@ function Calendar({
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
   buttonVariant?: React.ComponentProps<typeof Button>['variant'];
-}) {
+}) => {
   const defaultClassNames = getDefaultClassNames();
 
   return (
@@ -151,14 +151,14 @@ function Calendar({
       {...props}
     />
   );
-}
+};
 
-function CalendarDayButton({
+const CalendarDayButton = ({
   className,
   day,
   modifiers,
   ...props
-}: React.ComponentProps<typeof DayButton>) {
+}: React.ComponentProps<typeof DayButton>) => {
   const defaultClassNames = getDefaultClassNames();
 
   const ref = React.useRef<HTMLButtonElement>(null);
@@ -188,6 +188,6 @@ function CalendarDayButton({
       {...props}
     />
   );
-}
+};
 
 export { Calendar, CalendarDayButton };

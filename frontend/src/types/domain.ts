@@ -2,6 +2,7 @@ export type UserRole = 'LANDLORD' | 'TENANT' | 'ADMIN';
 
 export interface AuthUser {
   id: string;
+  code: string;
   email: string;
   phone: string;
   role: UserRole;
@@ -10,8 +11,96 @@ export interface AuthUser {
   avatarUrl?: string;
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
-  landlord?: { verificationStatus: string; isOnboarded: boolean } | null;
+  landlord?: {
+    id?: string;
+    verificationStatus: string;
+    isOnboarded: boolean;
+    onboardingStatus?: OnboardingStatus;
+    onboardingStep?: string | null;
+    payoutProvider?: string | null;
+    payoutPreference?: string | null;
+  } | null;
   tenant?: { kycStatus: string; isOnboarded: boolean; screeningBand: string | null } | null;
+}
+
+export type OnboardingStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+
+export type LandlordIdType = 'DRIVERS_LICENSE' | 'PASSPORT' | 'NATIONAL_ID';
+export type LandlordOwnershipType = 'OWNER' | 'PROPERTY_MANAGER' | 'AGENCY' | 'REPRESENTATIVE';
+export type LandlordOperationType =
+  | 'INDIVIDUAL'
+  | 'PROPERTY_MANAGEMENT_COMPANY'
+  | 'REAL_ESTATE_AGENCY';
+export type ContactMethod = 'IN_APP' | 'EMAIL' | 'PHONE' | 'SMS';
+export type PayoutPreference = 'INSTANT' | 'DAILY' | 'WEEKLY' | 'MONTHLY';
+export type PaymentProvider = 'paystack' | 'flutterwave';
+
+export interface LandlordBankAccount {
+  accountName?: string;
+  accountNumber?: string;
+  bankCode?: string;
+  bankName?: string;
+}
+
+export interface LandlordOnboardingData {
+  portfolioSize?: string;
+  propertyTypes?: string[];
+  contactMethods?: ContactMethod[];
+  locations?: Array<{ country?: string; state?: string; city?: string }>;
+  rentDueDay?: string;
+  customRentDay?: string;
+  lateFeeEnabled?: boolean;
+  gracePeriodDays?: number;
+  autoReminders?: boolean;
+}
+
+export interface LandlordOnboardingProfile {
+  id: string;
+  verificationStatus: string;
+  verificationNote?: string | null;
+  isOnboarded: boolean;
+  onboardingStatus: OnboardingStatus;
+  onboardingStep?: string | null;
+  dateOfBirth?: string | null;
+  idType?: LandlordIdType | null;
+  idNumber?: string | null;
+  residentialAddress?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  ownershipType?: LandlordOwnershipType | null;
+  operationType?: LandlordOperationType | null;
+  businessName?: string | null;
+  cacNumber?: string | null;
+  tin?: string | null;
+  contactMethod?: ContactMethod | null;
+  payoutProvider?: PaymentProvider | null;
+  payoutPreference?: PayoutPreference | null;
+  payoutSubaccountCode?: string | null;
+  bankAccount?: LandlordBankAccount | null;
+  onboardingData?: LandlordOnboardingData | null;
+  verificationDocs?: Array<{ label: string; url: string; uploadedAt: string }> | null;
+  user?: { firstName: string; lastName: string; email: string; phone: string };
+}
+
+export interface LandlordOnboardingPayload {
+  step?: string;
+  dateOfBirth?: string;
+  idType?: LandlordIdType;
+  idNumber?: string;
+  residentialAddress?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  ownershipType?: LandlordOwnershipType;
+  operationType?: LandlordOperationType;
+  businessName?: string;
+  cacNumber?: string;
+  tin?: string;
+  contactMethod?: ContactMethod;
+  payoutPreference?: PayoutPreference;
+  bankAccount?: LandlordBankAccount;
+  data?: LandlordOnboardingData;
 }
 
 export interface AuthSession {
@@ -23,6 +112,7 @@ export interface AuthSession {
 
 export interface PropertyMedia {
   id?: string;
+  code?: string;
   url: string;
   isCover?: boolean;
   type?: string;
@@ -37,6 +127,7 @@ export interface PropertyCounts {
 
 export interface PropertySummary {
   id: string;
+  code: string;
   title: string;
   address: string;
   lga: string;
@@ -234,6 +325,7 @@ export interface TenantBookingLease {
 
 export interface TenantBooking {
   id: string;
+  code: string;
   status: string;
   rentStart: string;
   rentEnd: string;
@@ -243,6 +335,7 @@ export interface TenantBooking {
 
 export interface BookingTenantUser {
   id: string;
+  code: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -257,6 +350,7 @@ export interface BookingTenant {
 
 export interface BookingProperty {
   id: string;
+  code: string;
   title: string;
   address?: string;
   lga?: string;
@@ -266,6 +360,7 @@ export interface BookingProperty {
 
 export interface BookingLease {
   id: string;
+  code: string;
   rentStartDate: string;
   rentEndDate: string;
   status: string;
@@ -275,6 +370,7 @@ export interface BookingLease {
 
 export interface LandlordBooking {
   id: string;
+  code: string;
   propertyId: string;
   tenantId: string;
   status: string;
@@ -296,6 +392,7 @@ export interface PropertyActivity {
 
 export interface MessageUser {
   id: string;
+  code: string;
   firstName: string;
   lastName: string;
   avatarUrl?: string;
@@ -303,23 +400,18 @@ export interface MessageUser {
 
 export interface Conversation {
   id: string;
+  code: string;
   body: string;
   createdAt: string;
   readAt?: string;
-  senderId: string;
-  recipientId: string;
-  propertyId?: string;
   sender: MessageUser;
   recipient: MessageUser;
-  property?: { id: string; title: string };
+  property?: { id: string; code: string; title: string };
 }
 
 export interface Message {
   id: string;
-  senderId: string;
-  recipientId: string;
-  propertyId?: string;
-  bookingId?: string;
+  code: string;
   body: string;
   readAt?: string;
   createdAt: string;
@@ -330,6 +422,7 @@ export interface Message {
 
 export interface AdminLandlordProfile {
   id: string;
+  code: string;
   verificationStatus: string;
   isOnboarded: boolean;
   businessName?: string;
@@ -338,6 +431,7 @@ export interface AdminLandlordProfile {
 
 export interface AdminTenantProfile {
   id: string;
+  code: string;
   kycStatus: string;
   isOnboarded: boolean;
   screeningBand?: string;
@@ -345,6 +439,7 @@ export interface AdminTenantProfile {
 
 export interface AdminUser {
   id: string;
+  code: string;
   email: string;
   phone: string;
   role: UserRole;
@@ -368,6 +463,7 @@ export interface AdminUserListMeta {
 
 export interface PlatformFee {
   id: string;
+  code: string;
   name: string;
   slug: string;
   type: 'PERCENTAGE' | 'FLAT';

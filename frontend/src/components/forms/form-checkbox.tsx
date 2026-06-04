@@ -12,13 +12,13 @@ type FormCheckboxProps<T extends FieldValues> = {
   disabled?: boolean;
 };
 
-function FormCheckbox<T extends FieldValues>({
+const FormCheckbox = <T extends FieldValues,>({
   name,
   control,
   label,
   description,
   disabled,
-}: FormCheckboxProps<T>) {
+}: FormCheckboxProps<T>) => {
   return (
     <FormController
       name={name}
@@ -45,6 +45,6 @@ function FormCheckbox<T extends FieldValues>({
       )}
     />
   );
-}
+};
 
 export default FormCheckbox;

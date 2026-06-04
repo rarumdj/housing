@@ -4,31 +4,38 @@ import PaymentRepo from '../../repositories/payment.repo';
 import PropertyRepo from '../../repositories/property.repo';
 import TenantRepo from '../../repositories/tenant.repo';
 import AppError from '../../utils/appError';
-import { paystack } from '../../utils/paystack';
+import { verifyCheckout, type PaymentProvider } from '../../utils/paymentProvider';
 
-export async function handleWebhook(event: { event: string; data?: { reference?: string } }) {
-  if (event.event === 'charge.success' && event.data?.reference) {
-    const verification = await paystack.verifyTransaction(event.data.reference);
+const settlePayment = async (reference: string) => {
+  const payment = await PaymentRepo.updateByProviderRef(reference, {
+    status: 'HELD_IN_ESCROW',
+    paidAt: new Date(),
+  });
 
-    if (verification.status && verification.data.status === 'success') {
-      const payment = await PaymentRepo.updateByPaystackRef(event.data.reference, {
-        status: 'HELD_IN_ESCROW',
-        paidAt: new Date(),
-      });
+  if (payment) {
+    await BookingRepo.update(String(payment.get('bookingId')), {
+      status: 'PAID',
+      paidAt: new Date(),
+    });
+  }
+};
 
-      if (payment) {
-        await BookingRepo.update(String(payment.get('bookingId')), {
-          status: 'PAID',
-          paidAt: new Date(),
-        });
-      }
+export const handleWebhook = async (event: { event?: string; data?: { reference?: string; tx_ref?: string; status?: string } }, provider: PaymentProvider = 'paystack') => {
+  const reference = event.data?.reference || event.data?.tx_ref;
+  const isSuccessEvent =
+    event.event === 'charge.success' || event.event === 'charge.completed' || event.data?.status === 'successful';
+
+  if (isSuccessEvent && reference) {
+    const verified = await verifyCheckout(provider, reference);
+    if (verified) {
+      await settlePayment(reference);
     }
   }
 
   return { received: true };
-}
+};
 
-export async function getHistory(userId: string, role: string) {
+export const getHistory = async (userId: string, role: string) => {
   let bookingIds: string[] = [];
 
   if (role === 'TENANT') {
@@ -54,4 +61,4 @@ export async function getHistory(userId: string, role: string) {
   }
 
   return PaymentRepo.getByBookingIds(bookingIds);
-}
+};

@@ -3,20 +3,20 @@ import { type ClassValue, clsx } from "clsx";
 import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
-export function cn(...inputs: ClassValue[]) {
+export const cn = (...inputs: ClassValue[]) => {
   return twMerge(clsx(inputs));
-}
+};
 
 export const shortenString = (str: string, length = 10) => {
   if (!str) return "";
   return `${str?.slice(0, length)}...${str?.slice(-length)}`;
 };
 
-export function truncateString(str: string, maxLength: number): string {
+export const truncateString = (str: string, maxLength: number): string => {
   if (typeof str !== "string") return "";
   if (str.length <= maxLength) return str;
   return str.slice(0, Math.max(0, maxLength)) + (maxLength > 0 ? "..." : "");
-}
+};
 
 export const copyToClipboard = (text: string) => {
   navigator.clipboard.writeText(text);
@@ -96,16 +96,16 @@ export const StatusConst = {
   PARTIAL: "PARTIAL",
 };
 
-export function formatNaira(amount: number | undefined): string {
+export const formatNaira = (amount: number | undefined): string => {
   return new Intl.NumberFormat("en-NG", {
     style: "currency",
     currency: "NGN",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount ?? 0);
-}
+};
 
-export function formatDate(date: string | Date | undefined): string {
+export const formatDate = (date: string | Date | undefined): string => {
   if (!date) return "N/A";
 
   return new Intl.DateTimeFormat("en-NG", {
@@ -113,13 +113,13 @@ export function formatDate(date: string | Date | undefined): string {
     month: "short",
     year: "numeric",
   }).format(new Date(date));
-}
+};
 
-export function getInitials(firstName: string, lastName: string): string {
+export const getInitials = (firstName: string, lastName: string): string => {
   return `${firstName[0] ?? ""}${lastName[0] ?? ""}`.toUpperCase();
-}
+};
 
-export function toRequestMessage(error: unknown): string {
+export const toRequestMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     return (
       (error.response?.data as { message?: string } | undefined)?.message ??
@@ -128,7 +128,7 @@ export function toRequestMessage(error: unknown): string {
   }
 
   return error instanceof Error ? error.message : "Unexpected request error";
-}
+};
 
 export const NIGERIAN_STATES = [
   "Abia",

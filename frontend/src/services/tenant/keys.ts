@@ -1,6 +1,7 @@
 export const TenantApiKeys = {
   profile: '/tenants/me/profile',
   onboarding: '/tenants/me/onboarding',
+  documents: '/tenants/me/documents',
   bookings: '/tenants/me/bookings',
   leases: '/tenants/me/leases',
 } as const;

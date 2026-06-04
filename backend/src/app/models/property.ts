@@ -1,14 +1,21 @@
 import { DataTypes } from 'sequelize';
 import sequelize from './db';
+import { generateCode } from '../utils/utils';
 
 export const Property = sequelize.define('Property', {
   id: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true,
+  },
+  code: {
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    defaultValue: () => generateCode('prp'),
   },
   landlordId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
   },
   title: {
@@ -69,6 +76,7 @@ export const Property = sequelize.define('Property', {
     allowNull: false,
     defaultValue: 'PENDING',
   },
+  verificationNote: DataTypes.TEXT,
   isFurnished: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

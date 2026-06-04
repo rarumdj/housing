@@ -41,7 +41,7 @@ import {
   isPlaceholderStorageUrl,
 } from '@/lib/media';
 
-function AmenityBadge({ active, children }: { active: boolean; children: string }) {
+const AmenityBadge = ({ active, children }: { active: boolean; children: string }) => {
   return (
     <span
       className={`rounded-full px-3 py-1 text-sm font-medium ${
@@ -51,9 +51,9 @@ function AmenityBadge({ active, children }: { active: boolean; children: string 
       {children}
     </span>
   );
-}
+};
 
-function InfoChip({
+const InfoChip = ({
   icon: Icon,
   label,
   value,
@@ -61,7 +61,7 @@ function InfoChip({
   icon: typeof BedDouble;
   label: string;
   value: string;
-}) {
+}) => {
   return (
     <div className="rounded-2xl bg-muted/50 p-4">
       <Icon className="h-4 w-4 text-primary" />
@@ -69,7 +69,7 @@ function InfoChip({
       <p className="mt-1 text-sm font-semibold text-foreground">{value}</p>
     </div>
   );
-}
+};
 
 const verStatusStyle: Record<string, string> = {
   PENDING: 'bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200',
@@ -78,7 +78,7 @@ const verStatusStyle: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200',
 };
 
-function AdminActions({ propertyId, verificationStatus }: { propertyId: string; verificationStatus: string }) {
+const AdminActions = ({ propertyId, verificationStatus }: { propertyId: string; verificationStatus: string }) => {
   const navigate = useNavigate();
   const verifyMutation = useVerifyPropertyMutation();
   const isPending = verificationStatus === 'PENDING' || verificationStatus === 'UNDER_REVIEW';
@@ -109,9 +109,9 @@ function AdminActions({ propertyId, verificationStatus }: { propertyId: string; 
       ) : null}
     </div>
   );
-}
+};
 
-function ApplyButton({ propertyId }: { propertyId: string }) {
+const ApplyButton = ({ propertyId }: { propertyId: string }) => {
   const { user, isAuthenticated } = useAuthManager();
   const navigate = useNavigate();
   const applyMutation = useApplyMutation();
@@ -170,7 +170,7 @@ function ApplyButton({ propertyId }: { propertyId: string }) {
   );
 }
 
-export default function PropertyDetailPage() {
+const PropertyDetailPage = () => {
   const { id = '' } = useParams();
   const location = useLocation();
   const isAdminPreview = location.pathname.startsWith('/admin/');
@@ -189,7 +189,7 @@ export default function PropertyDetailPage() {
   const [heroImageFailed, setHeroImageFailed] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
-  useEffect(() => { setActivePhotoIdx(0); setHeroImageFailed(false); setLightboxIdx(null); }, [property?.id]);
+  useEffect(() => { setActivePhotoIdx(0); setHeroImageFailed(false); setLightboxIdx(null); }, [property?.code]);
 
   if (isLoading) {
     return (
@@ -240,9 +240,9 @@ export default function PropertyDetailPage() {
             <section className="self-start overflow-hidden rounded-[2rem] border border-border bg-card">
               <div className="relative aspect-[16/10] bg-muted">
                 {showPhotoHero ? (
-                  <img src={activePhoto!.url} alt={property.title} className="h-full w-full cursor-pointer object-cover" onError={() => setHeroImageFailed(true)} onClick={() => { const idx = allDisplayable.findIndex((m) => m.id === activePhoto!.id); setLightboxIdx(idx >= 0 ? idx : 0); }} />
+                  <img src={activePhoto!.url} alt={property.title} className="h-full w-full cursor-pointer object-cover" onError={() => setHeroImageFailed(true)} onClick={() => { const idx = allDisplayable.findIndex((m) => m.code === activePhoto!.code); setLightboxIdx(idx >= 0 ? idx : 0); }} />
                 ) : firstVideo && !isPlaceholderStorageUrl(firstVideo.url) ? (
-                  <video key={firstVideo.id ?? firstVideo.url} src={firstVideo.url} className="h-full w-full object-cover" controls playsInline poster={firstVideo.thumbnailUrl ?? undefined} />
+                  <video key={firstVideo.code ?? firstVideo.url} src={firstVideo.url} className="h-full w-full object-cover" controls playsInline poster={firstVideo.thumbnailUrl ?? undefined} />
                 ) : anyMediaButOnlyLocal ? (
                   <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center text-sm text-muted-foreground"><ImageOff className="h-10 w-10 opacity-50" /><p>Media stored locally (Cloudinary not configured).</p></div>
                 ) : (
@@ -261,7 +261,7 @@ export default function PropertyDetailPage() {
               {photos.length > 1 ? (
                 <div className="flex gap-2 overflow-x-auto border-t border-border p-3">
                   {photos.map((m, idx) => (
-                    <button key={m.id ?? idx} type="button" onClick={() => { setActivePhotoIdx(idx); setHeroImageFailed(false); }} className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-background transition-all ${idx === activePhotoIdx ? 'ring-primary' : 'ring-transparent opacity-80 hover:opacity-100'}`}>
+                    <button key={m.code ?? idx} type="button" onClick={() => { setActivePhotoIdx(idx); setHeroImageFailed(false); }} className={`relative h-16 w-24 flex-shrink-0 overflow-hidden rounded-xl ring-2 ring-offset-2 ring-offset-background transition-all ${idx === activePhotoIdx ? 'ring-primary' : 'ring-transparent opacity-80 hover:opacity-100'}`}>
                       <img src={m.url} alt="" className="h-full w-full object-cover" />
                     </button>
                   ))}
@@ -302,7 +302,7 @@ export default function PropertyDetailPage() {
               <p className="mt-1 text-sm text-muted-foreground">Photos, videos, and 3D media for this listing. Click to expand.</p>
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {allDisplayable.map((m, idx) => (
-                  <button key={m.id ?? idx} type="button" onClick={() => setLightboxIdx(idx)} className="group relative aspect-video overflow-hidden rounded-xl bg-muted">
+                  <button key={m.code ?? idx} type="button" onClick={() => setLightboxIdx(idx)} className="group relative aspect-video overflow-hidden rounded-xl bg-muted">
                     {isVideo(m) ? (
                       <>{m.thumbnailUrl && canDisplayMediaInBrowser(m.thumbnailUrl) ? (<img src={m.thumbnailUrl} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />) : (<video src={m.url} className="h-full w-full object-cover" muted preload="metadata" />)}<div className="absolute inset-0 flex items-center justify-center bg-black/30"><Play className="h-8 w-8 text-white drop-shadow-lg" /></div></>
                     ) : (<img src={m.url} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />)}
@@ -317,7 +317,7 @@ export default function PropertyDetailPage() {
             <div className="rounded-[2rem] border border-border bg-card p-6">
               <h2 className="font-display text-xl font-bold">Videos ({videos.length})</h2>
               <div className="mt-4 space-y-4">
-                {videos.map((v, i) => (<div key={v.id ?? i} className="overflow-hidden rounded-2xl bg-muted"><video src={v.url} className="max-h-[70vh] w-full" controls playsInline poster={v.thumbnailUrl ?? undefined} /></div>))}
+                {videos.map((v, i) => (<div key={v.code ?? i} className="overflow-hidden rounded-2xl bg-muted"><video src={v.url} className="max-h-[70vh] w-full" controls playsInline poster={v.thumbnailUrl ?? undefined} /></div>))}
               </div>
             </div>
           ) : null}
@@ -341,7 +341,7 @@ export default function PropertyDetailPage() {
   );
 }
 
-function buildTourProperty(property: PropertyDetail, tourMedia: PropertyMedia[]): Property {
+const buildTourProperty = (property: PropertyDetail, tourMedia: PropertyMedia[]): Property => {
   const roomNames = ['Living room', 'Bedroom', 'Kitchen', 'Bathroom', 'Balcony', 'Study'];
   const baseHighlights = [
     ...(property.hasSecurity ? ['Security ready'] : []),
@@ -352,19 +352,19 @@ function buildTourProperty(property: PropertyDetail, tourMedia: PropertyMedia[])
 
   const tourStops: PropertyTourStop[] = tourMedia.map((media, index) => {
     const roomLabel = roomNames[index % roomNames.length];
-    const previousId = tourMedia[index - 1]?.id || `tour-stop-${index - 1}`;
-    const nextId = tourMedia[index + 1]?.id || `tour-stop-${index + 1}`;
+    const previousId = tourMedia[index - 1]?.code || `tour-stop-${index - 1}`;
+    const nextId = tourMedia[index + 1]?.code || `tour-stop-${index + 1}`;
     const links: PropertyTourLink[] = [];
     if (index > 0) links.push({ nodeId: previousId, yaw: -1.8, pitch: 0.02 });
     if (index < tourMedia.length - 1) links.push({ nodeId: nextId, yaw: 1.2, pitch: 0.04 });
 
     const hotspots: PropertyTourHotspot[] = [
-      { id: `${media.id || index}-feature-1`, label: roomLabel, yaw: -0.35, pitch: -0.02, note: `This ${roomLabel.toLowerCase()} reflects the listing finish shown in the current inspection scene.` },
-      { id: `${media.id || index}-feature-2`, label: property.hasSecurity ? 'Security point' : 'Access point', yaw: 0.65, pitch: 0.08, note: property.hasSecurity ? 'Entry monitoring and secure access can be checked from this angle.' : 'Use this angle to confirm access flow and circulation.' },
+      { id: `${media.code || index}-feature-1`, label: roomLabel, yaw: -0.35, pitch: -0.02, note: `This ${roomLabel.toLowerCase()} reflects the listing finish shown in the current inspection scene.` },
+      { id: `${media.code || index}-feature-2`, label: property.hasSecurity ? 'Security point' : 'Access point', yaw: 0.65, pitch: 0.08, note: property.hasSecurity ? 'Entry monitoring and secure access can be checked from this angle.' : 'Use this angle to confirm access flow and circulation.' },
     ];
 
     return {
-      id: media.id || `tour-stop-${index}`,
+      id: media.code || `tour-stop-${index}`,
       label: `${roomLabel} ${index + 1}`,
       description: property.description,
       panoramaUrl: media.url,
@@ -388,4 +388,6 @@ function buildTourProperty(property: PropertyDetail, tourMedia: PropertyMedia[])
   }));
 
   return { ...property, media: property.media as PropertyMedia[], tourStops, roomScans };
-}
+};
+
+export default PropertyDetailPage;

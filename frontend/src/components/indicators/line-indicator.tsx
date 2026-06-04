@@ -6,11 +6,11 @@ export interface StepIndicatorProps {
   className?: string;
 }
 
-export function StepIndicator({
+export const StepIndicator = ({
   currentStep,
   totalSteps,
   className,
-}: StepIndicatorProps) {
+}: StepIndicatorProps) => {
   return (
     <div className={cn('flex flex-col gap-2', className)}>
       <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
@@ -40,4 +40,4 @@ export function StepIndicator({
       </div>
     </div>
   );
-}
+};

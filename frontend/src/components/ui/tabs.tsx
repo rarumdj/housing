@@ -3,11 +3,11 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 
-function Tabs({
+const Tabs = ({
   className,
   orientation = "horizontal",
   ...props
-}: TabsPrimitive.Root.Props) {
+}: TabsPrimitive.Root.Props) => {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
@@ -19,7 +19,7 @@ function Tabs({
       {...props}
     />
   );
-}
+};
 
 const tabsListVariants = cva(
   "rounded-lg p-[3px] group-data-horizontal/tabs:h-10 data-[variant=line]:rounded-none group/tabs-list text-muted-foreground inline-flex w-fit items-center justify-center group-data-[orientation=vertical]/tabs:h-fit group-data-[orientation=vertical]/tabs:flex-col",
@@ -36,12 +36,12 @@ const tabsListVariants = cva(
   },
 );
 
-function TabsList({
+const TabsList = ({
   className,
   variant = "default",
   children,
   ...props
-}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+}: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) => {
   return (
     <TabsPrimitive.List
       data-slot="tabs-list"
@@ -62,9 +62,9 @@ function TabsList({
       ) : null}
     </TabsPrimitive.List>
   );
-}
+};
 
-function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
+const TabsTrigger = ({ className, ...props }: TabsPrimitive.Tab.Props) => {
   return (
     <TabsPrimitive.Tab
       data-slot="tabs-trigger"
@@ -81,9 +81,9 @@ function TabsTrigger({ className, ...props }: TabsPrimitive.Tab.Props) {
       {...props}
     />
   );
-}
+};
 
-function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
+const TabsContent = ({ className, ...props }: TabsPrimitive.Panel.Props) => {
   return (
     <TabsPrimitive.Panel
       data-slot="tabs-content"
@@ -94,6 +94,6 @@ function TabsContent({ className, ...props }: TabsPrimitive.Panel.Props) {
       {...props}
     />
   );
-}
+};
 
 export { Tabs, TabsList, TabsTrigger, TabsContent, tabsListVariants };

@@ -1,0 +1,36 @@
+---
+description: Always use const arrow functions instead of function declarations
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: false
+---
+
+# Use Arrow Functions
+
+Always define functions as `const` arrow functions. Do not use `function` declarations.
+
+```ts
+// ❌ BAD
+function getTotal(items: Item[]) {
+  return items.reduce((sum, i) => sum + i.price, 0);
+}
+export function formatNaira(value: number) { /* ... */ }
+export default function Page() { return <div />; }
+
+// ✅ GOOD
+const getTotal = (items: Item[]) => items.reduce((sum, i) => sum + i.price, 0);
+export const formatNaira = (value: number) => { /* ... */ };
+const Page = () => <div />;
+export default Page;
+```
+
+## Exceptions (a `function` declaration is acceptable)
+
+- TypeScript **function overloads** (multiple signatures + one implementation).
+- Functions that rely on `this` binding or the `arguments` object.
+- Generator functions (`function*`).
+
+## Notes
+
+- React components are arrow consts; for default exports, declare the const then `export default Name`.
+- In `.tsx`, write generics with a trailing comma to avoid JSX ambiguity: `const f = <T,>(x: T) => x;`.
+- Arrow functions are not hoisted — define a helper before the code that uses it at module-eval time.

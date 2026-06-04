@@ -10,13 +10,11 @@ import BadgeType from "./badge-type";
 import SelectionType from "./selection-type";
 import StringType from "./string-type";
 
-function normalizeCopyKey(value: string) {
+const normalizeCopyKey = (value: string) => {
   return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
+};
 
-function isCopyableTableField(
-  column: RenderComponentsProps<BaseRowData>["column"],
-) {
+const isCopyableTableField = (column: RenderComponentsProps<BaseRowData>["column"]) => {
   const accessorKey = normalizeCopyKey(String(column.accessor ?? ""));
   const headerKey =
     typeof column.header === "string" ? normalizeCopyKey(column.header) : "";
@@ -24,7 +22,7 @@ function isCopyableTableField(
   return ["employeeid", "employeenumber", "phonenumber"].some(
     (key) => key === accessorKey || key === headerKey,
   );
-}
+};
 
 const RenderComponents = <T extends BaseRowData>({
   column,

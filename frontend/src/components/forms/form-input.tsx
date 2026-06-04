@@ -10,13 +10,13 @@ interface FormInputProps<T extends FieldValues> extends InputProps {
   description?: string;
 }
 
-export function FormInput<T extends FieldValues>({
+export const FormInput = <T extends FieldValues,>({
   control,
   name,
   label,
   description,
   ...inputProps
-}: FormInputProps<T>) {
+}: FormInputProps<T>) => {
   return (
     <FormController
       control={control}
@@ -28,4 +28,4 @@ export function FormInput<T extends FieldValues>({
       )}
     />
   );
-}
+};

@@ -11,7 +11,7 @@ import {
   useSetCoverMediaMutation,
 } from '@/services/properties/queries';
 
-export default function EditPropertyPage() {
+const EditPropertyPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -105,4 +105,6 @@ export default function EditPropertyPage() {
       </div>
     </div>
   );
-}
+};
+
+export default EditPropertyPage;

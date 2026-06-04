@@ -1,20 +1,24 @@
 import { Op, WhereOptions } from 'sequelize';
 import { Booking, Landlord, Property, PropertyMedia, PropertyRoom, User } from '../models';
+import { identifierWhere } from '../utils/utils';
 
 const PropertyRepo = {
   create: async (data: Record<string, unknown>) => Property.create(data),
 
-  getById: async (id: string) => Property.findByPk(id),
+  getById: async (id: string) => Property.findOne({ where: identifierWhere(id) }),
 
-  getOwned: async (id: string, landlordId: string) => Property.findOne({ where: { id, landlordId } }),
+  getOwned: async (id: string, landlordId: string) =>
+    Property.findOne({ where: { ...identifierWhere(id), landlordId } }),
 
   updateOwned: async (id: string, landlordId: string, data: Record<string, unknown>) => {
-    await Property.update(data, { where: { id, landlordId } });
-    return Property.findOne({ where: { id, landlordId } });
+    const where = { ...identifierWhere(id), landlordId };
+    await Property.update(data, { where });
+    return Property.findOne({ where });
   },
 
   getDetailedById: async (id: string) =>
-    Property.findByPk(id, {
+    Property.findOne({
+      where: identifierWhere(id),
       include: [
         {
           model: Landlord,
@@ -97,7 +101,7 @@ const PropertyRepo = {
     }),
 
   incrementViews: async (id: string) =>
-    Property.increment({ viewCount: 1 }, { where: { id } }),
+    Property.increment({ viewCount: 1 }, { where: identifierWhere(id) }),
 
   countByLandlordId: async (landlordId: string) => Property.count({ where: { landlordId } }),
 
@@ -141,8 +145,9 @@ const PropertyRepo = {
   },
 
   updateById: async (id: string, data: Record<string, unknown>) => {
-    await Property.update(data, { where: { id } });
-    return Property.findByPk(id);
+    const where = identifierWhere(id);
+    await Property.update(data, { where });
+    return Property.findOne({ where });
   },
 
   countByStatus: async () => {

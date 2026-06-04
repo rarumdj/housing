@@ -12,7 +12,7 @@ type FormPhoneInputProps<T extends FieldValues> = PhoneInputProps & {
   orientation?: 'vertical' | 'horizontal' | 'responsive';
 };
 
-function FormPhoneInput<T extends FieldValues>({
+const FormPhoneInput = <T extends FieldValues,>({
   name,
   control,
   label,
@@ -21,7 +21,7 @@ function FormPhoneInput<T extends FieldValues>({
   onPhoneChange,
   orientation,
   defaultCountry = 'NG',
-}: FormPhoneInputProps<T>) {
+}: FormPhoneInputProps<T>) => {
   return (
     <FormController
       name={name}
@@ -40,6 +40,6 @@ function FormPhoneInput<T extends FieldValues>({
       )}
     />
   );
-}
+};
 
 export default FormPhoneInput;

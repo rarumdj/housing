@@ -6,11 +6,11 @@ type ColoredValue = {
   value?: React.ReactNode;
 };
 
-function isColoredValue(value: unknown): value is ColoredValue {
+const isColoredValue = (value: unknown): value is ColoredValue => {
   return (
     typeof value === 'object' && value !== null && ('color' in value || 'value' in value)
   );
-}
+};
 
 const StringType = React.memo(
   ({

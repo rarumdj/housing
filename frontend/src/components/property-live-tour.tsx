@@ -15,7 +15,7 @@ type PropertyLiveTourProps = {
   property: Property;
 };
 
-export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
+export const PropertyLiveTour = ({ property }: PropertyLiveTourProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Viewer | null>(null);
   const virtualTourRef = useRef<VirtualTourPlugin | null>(null);
@@ -136,14 +136,14 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
     return null;
   }
 
-  function selectStop(stop: PropertyTourStop) {
-    virtualTourRef.current?.setCurrentNode(stop.id, {
-      showLoader: true,
-      effect: 'fade',
-      rotation: true,
-      speed: '14rpm',
-    });
-  }
+  const selectStop = (stop: PropertyTourStop) => {
+        virtualTourRef.current?.setCurrentNode(stop.id, {
+          showLoader: true,
+          effect: 'fade',
+          rotation: true,
+          speed: '14rpm',
+        });
+      };
 
   return (
     <section className="surface-panel overflow-hidden p-4 sm:p-6">
@@ -288,4 +288,4 @@ export function PropertyLiveTour({ property }: PropertyLiveTourProps) {
       </div>
     </section>
   );
-}
+};

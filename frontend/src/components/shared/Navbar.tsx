@@ -6,7 +6,7 @@ import { useLogout } from '@/lib/hooks/useAuth';
 import { getInitials } from '@/lib/utils';
 import { useState } from 'react';
 
-export function Navbar() {
+export const Navbar = () => {
   const { user, isAuthenticated } = useAuthStore();
   const logout = useLogout();
   const navigate = useNavigate();
@@ -67,4 +67,4 @@ export function Navbar() {
       </div>
     </header>
   );
-}
+};

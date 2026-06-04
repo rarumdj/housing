@@ -16,7 +16,7 @@ const statusBadge: Record<string, string> = {
   CANCELLED: 'bg-gray-100 text-gray-800',
 };
 
-function InfoRow({ label, value, icon: Icon }: { label: string; value?: string | number | null; icon?: typeof User }) {
+const InfoRow = ({ label, value, icon: Icon }: { label: string; value?: string | number | null; icon?: typeof User }) => {
   if (!value && value !== 0) return null;
   return (
     <div className="flex items-start gap-3 py-2">
@@ -27,18 +27,18 @@ function InfoRow({ label, value, icon: Icon }: { label: string; value?: string |
       </div>
     </div>
   );
-}
+};
 
-function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
+const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => {
   return (
     <div className="rounded-2xl border border-border bg-card p-5">
       <h3 className="mb-3 font-display text-base font-bold">{title}</h3>
       <div className="divide-y divide-border">{children}</div>
     </div>
   );
-}
+};
 
-export default function ApplicationReviewPage() {
+const ApplicationReviewPage = () => {
   const { id = '' } = useParams();
   const navigate = useNavigate();
   const { data, isLoading, isError } = useApplicationDetailQuery(id);
@@ -305,4 +305,6 @@ export default function ApplicationReviewPage() {
       </div>
     </div>
   );
-}
+};
+
+export default ApplicationReviewPage;

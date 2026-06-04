@@ -16,7 +16,7 @@ const statusBadge: Record<string, string> = {
   ARCHIVED: 'bg-muted text-muted-foreground',
 };
 
-export default function LandlordPropertiesPage() {
+const LandlordPropertiesPage = () => {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -108,7 +108,7 @@ export default function LandlordPropertiesPage() {
           <div className="space-y-3">
             {filtered.map((property) => (
               <div
-                key={property.id}
+                key={property.code}
                 className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted/30"
               >
                 <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
@@ -143,7 +143,7 @@ export default function LandlordPropertiesPage() {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteMutation.mutate(property.id);
+                        deleteMutation.mutate(property.code);
                       }}
                       className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                       title="Delete"
@@ -152,7 +152,7 @@ export default function LandlordPropertiesPage() {
                     </button>
                   )}
                   <Link
-                    to={dashboardKeys.landlord.detail.build(property.id)}
+                    to={dashboardKeys.landlord.detail.build(property.code)}
                     className="rounded-lg p-2 transition-colors hover:bg-muted"
                   >
                     <ArrowRight className="h-4 w-4" />
@@ -165,4 +165,6 @@ export default function LandlordPropertiesPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LandlordPropertiesPage;

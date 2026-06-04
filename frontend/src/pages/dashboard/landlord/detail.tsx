@@ -28,7 +28,7 @@ const statusBadge: Record<string, string> = {
 const TABS = ['overview', 'activity', 'tenant'] as const;
 type Tab = typeof TABS[number];
 
-export default function LandlordPropertyDetailPage() {
+const LandlordPropertyDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('overview');
@@ -184,8 +184,8 @@ export default function LandlordPropertyDetailPage() {
                   <div className="rounded-2xl border border-border bg-background p-6">
                     <h3 className="mb-3 font-bold">Media ({property.media.length})</h3>
                     <div className="grid grid-cols-3 gap-2">
-                      {property.media.map((m: { id?: string; url: string; type?: string }, i: number) => (
-                        <div key={m.id ?? i} className="relative aspect-video overflow-hidden rounded-lg">
+                      {property.media.map((m: { code?: string; url: string; type?: string }, i: number) => (
+                        <div key={m.code ?? i} className="relative aspect-video overflow-hidden rounded-lg">
                           {m.type === 'VIDEO' ? (
                             <video src={m.url} className="h-full w-full object-cover" controls />
                           ) : (
@@ -206,8 +206,8 @@ export default function LandlordPropertyDetailPage() {
                   <div className="rounded-2xl border border-border bg-background p-6">
                     <h3 className="mb-3 font-bold">Property Videos</h3>
                     <div className="space-y-3">
-                      {videos.map((v: { id?: string; url: string }, i: number) => (
-                        <video key={v.id ?? i} src={v.url} controls className="w-full rounded-lg" />
+                      {videos.map((v: { code?: string; url: string }, i: number) => (
+                        <video key={v.code ?? i} src={v.url} controls className="w-full rounded-lg" />
                       ))}
                     </div>
                   </div>
@@ -306,14 +306,14 @@ export default function LandlordPropertyDetailPage() {
 
                         <div className="flex gap-2">
                           <button
-                            onClick={() => navigate(`${dashboardKeys.landlord.messages.path}?recipient=${tenant.id}&property=${id}`)}
+                            onClick={() => navigate(`${dashboardKeys.landlord.messages.path}?recipient=${tenant.code}&property=${id}`)}
                             className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
                           >
                             <MessageSquare className="h-4 w-4" /> Message Tenant
                           </button>
                           {booking.lease && ['ACTIVE', 'PENDING_SIGNATURE'].includes(booking.lease.status) && (
                             <button
-                              onClick={() => terminateMutation.mutate(booking.lease!.id)}
+                              onClick={() => terminateMutation.mutate(booking.lease!.code)}
                               disabled={terminateMutation.isPending}
                               className="flex items-center gap-2 rounded-xl border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
                             >
@@ -340,12 +340,14 @@ export default function LandlordPropertyDetailPage() {
       </div>
     </div>
   );
-}
+};
 
-function Home(props: React.SVGProps<SVGSVGElement>) {
+const Home = (props: React.SVGProps<SVGSVGElement>) => {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
       <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
     </svg>
   );
-}
+};
+
+export default LandlordPropertyDetailPage;

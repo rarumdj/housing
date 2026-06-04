@@ -26,7 +26,7 @@ const statusLabels: Record<string, string> = {
   CANCELLED: 'Cancelled',
 };
 
-export default function TenantApplicationsPage() {
+const TenantApplicationsPage = () => {
   const { data, isLoading } = useTenantBookingsQuery();
   const bookings = data?.data ?? [];
 
@@ -87,7 +87,7 @@ export default function TenantApplicationsPage() {
             <div className="space-y-4">
               {bookings.map((booking) => (
                 <div
-                  key={booking.id}
+                  key={booking.code}
                   className="rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-md"
                 >
                   <div className="flex items-start justify-between gap-4">
@@ -157,4 +157,6 @@ export default function TenantApplicationsPage() {
       </div>
     </div>
   );
-}
+};
+
+export default TenantApplicationsPage;

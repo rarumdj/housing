@@ -22,7 +22,7 @@ type InfoHoverCardProps = {
   contentClassName?: string;
 };
 
-export function InfoHoverCard({
+export const InfoHoverCard = ({
   title,
   description,
   items,
@@ -30,7 +30,7 @@ export function InfoHoverCard({
   trigger,
   className,
   contentClassName,
-}: InfoHoverCardProps) {
+}: InfoHoverCardProps) => {
   return (
     <HoverCard>
       <HoverCardTrigger
@@ -75,4 +75,4 @@ export function InfoHoverCard({
       </HoverCardContent>
     </HoverCard>
   );
-}
+};

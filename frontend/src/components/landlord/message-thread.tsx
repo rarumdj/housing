@@ -7,21 +7,21 @@ import type { Message } from '@/types/domain';
 
 interface MessageThreadProps {
   messages: Message[];
-  currentUserId: string;
+  currentUserCode: string;
   recipientName: string;
   propertyTitle?: string;
   onSend: (body: string) => void;
   isSending?: boolean;
 }
 
-export function MessageThread({
+export const MessageThread = ({
   messages,
-  currentUserId,
+  currentUserCode,
   recipientName,
   propertyTitle,
   onSend,
   isSending,
-}: MessageThreadProps) {
+}: MessageThreadProps) => {
   const [body, setBody] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -55,9 +55,9 @@ export function MessageThread({
         ) : (
           <div className="space-y-3">
             {messages.map((msg) => {
-              const isMe = msg.senderId === currentUserId;
+              const isMe = msg.sender?.code === currentUserCode;
               return (
-                <div key={msg.id} className={cn('flex', isMe ? 'justify-end' : 'justify-start')}>
+                <div key={msg.code} className={cn('flex', isMe ? 'justify-end' : 'justify-start')}>
                   <div
                     className={cn(
                       'max-w-[75%] rounded-2xl px-4 py-2.5',
@@ -102,4 +102,4 @@ export function MessageThread({
       </form>
     </div>
   );
-}
+};

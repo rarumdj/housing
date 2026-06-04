@@ -16,7 +16,7 @@ export type AdminUsersTableRow = {
   row: AdminUser;
 };
 
-function getVerificationStatus(user: AdminUser): string {
+const getVerificationStatus = (user: AdminUser): string => {
   if (user.role === 'LANDLORD') {
     return user.landlord?.verificationStatus ?? 'PENDING';
   }
@@ -24,15 +24,15 @@ function getVerificationStatus(user: AdminUser): string {
     return user.tenant?.kycStatus ?? 'PENDING';
   }
   return 'N/A';
-}
+};
 
-function formatBadgeLabel(value: string): string {
+const formatBadgeLabel = (value: string): string => {
   return value.replace(/_/g, ' ');
-}
+};
 
-function getAccountStatus(user: AdminUser): string {
+const getAccountStatus = (user: AdminUser): string => {
   return user.isActive ? 'ACTIVE' : 'DEACTIVATED';
-}
+};
 
 const getUsersConfig = () => {
   const usersColumns: CustomColumn<AdminUsersTableRow>[] = [

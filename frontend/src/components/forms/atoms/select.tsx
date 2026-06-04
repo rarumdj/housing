@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { Check, ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -8,12 +8,16 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '@/components/ui/command';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { buttonVariants } from '@/components/ui/button';
-import { inputVariants } from './variants';
-import type { VariantProps } from 'class-variance-authority';
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { buttonVariants } from "@/components/ui/button";
+import { inputVariants } from "./variants";
+import type { VariantProps } from "class-variance-authority";
 
 export interface SelectOption {
   value: string;
@@ -30,29 +34,29 @@ export interface SelectProps {
   searchPlaceholder?: string;
   searchable?: boolean;
   disabled?: boolean;
-  size?: VariantProps<typeof inputVariants>['size'];
+  size?: VariantProps<typeof inputVariants>["size"];
   className?: string;
   id?: string;
   popoverClassName?: string;
-  'aria-invalid'?: boolean | 'true' | 'false';
+  "aria-invalid"?: boolean | "true" | "false";
   onSearch?: (term: string) => void;
 }
 
-export function Select({
+export const Select = ({
   options,
   value,
   onChange,
-  placeholder = 'Select option',
-  searchPlaceholder = 'Search...',
+  placeholder = "Select option",
+  searchPlaceholder = "Search...",
   searchable = false,
   disabled = false,
-  size = 'default',
+  size = "default",
   className,
   id,
   popoverClassName,
-  'aria-invalid': ariaInvalid,
+  "aria-invalid": ariaInvalid,
   onSearch,
-}: SelectProps) {
+}: SelectProps) => {
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [_width, setWidth] = React.useState<number | undefined>(undefined);
@@ -75,30 +79,33 @@ export function Select({
         aria-expanded={open}
         aria-invalid={ariaInvalid}
         className={cn(
-          buttonVariants({ variant: 'outline' }),
+          buttonVariants({ variant: "outline" }),
           inputVariants({ size }),
-          'w-full justify-between text-left font-normal bg-transparent px-3 py-2',
-          'aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:ring-[3px]',
-          !selectedOption && 'text-muted-foreground',
-          className
-        )}
-      >
+          "w-full justify-between text-left font-normal bg-transparent px-3 py-2",
+          "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:ring-[3px]",
+          !selectedOption && "text-muted-foreground",
+          className,
+        )}>
         <span className="truncate flex items-center gap-2">
-          {selectedOption?.icon && <selectedOption.icon className="size-5 shrink-0" />}
+          {selectedOption?.icon && (
+            <selectedOption.icon className="size-5 shrink-0" />
+          )}
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <ChevronDown className="ml-2 size-4 shrink-0 opacity-50" />
       </PopoverTrigger>
       <PopoverContent
-        className={cn('min-w-(--anchor-width) p-0', popoverClassName)}
-        align="start"
-      >
+        className={cn("min-w-(--anchor-width) p-0", popoverClassName)}
+        align="start">
         <Command shouldFilter={!onSearch}>
           {searchable && (
-            <CommandInput placeholder={searchPlaceholder} onValueChange={onSearch} />
+            <CommandInput
+              placeholder={searchPlaceholder}
+              onValueChange={onSearch}
+            />
           )}
           <CommandList>
-            <ScrollArea className={cn('max-h-72', !searchable && 'h-auto')}>
+            <ScrollArea className={cn("max-h-72", !searchable && "h-auto")}>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {options.map((option) => (
@@ -108,16 +115,17 @@ export function Select({
                     onSelect={() => {
                       onChange(option.value);
                       setOpen(false);
-                    }}
-                  >
+                    }}>
                     <div className="flex items-center gap-2 flex-1">
-                      {option.icon && <option.icon className="size-5 shrink-0" />}
+                      {option.icon && (
+                        <option.icon className="size-5 shrink-0" />
+                      )}
                       {option.label}
                     </div>
                     <Check
                       className={cn(
-                        'ml-auto size-4',
-                        value === option.value ? 'opacity-100' : 'opacity-0'
+                        "ml-auto size-4",
+                        value === option.value ? "opacity-100" : "opacity-0",
                       )}
                     />
                   </CommandItem>
@@ -129,4 +137,4 @@ export function Select({
       </PopoverContent>
     </Popover>
   );
-}
+};

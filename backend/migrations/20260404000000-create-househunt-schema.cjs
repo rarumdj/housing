@@ -3,8 +3,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+    const pk = () => ({ type: Sequelize.INTEGER.UNSIGNED, autoIncrement: true, primaryKey: true });
+    const code = () => ({ type: Sequelize.STRING, allowNull: false, unique: true });
+    const fk = (model, opts = {}) => ({
+      type: Sequelize.INTEGER.UNSIGNED,
+      allowNull: opts.allowNull ?? false,
+      ...(opts.unique ? { unique: true } : {}),
+      references: { model, key: 'id' },
+      ...(opts.onDelete ? { onDelete: opts.onDelete } : {}),
+    });
+    const ts = () => ({
+      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+    });
+
     await queryInterface.createTable('users', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
+      id: pk(),
+      code: code(),
       email: { type: Sequelize.STRING, allowNull: false, unique: true },
       phone: { type: Sequelize.STRING, allowNull: false, unique: true },
       passwordHash: { type: Sequelize.STRING, allowNull: false },
@@ -18,32 +33,22 @@ module.exports = {
       isEmailVerified: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       isActive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: true },
       lastLoginAt: { type: Sequelize.DATE, allowNull: true },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('refresh_tokens', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      userId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'users', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      userId: fk('users', { onDelete: 'CASCADE' }),
       token: { type: Sequelize.STRING(128), allowNull: false, unique: true },
       expiresAt: { type: Sequelize.DATE, allowNull: false },
       createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
     });
 
     await queryInterface.createTable('landlords', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      userId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        unique: true,
-        references: { model: 'users', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      userId: fk('users', { unique: true, onDelete: 'CASCADE' }),
       businessName: { type: Sequelize.STRING, allowNull: true },
       cacNumber: { type: Sequelize.STRING, allowNull: true },
       verificationStatus: { type: Sequelize.STRING(32), allowNull: false, defaultValue: 'PENDING' },
@@ -52,19 +57,13 @@ module.exports = {
       rating: { type: Sequelize.FLOAT, allowNull: true },
       totalProperties: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
       isOnboarded: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('tenants', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      userId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        unique: true,
-        references: { model: 'users', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      userId: fk('users', { unique: true, onDelete: 'CASCADE' }),
       employmentStatus: { type: Sequelize.STRING(32), allowNull: true },
       employerName: { type: Sequelize.STRING, allowNull: true },
       monthlyIncome: { type: Sequelize.FLOAT, allowNull: true },
@@ -75,17 +74,13 @@ module.exports = {
       bankConnected: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       monoAccountId: { type: Sequelize.STRING, allowNull: true },
       isOnboarded: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('properties', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      landlordId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'landlords', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      landlordId: fk('landlords'),
       title: { type: Sequelize.STRING, allowNull: false },
       description: { type: Sequelize.TEXT('long'), allowNull: false },
       type: { type: Sequelize.STRING(32), allowNull: false },
@@ -111,18 +106,13 @@ module.exports = {
       floorLevel: { type: Sequelize.INTEGER, allowNull: true },
       buildingFloors: { type: Sequelize.INTEGER, allowNull: true },
       viewCount: { type: Sequelize.INTEGER, allowNull: false, defaultValue: 0 },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('property_media', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      propertyId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'properties', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      propertyId: fk('properties', { onDelete: 'CASCADE' }),
       type: { type: Sequelize.STRING(32), allowNull: false },
       url: { type: Sequelize.TEXT, allowNull: false },
       thumbnailUrl: { type: Sequelize.TEXT, allowNull: true },
@@ -136,13 +126,9 @@ module.exports = {
     });
 
     await queryInterface.createTable('property_rooms', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      propertyId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'properties', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      propertyId: fk('properties', { onDelete: 'CASCADE' }),
       roomType: { type: Sequelize.STRING(32), allowNull: false },
       features: { type: Sequelize.JSON, allowNull: true },
       areaSqm: { type: Sequelize.FLOAT, allowNull: true },
@@ -152,17 +138,10 @@ module.exports = {
     });
 
     await queryInterface.createTable('bookings', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      propertyId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'properties', key: 'id' },
-      },
-      tenantId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'tenants', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      propertyId: fk('properties'),
+      tenantId: fk('tenants'),
       status: { type: Sequelize.STRING(32), allowNull: false, defaultValue: 'APPLIED' },
       rentStart: { type: Sequelize.DATE, allowNull: true },
       rentEnd: { type: Sequelize.DATE, allowNull: true },
@@ -176,28 +155,12 @@ module.exports = {
     });
 
     await queryInterface.createTable('leases', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      bookingId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        unique: true,
-        references: { model: 'bookings', key: 'id' },
-      },
-      propertyId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'properties', key: 'id' },
-      },
-      landlordId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'landlords', key: 'id' },
-      },
-      tenantId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'tenants', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      bookingId: fk('bookings', { unique: true }),
+      propertyId: fk('properties'),
+      landlordId: fk('landlords'),
+      tenantId: fk('tenants'),
       terms: { type: Sequelize.JSON, allowNull: false },
       pdfUrl: { type: Sequelize.TEXT, allowNull: true },
       pdfHash: { type: Sequelize.STRING, allowNull: true },
@@ -209,17 +172,13 @@ module.exports = {
       monthlyRent: { type: Sequelize.FLOAT, allowNull: false },
       annualRent: { type: Sequelize.FLOAT, allowNull: false },
       cautionDeposit: { type: Sequelize.FLOAT, allowNull: false },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('payments', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      bookingId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'bookings', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      bookingId: fk('bookings'),
       amount: { type: Sequelize.FLOAT, allowNull: false },
       currency: { type: Sequelize.STRING(8), allowNull: false, defaultValue: 'NGN' },
       type: { type: Sequelize.STRING(32), allowNull: false },
@@ -228,17 +187,13 @@ module.exports = {
       metadata: { type: Sequelize.JSON, allowNull: true },
       paidAt: { type: Sequelize.DATE, allowNull: true },
       releasedAt: { type: Sequelize.DATE, allowNull: true },
-      createdAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
-      updatedAt: { type: Sequelize.DATE, allowNull: false, defaultValue: Sequelize.literal('CURRENT_TIMESTAMP') },
+      ...ts(),
     });
 
     await queryInterface.createTable('renewals', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      leaseId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'leases', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      leaseId: fk('leases'),
       proposedPrice: { type: Sequelize.FLOAT, allowNull: false },
       currentPrice: { type: Sequelize.FLOAT, allowNull: false },
       status: { type: Sequelize.STRING(32), allowNull: false, defaultValue: 'PROPOSED' },
@@ -251,13 +206,9 @@ module.exports = {
     });
 
     await queryInterface.createTable('notifications', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      userId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'users', key: 'id' },
-        onDelete: 'CASCADE',
-      },
+      id: pk(),
+      code: code(),
+      userId: fk('users', { onDelete: 'CASCADE' }),
       type: { type: Sequelize.STRING(64), allowNull: false },
       title: { type: Sequelize.STRING, allowNull: false },
       body: { type: Sequelize.TEXT, allowNull: false },
@@ -267,12 +218,9 @@ module.exports = {
     });
 
     await queryInterface.createTable('video_sessions', {
-      id: { type: Sequelize.STRING(64), primaryKey: true, allowNull: false },
-      propertyId: {
-        type: Sequelize.STRING(64),
-        allowNull: false,
-        references: { model: 'properties', key: 'id' },
-      },
+      id: pk(),
+      code: code(),
+      propertyId: fk('properties'),
       nonce: { type: Sequelize.STRING(128), allowNull: false, unique: true },
       expectedLat: { type: Sequelize.FLOAT, allowNull: false },
       expectedLng: { type: Sequelize.FLOAT, allowNull: false },

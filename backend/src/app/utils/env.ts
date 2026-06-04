@@ -33,9 +33,23 @@ export const env = {
     secretKey: process.env.PAYSTACK_SECRET_KEY || '',
     publicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
   },
+  flutterwave: {
+    secretKey: process.env.FLUTTERWAVE_SECRET_KEY || '',
+    publicKey: process.env.FLUTTERWAVE_PUBLIC_KEY || '',
+    secretHash: process.env.FLUTTERWAVE_SECRET_HASH || '',
+  },
+  paymentProvider: (process.env.PAYMENT_PROVIDER || 'paystack') as 'paystack' | 'flutterwave',
   sendgrid: {
     apiKey: process.env.SENDGRID_API_KEY || '',
     from: process.env.SENDGRID_FROM || 'noreply@househunt.ng',
+  },
+  smtp: {
+    host: process.env.SMTP_HOST || '',
+    port: Number(process.env.SMTP_PORT || 587),
+    user: process.env.SMTP_USER || '',
+    password: process.env.SMTP_PASSWORD || '',
+    secure: process.env.SMTP_SECURE === 'true',
+    from: process.env.MAIL_FROM || process.env.SENDGRID_FROM || 'noreply@househunt.ng',
   },
   termii: {
     apiKey: process.env.TERMII_API_KEY || '',

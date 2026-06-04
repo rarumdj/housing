@@ -1,4 +1,5 @@
 import { PlatformFee } from '../models';
+import { identifierWhere } from '../utils/utils';
 
 const PlatformFeeRepo = {
   create: async (data: Record<string, unknown>) => PlatformFee.create(data),
@@ -7,16 +8,17 @@ const PlatformFeeRepo = {
 
   getActive: async () => PlatformFee.findAll({ where: { isActive: true }, order: [['createdAt', 'ASC']] }),
 
-  getById: async (id: string) => PlatformFee.findByPk(id),
+  getById: async (id: string) => PlatformFee.findOne({ where: identifierWhere(id) }),
 
   getBySlug: async (slug: string) => PlatformFee.findOne({ where: { slug } }),
 
   update: async (id: string, data: Record<string, unknown>) => {
-    await PlatformFee.update(data, { where: { id } });
-    return PlatformFee.findByPk(id);
+    const where = identifierWhere(id);
+    await PlatformFee.update(data, { where });
+    return PlatformFee.findOne({ where });
   },
 
-  delete: async (id: string) => PlatformFee.destroy({ where: { id } }),
+  delete: async (id: string) => PlatformFee.destroy({ where: identifierWhere(id) }),
 };
 
 export default PlatformFeeRepo;

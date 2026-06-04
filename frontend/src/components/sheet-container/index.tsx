@@ -12,7 +12,7 @@ type SheetContainerProps = {
   children: React.ReactNode;
 };
 
-export function SheetContainer({
+export const SheetContainer = ({
   title = 'Add your employees',
   description = "Choose how you'd like to upload your team's information.",
   onCancel,
@@ -21,7 +21,7 @@ export function SheetContainer({
   cancelButtonText = 'Cancel',
   continueButtonText = 'Continue',
   children,
-}: SheetContainerProps) {
+}: SheetContainerProps) => {
   return (
     <div
       className={cn(
@@ -63,4 +63,4 @@ export function SheetContainer({
       </div>
     </div>
   );
-}
+};

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import { Navbar } from '@/components/navbar';
 
-export default function MarketingLayout() {
+const MarketingLayout = () => {
   return (
     <div>
       <Navbar />
@@ -10,4 +10,6 @@ export default function MarketingLayout() {
       </main>
     </div>
   );
-}
+};
+
+export default MarketingLayout;

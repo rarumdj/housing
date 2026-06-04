@@ -1,15 +1,10 @@
 import type { PropertyMedia } from "@/types/domain";
 
-/** Stored when Cloudinary (or similar) is not configured — not loadable in the browser. */
-export function isPlaceholderStorageUrl(
-  url: string | undefined | null,
-): boolean {
+export const isPlaceholderStorageUrl = (url: string | undefined | null): boolean => {
   return typeof url === "string" && url.startsWith("local://");
-}
+};
 
-export function canDisplayMediaInBrowser(
-  url: string | undefined | null,
-): boolean {
+export const canDisplayMediaInBrowser = (url: string | undefined | null): boolean => {
   if (!url || typeof url !== "string") return false;
   if (isPlaceholderStorageUrl(url)) return false;
   if (url.startsWith("/uploads/")) return true;
@@ -18,24 +13,21 @@ export function canDisplayMediaInBrowser(
     url.startsWith("blob:") ||
     url.startsWith("data:")
   );
-}
+};
 
-export function isVideoMedia(m: PropertyMedia): boolean {
+export const isVideoMedia = (m: PropertyMedia): boolean => {
   return m.type === "VIDEO" || /\.(mp4|webm|ogg)(\?|$)/i.test(m.url ?? "");
-}
+};
 
-function mediaOrder(a: PropertyMedia, b: PropertyMedia): number {
+const mediaOrder = (a: PropertyMedia, b: PropertyMedia): number => {
   const cover = Number(!!b.isCover) - Number(!!a.isCover);
   if (cover !== 0) return cover;
   const ai = typeof a.orderIndex === "number" ? a.orderIndex : 0;
   const bi = typeof b.orderIndex === "number" ? b.orderIndex : 0;
   return ai - bi;
-}
+};
 
-/** Images safe to use in <img> (PHOTO + TOUR_360 + MODEL_3D, excludes video and non-loadable URLs). */
-export function getDisplayPhotos(
-  media: PropertyMedia[] | undefined,
-): PropertyMedia[] {
+export const getDisplayPhotos = (media: PropertyMedia[] | undefined): PropertyMedia[] => {
   if (!media?.length) return [];
   return media
     .filter((m) => {
@@ -46,21 +38,16 @@ export function getDisplayPhotos(
       );
     })
     .sort(mediaOrder);
-}
+};
 
-export function getDisplayVideos(
-  media: PropertyMedia[] | undefined,
-): PropertyMedia[] {
+export const getDisplayVideos = (media: PropertyMedia[] | undefined): PropertyMedia[] => {
   if (!media?.length) return [];
   return media
     .filter((m) => isVideoMedia(m) && canDisplayMediaInBrowser(m.url))
     .sort(mediaOrder);
-}
+};
 
-/** Panorama / 360 assets for Photo Sphere Viewer. */
-export function getPanoramaTourMedia(
-  media: PropertyMedia[] | undefined,
-): PropertyMedia[] {
+export const getPanoramaTourMedia = (media: PropertyMedia[] | undefined): PropertyMedia[] => {
   if (!media?.length) return [];
   return media
     .filter((m) => {
@@ -70,13 +57,12 @@ export function getPanoramaTourMedia(
       return true;
     })
     .sort(mediaOrder);
-}
+};
 
-/** First image suitable for list thumbnails (admin cards, search). */
-export function pickListThumbnail(media: PropertyMedia[] | undefined): {
+export const pickListThumbnail = (media: PropertyMedia[] | undefined): {
   url: string | null;
   kind: "photo" | "video" | "none";
-} {
+} => {
   const photos = getDisplayPhotos(media);
   if (photos.length > 0) {
     const cover = photos.find((p) => p.isCover) ?? photos[0];
@@ -94,4 +80,4 @@ export function pickListThumbnail(media: PropertyMedia[] | undefined): {
     };
   }
   return { url: null, kind: "none" };
-}
+};

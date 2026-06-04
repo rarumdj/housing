@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { Op } from 'sequelize';
 import UserRepo from '../../repositories/user.repo';
 import PropertyRepo from '../../repositories/property.repo';
 import PaymentRepo from '../../repositories/payment.repo';
@@ -7,106 +7,124 @@ import LandlordRepo from '../../repositories/landlord.repo';
 import AppError from '../../utils/appError';
 import { Landlord, Tenant, Lease, Booking, Property } from '../../models';
 
+// Statuses that still need an admin decision (i.e. not yet VERIFIED / REJECTED).
+const AWAITING_REVIEW = ['PENDING', 'UNDER_REVIEW', 'SUBMITTED'];
+
 // ── Users ──
 
-export async function listUsers(filters: { role?: string; search?: string; isActive?: boolean; page?: number; limit?: number }) {
+export const listUsers = async (filters: { role?: string; search?: string; isActive?: boolean; page?: number; limit?: number }) => {
   return UserRepo.listAll(filters);
-}
+};
 
-export async function getUserDetail(id: string) {
+export const getUserDetail = async (id: string) => {
   const user = await UserRepo.getDetailedById(id);
   if (!user) throw new AppError('User not found', 404);
   return user;
-}
+};
 
-export async function verifyUser(userId: string, status: string, _reason?: string) {
+export const verifyUser = async (userId: string, status: string, reason?: string) => {
   const user = await UserRepo.getById(userId);
   if (!user) throw new AppError('User not found', 404);
 
+  if (status === 'REJECTED' && !reason?.trim()) {
+    throw new AppError('A reason is required when declining', 400);
+  }
+
+  // The note is the decline reason; clear it when approving.
+  const note = status === 'REJECTED' ? reason!.trim() : null;
   const role = String(user.get('role'));
+  // FK is keyed on the user's internal numeric id.
+  const internalUserId = user.get('id') as number;
 
   if (role === 'LANDLORD') {
-    const landlord = await Landlord.findOne({ where: { userId } });
+    const landlord = await Landlord.findOne({ where: { userId: internalUserId } });
     if (!landlord) throw new AppError('Landlord profile not found', 404);
-    await Landlord.update({ verificationStatus: status }, { where: { userId } });
-    if (status === 'VERIFIED') {
-      await Landlord.update({ isOnboarded: true }, { where: { userId } });
-    }
+    await Landlord.update(
+      { verificationStatus: status, verificationNote: note, ...(status === 'VERIFIED' ? { isOnboarded: true } : {}) },
+      { where: { userId: internalUserId } },
+    );
   } else if (role === 'TENANT') {
-    const tenant = await Tenant.findOne({ where: { userId } });
+    const tenant = await Tenant.findOne({ where: { userId: internalUserId } });
     if (!tenant) throw new AppError('Tenant profile not found', 404);
-    await Tenant.update({ kycStatus: status }, { where: { userId } });
-    if (status === 'VERIFIED') {
-      await Tenant.update({ isOnboarded: true }, { where: { userId } });
-    }
+    await Tenant.update(
+      { kycStatus: status, kycNote: note, ...(status === 'VERIFIED' ? { isOnboarded: true } : {}) },
+      { where: { userId: internalUserId } },
+    );
   } else {
     throw new AppError('Only landlords and tenants can be verified', 400);
   }
 
-  return UserRepo.getProfileById(userId);
-}
+  return UserRepo.getProfileById(String(internalUserId));
+};
 
-export async function toggleUserActive(userId: string) {
+export const toggleUserActive = async (userId: string) => {
   const user = await UserRepo.getById(userId);
   if (!user) throw new AppError('User not found', 404);
 
   const current = Boolean(user.get('isActive'));
   await UserRepo.update({ isActive: !current }, { id: userId });
   return UserRepo.getProfileById(userId);
-}
+};
 
 // ── Properties ──
 
-export async function listProperties(filters: { status?: string; verificationStatus?: string; page?: number; limit?: number }) {
+export const listProperties = async (filters: { status?: string; verificationStatus?: string; page?: number; limit?: number }) => {
   return PropertyRepo.listAll(filters);
-}
+};
 
-export async function verifyProperty(propertyId: string, verificationStatus: string, _reason?: string) {
+export const verifyProperty = async (propertyId: string, verificationStatus: string, reason?: string) => {
   const property = await PropertyRepo.getById(propertyId);
   if (!property) throw new AppError('Property not found', 404);
 
-  const updates: Record<string, unknown> = { verificationStatus };
+  if (verificationStatus === 'REJECTED' && !reason?.trim()) {
+    throw new AppError('A reason is required when declining', 400);
+  }
+
+  const updates: Record<string, unknown> = {
+    verificationStatus,
+    verificationNote: verificationStatus === 'REJECTED' ? reason!.trim() : null,
+  };
   if (verificationStatus === 'VERIFIED') {
     updates.status = 'ACTIVE';
   }
 
   return PropertyRepo.updateById(propertyId, updates);
-}
+};
 
-export async function deleteProperty(propertyId: string) {
+export const deleteProperty = async (propertyId: string) => {
   const property = await PropertyRepo.getById(propertyId);
   if (!property) throw new AppError('Property not found', 404);
   return PropertyRepo.updateById(propertyId, { status: 'ARCHIVED' });
-}
+};
 
 // ── Fees ──
 
-export async function listFees() {
+export const listFees = async () => {
   return PlatformFeeRepo.getAll();
-}
+};
 
-export async function createFee(payload: { name: string; slug: string; type: string; value: number; description?: string; isActive?: boolean }) {
+export const createFee = async (payload: { name: string; slug: string; type: string; value: number; description?: string; isActive?: boolean }) => {
   const existing = await PlatformFeeRepo.getBySlug(payload.slug);
   if (existing) throw new AppError('A fee with this slug already exists', 409);
 
-  return PlatformFeeRepo.create({ id: uuidv4(), ...payload });
+  return PlatformFeeRepo.create({ ...payload });
 }
 
-export async function updateFee(id: string, payload: Record<string, unknown>) {
+export const updateFee = async (id: string, payload: Record<string, unknown>) => {
   const fee = await PlatformFeeRepo.getById(id);
   if (!fee) throw new AppError('Fee not found', 404);
   return PlatformFeeRepo.update(id, payload);
-}
+};
 
-export async function deleteFee(id: string) {
+export const deleteFee = async (id: string) => {
   const fee = await PlatformFeeRepo.getById(id);
   if (!fee) throw new AppError('Fee not found', 404);
   await PlatformFeeRepo.delete(id);
-}
+};
 
 // ── Analytics ──
 
-export async function getOverview() {
+export const getOverview = async () => {
   const [usersByRole, propertiesByStatus, totalRevenue, platformFeeTotal, activeLeases] = await Promise.all([
     UserRepo.countByRole(),
     PropertyRepo.countByStatus(),
@@ -115,9 +133,9 @@ export async function getOverview() {
     Lease.count({ where: { status: 'ACTIVE' } }),
   ]);
 
-  const pendingLandlords = await Landlord.count({ where: { verificationStatus: 'PENDING' } });
-  const pendingTenants = await Tenant.count({ where: { kycStatus: 'PENDING' } });
-  const pendingProperties = await Property.count({ where: { verificationStatus: 'PENDING' } });
+  const pendingLandlords = await Landlord.count({ where: { verificationStatus: { [Op.in]: AWAITING_REVIEW } } });
+  const pendingTenants = await Tenant.count({ where: { kycStatus: { [Op.in]: AWAITING_REVIEW } } });
+  const pendingProperties = await Property.count({ where: { verificationStatus: { [Op.in]: AWAITING_REVIEW } } });
 
   return {
     usersByRole,
@@ -129,13 +147,13 @@ export async function getOverview() {
     pendingTenants,
     pendingProperties,
   };
-}
+};
 
-export async function getRevenueAnalytics() {
+export const getRevenueAnalytics = async () => {
   return PaymentRepo.getMonthlyRevenue();
-}
+};
 
-export async function getLandlordAnalytics() {
+export const getLandlordAnalytics = async () => {
   const landlords = await Landlord.findAll({
     include: [
       { model: Property.sequelize!.models.User, as: 'user', attributes: ['firstName', 'lastName', 'email'] },
@@ -158,9 +176,9 @@ export async function getLandlordAnalytics() {
       totalEarnings,
     };
   });
-}
+};
 
-export async function getTenantAnalytics() {
+export const getTenantAnalytics = async () => {
   const tenants = await Tenant.findAll({
     include: [
       { model: Booking.sequelize!.models.User, as: 'user', attributes: ['firstName', 'lastName', 'email'] },
@@ -188,4 +206,4 @@ export async function getTenantAnalytics() {
       totalPayments: paidPayments.length,
     };
   });
-}
+};

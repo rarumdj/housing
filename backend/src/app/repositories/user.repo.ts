@@ -1,10 +1,13 @@
 import { Op, WhereOptions, fn, col, literal } from 'sequelize';
 import { Landlord, Tenant, User, Property, Booking, Payment } from '../models';
+import { identifierWhere } from '../utils/utils';
 
 const UserRepo = {
   create: async (data: Record<string, unknown>) => User.create(data),
 
-  getById: async (id: string) => User.findByPk(id),
+  getById: async (id: string | number) => User.findOne({ where: identifierWhere(id) }),
+
+  getByCode: async (code: string) => User.findOne({ where: { code } }),
 
   getOne: async (filter: WhereOptions) => User.findOne({ where: filter }),
 
@@ -23,9 +26,11 @@ const UserRepo = {
   },
 
   getProfileById: async (id: string) =>
-    User.findByPk(id, {
+    User.findOne({
+      where: identifierWhere(id),
       attributes: [
         'id',
+        'code',
         'email',
         'phone',
         'role',
@@ -40,12 +45,22 @@ const UserRepo = {
         {
           model: Landlord,
           as: 'landlord',
-          attributes: ['verificationStatus', 'isOnboarded'],
+          attributes: [
+            'id',
+            'code',
+            'verificationStatus',
+            'verificationNote',
+            'isOnboarded',
+            'onboardingStatus',
+            'onboardingStep',
+            'payoutProvider',
+            'payoutPreference',
+          ],
         },
         {
           model: Tenant,
           as: 'tenant',
-          attributes: ['kycStatus', 'isOnboarded', 'screeningBand'],
+          attributes: ['id', 'code', 'kycStatus', 'kycNote', 'isOnboarded', 'screeningBand'],
         },
       ],
     }),
@@ -71,10 +86,10 @@ const UserRepo = {
       limit,
       offset,
       order: [['createdAt', 'DESC']],
-      attributes: ['id', 'email', 'phone', 'role', 'firstName', 'lastName', 'avatarUrl', 'isActive', 'isPhoneVerified', 'isEmailVerified', 'createdAt'],
+      attributes: ['id', 'code', 'email', 'phone', 'role', 'firstName', 'lastName', 'avatarUrl', 'isActive', 'isPhoneVerified', 'isEmailVerified', 'createdAt'],
       include: [
-        { model: Landlord, as: 'landlord', attributes: ['id', 'verificationStatus', 'isOnboarded', 'businessName', 'totalProperties'], required: false },
-        { model: Tenant, as: 'tenant', attributes: ['id', 'kycStatus', 'isOnboarded', 'screeningBand'], required: false },
+        { model: Landlord, as: 'landlord', attributes: ['id', 'code', 'verificationStatus', 'isOnboarded', 'businessName', 'totalProperties'], required: false },
+        { model: Tenant, as: 'tenant', attributes: ['id', 'code', 'kycStatus', 'isOnboarded', 'screeningBand'], required: false },
       ],
     });
 
@@ -82,7 +97,8 @@ const UserRepo = {
   },
 
   getDetailedById: async (id: string) =>
-    User.findByPk(id, {
+    User.findOne({
+      where: identifierWhere(id),
       attributes: { exclude: ['passwordHash'] },
       include: [
         {

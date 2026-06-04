@@ -8,7 +8,7 @@ type RoleProtectedRouteProps = PropsWithChildren<{
   roles?: UserRole[];
 }>;
 
-export function RoleProtectedRoute({ children, roles }: RoleProtectedRouteProps) {
+export const RoleProtectedRoute = ({ children, roles }: RoleProtectedRouteProps) => {
   const { isAuthenticated, user } = useAuthManager();
 
   if (!isAuthenticated) {
@@ -20,4 +20,4 @@ export function RoleProtectedRoute({ children, roles }: RoleProtectedRouteProps)
   }
 
   return <>{children}</>;
-}
+};

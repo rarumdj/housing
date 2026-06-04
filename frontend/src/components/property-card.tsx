@@ -21,14 +21,14 @@ type PropertyCardProps = {
   className?: string;
 };
 
-export function PropertyCard({ property, className }: PropertyCardProps) {
+export const PropertyCard = ({ property, className }: PropertyCardProps) => {
   const cover = property.media?.[0];
   const isVerified = property.verificationStatus === 'VERIFIED';
   const has3D = property.media?.some((media) => media.type === 'MODEL_3D' || media.type === 'TOUR_360');
 
   return (
     <Link
-      to={publicKeys.property.build(property.id)}
+      to={publicKeys.property.build(property.code)}
       className={cn(
         'group block overflow-hidden rounded-2xl border border-border bg-card transition-all duration-200 hover:shadow-lg hover:shadow-black/5',
         className
@@ -90,4 +90,4 @@ export function PropertyCard({ property, className }: PropertyCardProps) {
       </div>
     </Link>
   );
-}
+};

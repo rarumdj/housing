@@ -7,18 +7,20 @@ import PropertyRepo from '../../repositories/property.repo';
 import TenantRepo from '../../repositories/tenant.repo';
 import LandlordRepo from '../../repositories/landlord.repo';
 import AppError from '../../utils/appError';
-import { paystack } from '../../utils/paystack';
+import { env } from '../../utils/env';
+import { initializeCheckout } from '../../utils/paymentProvider';
 import { generateAgreementPdf } from '../../utils/agreement';
 
-export async function apply(tenantId: string, propertyId: string, message?: string) {
-  const existing = await BookingRepo.getActiveApplication(tenantId, propertyId);
-  if (existing) {
-    throw new AppError('You already have an active application for this property', 409);
-  }
-
+export const apply = async (tenantId: string, propertyId: string, message?: string) => {
   const property = await PropertyRepo.getById(propertyId);
   if (!property || property.get('status') !== 'ACTIVE') {
     throw new AppError('Property not available', 400);
+  }
+  const pid = property.get('id') as number;
+
+  const existing = await BookingRepo.getActiveApplication(tenantId, String(pid));
+  if (existing) {
+    throw new AppError('You already have an active application for this property', 409);
   }
 
   const tenant = await TenantRepo.getFullProfileById(tenantId);
@@ -27,8 +29,7 @@ export async function apply(tenantId: string, propertyId: string, message?: stri
   }
 
   const booking = await BookingRepo.create({
-    id: uuidv4(),
-    propertyId,
+    propertyId: pid,
     tenantId,
     message,
     status: 'APPLIED',
@@ -37,7 +38,7 @@ export async function apply(tenantId: string, propertyId: string, message?: stri
   return booking;
 }
 
-export async function accept(bookingId: string, landlordId: string) {
+export const accept = async (bookingId: string, landlordId: string) => {
   const booking = await BookingRepo.getWithProperty(bookingId);
   const property = booking?.get('property') as Record<string, unknown> | undefined;
   if (!booking || property?.landlordId !== landlordId) {
@@ -107,11 +108,9 @@ export async function accept(bookingId: string, landlordId: string) {
         generatedAt: new Date(),
       });
 
-      const leaseId = uuidv4();
       await LeaseRepo.create({
-        id: leaseId,
         bookingId,
-        propertyId: String(property.id),
+        propertyId: property.id,
         landlordId,
         tenantId,
         terms: {
@@ -139,7 +138,7 @@ export async function accept(bookingId: string, landlordId: string) {
   return BookingRepo.getWithProperty(bookingId);
 }
 
-export async function decline(bookingId: string, landlordId: string, reason: string) {
+export const decline = async (bookingId: string, landlordId: string, reason: string) => {
   const booking = await BookingRepo.getWithProperty(bookingId);
   const property = booking?.get('property') as Record<string, unknown> | undefined;
   if (!booking || property?.landlordId !== landlordId) {
@@ -147,9 +146,9 @@ export async function decline(bookingId: string, landlordId: string, reason: str
   }
 
   return BookingRepo.update(bookingId, { status: 'DECLINED', declineReason: reason });
-}
+};
 
-export async function initiatePayment(bookingId: string, tenantUserId: string) {
+export const initiatePayment = async (bookingId: string, tenantUserId: string) => {
   const booking = await BookingRepo.getWithPaymentContext(bookingId);
   const tenant = booking?.get('tenant') as Record<string, unknown> | undefined;
   const tenantUser = tenant?.user as Record<string, unknown> | undefined;
@@ -176,33 +175,37 @@ export async function initiatePayment(bookingId: string, tenantUserId: string) {
   const totalFees = feeBreakdown.reduce((sum, f) => sum + f.amount, 0);
   const totalAmount = annualRent + cautionDeposit + totalFees;
   const reference = `HH-${uuidv4().slice(0, 8).toUpperCase()}`;
+  const provider = env.paymentProvider;
 
-  const paystackResponse = await paystack.initializeTransaction({
-    email: String(tenantUser?.email || ''),
-    amount: totalAmount * 100,
-    reference,
-    metadata: { bookingId, type: 'INITIAL_PAYMENT', feeBreakdown },
-  });
-
-  if (!paystackResponse.status) {
+  let checkout;
+  try {
+    checkout = await initializeCheckout(provider, {
+      email: String(tenantUser?.email || ''),
+      amount: totalAmount * 100,
+      reference,
+      metadata: { bookingId, type: 'INITIAL_PAYMENT', feeBreakdown },
+    });
+  } catch {
     throw new AppError('Payment initialization failed', 500);
   }
 
   await PaymentRepo.create({
-    id: uuidv4(),
     bookingId,
     amount: annualRent + cautionDeposit,
     type: 'FIRST_RENT',
+    provider,
+    providerRef: reference,
     paystackRef: reference,
     status: 'PENDING',
   });
 
   if (totalFees > 0) {
     await PaymentRepo.create({
-      id: uuidv4(),
       bookingId,
       amount: totalFees,
       type: 'PLATFORM_FEE',
+      provider,
+      providerRef: `${reference}-FEE`,
       paystackRef: `${reference}-FEE`,
       status: 'PENDING',
       metadata: { feeBreakdown },
@@ -212,7 +215,7 @@ export async function initiatePayment(bookingId: string, tenantUserId: string) {
   await BookingRepo.update(bookingId, { status: 'AWAITING_PAYMENT' });
 
   return {
-    authorizationUrl: String(paystackResponse.data.authorization_url || ''),
+    authorizationUrl: checkout.authorizationUrl,
     reference,
     breakdown: {
       annualRent,
@@ -222,9 +225,9 @@ export async function initiatePayment(bookingId: string, tenantUserId: string) {
       total: totalAmount,
     },
   };
-}
+};
 
-export async function getPropertyFees(propertyId: string) {
+export const getPropertyFees = async (propertyId: string) => {
   const property = await PropertyRepo.getById(propertyId);
   if (!property) throw new AppError('Property not found', 404);
 
@@ -248,9 +251,9 @@ export async function getPropertyFees(propertyId: string) {
     totalFees,
     total: annualRent + cautionDeposit + totalFees,
   };
-}
+};
 
-export async function cancel(bookingId: string, landlordId: string) {
+export const cancel = async (bookingId: string, landlordId: string) => {
   const booking = await BookingRepo.getWithProperty(bookingId);
   const property = booking?.get('property') as Record<string, unknown> | undefined;
   if (!booking || property?.landlordId !== landlordId) {
@@ -263,9 +266,9 @@ export async function cancel(bookingId: string, landlordId: string) {
   }
 
   return BookingRepo.update(bookingId, { status: 'CANCELLED' });
-}
+};
 
-export async function confirmMoveIn(bookingId: string, tenantUserId: string) {
+export const confirmMoveIn = async (bookingId: string, tenantUserId: string) => {
   const tenant = await TenantRepo.getByUserId(tenantUserId);
   if (!tenant) {
     throw new AppError('Tenant profile not found', 404);
@@ -282,9 +285,9 @@ export async function confirmMoveIn(bookingId: string, tenantUserId: string) {
   }
 
   return BookingRepo.update(bookingId, { status: 'ACTIVE', moveInConfirmedAt: new Date() });
-}
+};
 
-export async function getApplicationDetail(bookingId: string, landlordId: string) {
+export const getApplicationDetail = async (bookingId: string, landlordId: string) => {
   const booking = await BookingRepo.getApplicationWithTenantProfile(bookingId);
   if (!booking) {
     throw new AppError('Application not found', 404);
@@ -296,4 +299,4 @@ export async function getApplicationDetail(bookingId: string, landlordId: string
   }
 
   return booking;
-}
+};

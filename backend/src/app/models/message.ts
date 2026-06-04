@@ -1,26 +1,33 @@
 import { DataTypes } from 'sequelize';
 import sequelize from './db';
+import { generateCode } from '../utils/utils';
 
 export const Message = sequelize.define('Message', {
   id: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true,
+  },
+  code: {
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    defaultValue: () => generateCode('msg'),
   },
   senderId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
   },
   recipientId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
   },
   propertyId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: true,
   },
   bookingId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: true,
   },
   body: {

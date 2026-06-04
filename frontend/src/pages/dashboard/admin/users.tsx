@@ -40,7 +40,7 @@ const USER_LIST_ACTIONS = [
   { name: "Toggle active status", action: "toggle", isDelete: true },
 ];
 
-function exportUsersCsv(users: AdminUser[]) {
+const exportUsersCsv = (users: AdminUser[]) => {
   const headers = [
     "Full Name",
     "Email",
@@ -71,9 +71,9 @@ function exportUsersCsv(users: AdminUser[]) {
   link.download = `users-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
-}
+};
 
-function sortUsers(users: AdminUser[], sortParams: Record<string, string>) {
+const sortUsers = (users: AdminUser[], sortParams: Record<string, string>) => {
   const entry = Object.entries(sortParams).find(([key]) =>
     key.startsWith("sort_"),
   );
@@ -104,9 +104,9 @@ function sortUsers(users: AdminUser[], sortParams: Record<string, string>) {
     if (left > right) return 1 * direction;
     return 0;
   });
-}
+};
 
-export default function AdminUsersPage() {
+const AdminUsersPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialRole = searchParams.get("role")?.toUpperCase() ?? "ALL";
@@ -163,19 +163,19 @@ export default function AdminUsersPage() {
     if (!user) return;
 
     if (action === "view") {
-      navigate(dashboardKeys.admin.userDetail.build(user.id));
+      navigate(dashboardKeys.admin.userDetail.build(user.code));
       return;
     }
 
     if (action === "approve") {
       const verification = getVerificationStatus(user);
       if (user.role === "ADMIN" || verification !== "PENDING") return;
-      verifyMutation.mutate({ id: user.id, status: "VERIFIED" });
+      verifyMutation.mutate({ id: user.code, status: "VERIFIED" });
       return;
     }
 
     if (action === "toggle" && user.role !== "ADMIN") {
-      toggleMutation.mutate(user.id);
+      toggleMutation.mutate(user.code);
     }
   };
 
@@ -241,7 +241,7 @@ export default function AdminUsersPage() {
           setPage(1);
         }}
         onClickRow={(row) =>
-          navigate(dashboardKeys.admin.userDetail.build(row.row.id))
+          navigate(dashboardKeys.admin.userDetail.build(row.row.code))
         }
         handleActionClick={handleActionClick}
         isLoadingAction={verifyMutation.isPending || toggleMutation.isPending}
@@ -275,4 +275,6 @@ export default function AdminUsersPage() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminUsersPage;

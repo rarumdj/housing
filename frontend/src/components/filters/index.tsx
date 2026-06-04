@@ -44,25 +44,25 @@ const DEFAULT_RANGE_STATE: RangeState = {
   max: '',
 };
 
-function isOperatorState(value: FilterValue): value is OperatorState {
+const isOperatorState = (value: FilterValue): value is OperatorState => {
   return Boolean(value && typeof value === 'object' && 'fromOp' in value);
-}
+};
 
-function isRangeState(value: FilterValue): value is RangeState {
+const isRangeState = (value: FilterValue): value is RangeState => {
   return Boolean(value && typeof value === 'object' && 'min' in value && 'max' in value);
-}
+};
 
-function toSelectOptions(option: FilterOption): SelectOption[] {
+const toSelectOptions = (option: FilterOption): SelectOption[] => {
   return (option.list ?? []).map((item) => ({
     value: item.value,
     label: item.label,
     searchLabel: `${item.label} ${item.subLabel ?? ''}`.trim(),
   }));
-}
+};
 
-function formatDateParam(value: Date) {
+const formatDateParam = (value: Date) => {
   return value.toISOString().split('T')[0];
-}
+};
 
 const DEFAULT_DATE_PRESETS = [
   { value: 'last7Days', label: 'Last 7 Days' },

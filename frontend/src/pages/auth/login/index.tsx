@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Home } from 'lucide-react';
 import { ADMIN_DEMO, authKeys, getPostLoginPath, publicKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
-import { useLoginMutation } from '@/services/auth/queries';
+import { useEmailIntentMutation, useLoginMutation } from '@/services/auth/queries';
 import { StorageTypes } from '@/services/auth/keys';
 import { toRequestMessage } from '@/lib/utils';
 import { CustomButton } from '@/components/button';
@@ -20,9 +20,10 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+const LoginPage = () => {
   const navigate = useNavigate();
   const loginMutation = useLoginMutation();
+  const emailIntentMutation = useEmailIntentMutation();
   const { setSession } = useAuthManager();
   const { control, handleSubmit } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -34,8 +35,30 @@ export default function LoginPage() {
         setSession(response.data, StorageTypes.session);
         navigate(getPostLoginPath(response.data.user.role));
       },
+      onError: (err: unknown) => {
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        const message = toRequestMessage(err);
+        if (status === 403 && /verify/i.test(message)) {
+          // Email not verified — create a verification intent and route the user
+          // to the OTP page at /email-verify/:code.
+          emailIntentMutation.mutate(
+            { email: values.email },
+            {
+              onSuccess: (intent) => {
+                if (intent.data.intentCode) {
+                  navigate(authKeys.emailVerify.build(intent.data.intentCode), {
+                    state: { email: values.email },
+                  });
+                }
+              },
+            },
+          );
+        }
+      },
     });
   };
+
+  const isVerifyingEmail = emailIntentMutation.isPending;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/20 p-4">
@@ -72,7 +95,7 @@ export default function LoginPage() {
                 placeholder="Enter your password"
               />
 
-              {loginMutation.error ? (
+              {loginMutation.error && !isVerifyingEmail ? (
                 <div className="rounded-xl bg-destructive/10 p-3 text-sm text-destructive">
                   {toRequestMessage(loginMutation.error)}
                 </div>
@@ -84,8 +107,8 @@ export default function LoginPage() {
                   form="form-signin"
                   variant="primary"
                   className="w-full"
-                  loading={loginMutation.isPending}
-                  disabled={loginMutation.isPending}
+                  loading={loginMutation.isPending || isVerifyingEmail}
+                  disabled={loginMutation.isPending || isVerifyingEmail}
                 >
                   Sign in
                 </CustomButton>
@@ -115,4 +138,6 @@ export default function LoginPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

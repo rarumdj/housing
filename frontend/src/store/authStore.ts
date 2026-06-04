@@ -11,7 +11,15 @@ interface AuthUser {
   avatarUrl?: string;
   isPhoneVerified: boolean;
   isEmailVerified: boolean;
-  landlord?: { verificationStatus: string; isOnboarded: boolean } | null;
+  landlord?: {
+    id?: string;
+    verificationStatus: string;
+    isOnboarded: boolean;
+    onboardingStatus?: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+    onboardingStep?: string | null;
+    payoutProvider?: string | null;
+    payoutPreference?: string | null;
+  } | null;
   tenant?: { kycStatus: string; isOnboarded: boolean; screeningBand: string | null } | null;
 }
 

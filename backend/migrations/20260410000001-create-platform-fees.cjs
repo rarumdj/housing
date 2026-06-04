@@ -1,15 +1,20 @@
 'use strict';
 
-const { v4: uuidv4 } = require('uuid');
+const { generateCode } = require('../config/migration-helpers.cjs');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('platform_fees', {
       id: {
-        type: Sequelize.STRING(64),
+        type: Sequelize.INTEGER.UNSIGNED,
+        autoIncrement: true,
         primaryKey: true,
+      },
+      code: {
+        type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -52,7 +57,7 @@ module.exports = {
     const now = new Date();
     await queryInterface.bulkInsert('platform_fees', [
       {
-        id: uuidv4(),
+        code: generateCode('fee'),
         name: 'Agency Fee',
         slug: 'agency_fee',
         type: 'PERCENTAGE',
@@ -63,7 +68,7 @@ module.exports = {
         updatedAt: now,
       },
       {
-        id: uuidv4(),
+        code: generateCode('fee'),
         name: 'Maintenance Fee',
         slug: 'maintenance_fee',
         type: 'FLAT',

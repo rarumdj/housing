@@ -1,14 +1,21 @@
 import { DataTypes } from 'sequelize';
 import sequelize from './db';
+import { generateCode } from '../utils/utils';
 
 export const RefreshToken = sequelize.define('RefreshToken', {
   id: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true,
+  },
+  code: {
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    defaultValue: () => generateCode('rft'),
   },
   userId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
   },
   token: {

@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid';
 import LandlordRepo from '../../repositories/landlord.repo';
 import PropertyMediaRepo from '../../repositories/propertyMedia.repo';
 import PropertyRepo from '../../repositories/property.repo';
@@ -8,7 +7,7 @@ import AppError from '../../utils/appError';
 import { uploadToStorage, deleteFromStorage } from '../../utils/storage';
 import { getMockPropertyById, searchMockProperties } from './mock';
 
-function shouldUseMockPropertyData(error: unknown) {
+const shouldUseMockPropertyData = (error: unknown) => {
   if (!(error instanceof Error)) return false;
 
   return [
@@ -18,17 +17,17 @@ function shouldUseMockPropertyData(error: unknown) {
     'SequelizeConnectionRefusedError',
     'Unknown database',
   ].some((snippet) => error.message.includes(snippet));
-}
+};
 
-function toPlain<T>(value: T) {
+const toPlain = <T>(value: T) => {
   if (value && typeof value === 'object' && 'get' in (value as Record<string, unknown>)) {
     return (value as unknown as { get: (options: { plain: boolean }) => T }).get({ plain: true });
   }
 
   return value;
-}
+};
 
-function normalizePropertyListItem(property: Record<string, any>) {
+const normalizePropertyListItem = (property: Record<string, any>) => {
   const media = Array.isArray(property.media) ? property.media : [];
   const coverMedia = media.filter((item) => item.isCover);
 
@@ -39,11 +38,23 @@ function normalizePropertyListItem(property: Record<string, any>) {
       rooms: Array.isArray(property.rooms) ? property.rooms.length : 0,
     },
   };
-}
+};
 
-export async function createProperty(landlordId: string, payload: Record<string, unknown>) {
+const getLandlordOrFail = async (landlordId: string) => {
+  const landlord = await LandlordRepo.getById(landlordId);
+  if (!landlord) {
+    throw new AppError('Landlord profile not found', 404);
+  }
+  return landlord;
+};
+
+export const createProperty = async (landlordId: string, payload: Record<string, unknown>) => {
+  const landlord = await getLandlordOrFail(landlordId);
+  if (String(landlord.get('onboardingStatus')) !== 'COMPLETED') {
+    throw new AppError('Complete your landlord onboarding before adding properties', 403);
+  }
+
   const property = await PropertyRepo.create({
-    id: uuidv4(),
     landlordId,
     ...payload,
     availableFrom: new Date(String(payload.availableFrom)),
@@ -53,9 +64,9 @@ export async function createProperty(landlordId: string, payload: Record<string,
   await LandlordRepo.updateById(landlordId, { totalProperties });
 
   return toPlain(property);
-}
+};
 
-export async function updateProperty(id: string, landlordId: string, payload: Record<string, unknown>) {
+export const updateProperty = async (id: string, landlordId: string, payload: Record<string, unknown>) => {
   const property = await PropertyRepo.getOwned(id, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
@@ -68,12 +79,17 @@ export async function updateProperty(id: string, landlordId: string, payload: Re
 
   const updated = await PropertyRepo.updateOwned(id, landlordId, updatePayload);
   return toPlain(updated);
-}
+};
 
-export async function publishProperty(id: string, landlordId: string) {
+export const publishProperty = async (id: string, landlordId: string) => {
   const property = await PropertyRepo.getOwned(id, landlordId);
   if (!property) {
     throw new AppError('Property not found', 404);
+  }
+
+  const landlord = await getLandlordOrFail(landlordId);
+  if (String(landlord.get('verificationStatus')) !== 'VERIFIED') {
+    throw new AppError('Your identity must be verified before publishing a listing', 403);
   }
 
   const mediaCount = await PropertyMediaRepo.countByPropertyId(id);
@@ -83,9 +99,9 @@ export async function publishProperty(id: string, landlordId: string) {
 
   const updated = await PropertyRepo.updateOwned(id, landlordId, { status: 'PENDING_VERIFICATION' });
   return toPlain(updated);
-}
+};
 
-export async function getPropertyById(id: string) {
+export const getPropertyById = async (id: string) => {
   try {
     const property = await PropertyRepo.getDetailedById(id);
     if (!property || property.get('status') === 'ARCHIVED') {
@@ -111,9 +127,9 @@ export async function getPropertyById(id: string) {
 
     throw error;
   }
-}
+};
 
-export async function searchProperties(filters: Record<string, unknown>) {
+export const searchProperties = async (filters: Record<string, unknown>) => {
   const page = Number(filters.page || 1);
   const limit = Number(filters.limit || 12);
   const sortBy = String(filters.sortBy || 'newest');
@@ -152,46 +168,42 @@ export async function searchProperties(filters: Record<string, unknown>) {
 
     throw error;
   }
-}
+};
 
-export async function addRoom(propertyId: string, landlordId: string, payload: Record<string, unknown>) {
+export const addRoom = async (propertyId: string, landlordId: string, payload: Record<string, unknown>) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found', 404);
   }
 
   const room = await PropertyRoomRepo.create({
-    id: uuidv4(),
     propertyId,
     ...payload,
   });
 
   return toPlain(room);
-}
+};
 
-export async function getLandlordProperties(landlordId: string) {
+export const getLandlordProperties = async (landlordId: string) => {
   const properties = await PropertyRepo.getByLandlordId(landlordId);
 
   return properties.map((item) => normalizePropertyListItem(toPlain(item) as Record<string, any>));
-}
+};
 
-function inferMediaType(mimeType: string): string {
+const inferMediaType = (mimeType: string): string => {
   if (mimeType.startsWith('video/')) return 'VIDEO';
   if (mimeType.startsWith('image/')) return 'TOUR_360';
   return 'PHOTO';
-}
+};
 
-export async function uploadMedia(
-  propertyId: string,
-  landlordId: string,
-  files: Array<{ buffer: Buffer; mimetype: string; originalname: string }>,
-) {
+export const uploadMedia = async (propertyId: string, landlordId: string, files: Array<{ buffer: Buffer; mimetype: string; originalname: string }>) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
   }
+  const pid = property.get('id') as number;
 
-  const existingCount = await PropertyMediaRepo.countByPropertyId(propertyId);
+  const existingCount = await PropertyMediaRepo.countByPropertyId(pid);
   const results = [];
 
   for (let i = 0; i < files.length; i++) {
@@ -201,8 +213,7 @@ export async function uploadMedia(
     const mediaType = inferMediaType(file.mimetype);
 
     const media = await PropertyMediaRepo.create({
-      id: uuidv4(),
-      propertyId,
+      propertyId: pid,
       type: mediaType,
       url,
       isCover: existingCount === 0 && i === 0,
@@ -213,33 +224,34 @@ export async function uploadMedia(
   }
 
   return results;
-}
+};
 
-export async function deleteMedia(propertyId: string, landlordId: string, mediaId: string) {
+export const deleteMedia = async (propertyId: string, landlordId: string, mediaId: string) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
   }
+  const pid = property.get('id') as number;
 
   const media = await PropertyMediaRepo.getById(mediaId);
-  if (!media || media.get('propertyId') !== propertyId) {
+  if (!media || media.get('propertyId') !== pid) {
     throw new AppError('Media not found', 404);
   }
 
   await deleteFromStorage(String(media.get('url')));
-  await PropertyMediaRepo.deleteById(mediaId, propertyId);
-}
+  await PropertyMediaRepo.deleteById(mediaId, pid);
+};
 
-export async function setCoverMedia(propertyId: string, landlordId: string, mediaId: string) {
+export const setCoverMedia = async (propertyId: string, landlordId: string, mediaId: string) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
   }
 
-  await PropertyMediaRepo.setCover(mediaId, propertyId);
-}
+  await PropertyMediaRepo.setCover(mediaId, property.get('id') as number);
+};
 
-export async function deleteProperty(id: string, landlordId: string) {
+export const deleteProperty = async (id: string, landlordId: string) => {
   const property = await PropertyRepo.getOwned(id, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
@@ -251,17 +263,18 @@ export async function deleteProperty(id: string, landlordId: string) {
   }
 
   await PropertyRepo.updateOwned(id, landlordId, { status: 'ARCHIVED' });
-}
+};
 
-export async function getPropertyActivity(propertyId: string, landlordId: string) {
+export const getPropertyActivity = async (propertyId: string, landlordId: string) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found or access denied', 404);
   }
 
+  const pid = property.get('id') as number;
   const detailed = await PropertyRepo.getDetailedById(propertyId);
   const bookings = await BookingRepo.getByPropertyIdsAndStatuses(
-    [propertyId],
+    [String(pid)],
     ['APPLIED', 'UNDER_REVIEW', 'ACCEPTED', 'AWAITING_PAYMENT', 'PAID', 'ACTIVE', 'DECLINED', 'ENDED', 'CANCELLED'],
   );
 
@@ -269,4 +282,4 @@ export async function getPropertyActivity(propertyId: string, landlordId: string
     property: toPlain(detailed),
     bookings: bookings.map((b) => toPlain(b)),
   };
-}
+};

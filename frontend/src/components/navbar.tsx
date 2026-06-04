@@ -7,7 +7,7 @@ import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useLogoutMutation } from '@/services/auth/queries';
 import { getInitials } from '@/lib/utils';
 
-export function Navbar() {
+export const Navbar = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const logoutMutation = useLogoutMutation();
@@ -117,4 +117,4 @@ export function Navbar() {
       </div>
     </header>
   );
-}
+};

@@ -17,7 +17,7 @@ const propertyTypes = [
   { value: 'FLAT', label: 'Flat' },
 ];
 
-export default function SearchPage() {
+const SearchPage = () => {
   const [urlParams] = useSearchParams();
   const [showFilters, setShowFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -194,7 +194,7 @@ export default function SearchPage() {
           <>
             <div className={viewMode === 'grid' ? 'grid gap-6 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}>
               {data.properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.code} property={property} />
               ))}
             </div>
 
@@ -220,4 +220,6 @@ export default function SearchPage() {
       </div>
     </div>
   );
-}
+};
+
+export default SearchPage;

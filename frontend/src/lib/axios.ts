@@ -7,9 +7,9 @@ type AuthAdapter = {
 
 let authAdapter: AuthAdapter | null = null;
 
-export function configureAxiosAuth(adapter: AuthAdapter) {
+export const configureAxiosAuth = (adapter: AuthAdapter) => {
   authAdapter = adapter;
-}
+};
 
 const apiBaseUrl =
   (import.meta as ImportMeta & { env?: Record<string, string | undefined> }).env?.VITE_API_BASE_URL ??
@@ -47,9 +47,9 @@ Axios.interceptors.response.use(
   }
 );
 
-export function request<T>(config: AxiosRequestConfig): Promise<T> {
+export const request = <T>(config: AxiosRequestConfig): Promise<T> => {
   return Axios.request(config);
-}
+};
 
 export { Axios };
 export default Axios;

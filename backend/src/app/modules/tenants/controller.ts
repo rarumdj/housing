@@ -1,33 +1,49 @@
 import { Request, Response } from 'express';
 import { sendSuccess } from '../../utils/response';
+import AppError from '../../utils/appError';
 import * as TenantService from './service';
 
-export async function me(req: Request, res: Response) {
+export const me = async (req: Request, res: Response) => {
   const data = await TenantService.getMe(String(req.user?.id));
   return sendSuccess(res, { data });
-}
+};
 
-export async function profile(req: Request, res: Response) {
+export const profile = async (req: Request, res: Response) => {
   const data = await TenantService.getProfile(String(req.user?.id));
   return sendSuccess(res, { data });
-}
+};
 
-export async function updateProfile(req: Request, res: Response) {
+export const updateProfile = async (req: Request, res: Response) => {
   const data = await TenantService.updateProfile(String(req.user?.id), req.body);
   return sendSuccess(res, { data });
-}
+};
 
-export async function completeOnboarding(req: Request, res: Response) {
+export const completeOnboarding = async (req: Request, res: Response) => {
   const data = await TenantService.completeOnboarding(String(req.user?.id), req.body);
   return sendSuccess(res, { data, message: 'Onboarding completed' });
-}
+};
 
-export async function myBookings(req: Request, res: Response) {
+export const uploadDocuments = async (req: Request, res: Response) => {
+  const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+  if (files.length === 0) {
+    throw new AppError('No files provided', 400);
+  }
+  const labels = ([] as string[]).concat(req.body.labels ?? []);
+  await TenantService.uploadDocuments(String(req.user?.id), files, labels);
+  return sendSuccess(res, { statusCode: 201, message: 'Documents uploaded' });
+};
+
+export const deleteDocument = async (req: Request, res: Response) => {
+  await TenantService.deleteDocument(String(req.user?.id), req.body.url);
+  return sendSuccess(res, { message: 'Document deleted' });
+};
+
+export const myBookings = async (req: Request, res: Response) => {
   const data = await TenantService.getBookings(String(req.user?.id));
   return sendSuccess(res, { data });
-}
+};
 
-export async function myLeases(req: Request, res: Response) {
+export const myLeases = async (req: Request, res: Response) => {
   const data = await TenantService.getLeases(String(req.user?.id));
   return sendSuccess(res, { data });
-}
+};

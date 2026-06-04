@@ -7,24 +7,29 @@ import AppError from './appError';
 import UserRepo from '../repositories/user.repo';
 import RefreshTokenRepo from '../repositories/refreshToken.repo';
 
-export async function generateTokens(userId: string, role: string, email: string) {
+// `sub` carries the public user code; userId (numeric) is used internally for FKs.
+export const generateTokens = async (
+  userId: number | string,
+  userCode: string,
+  role: string,
+  email: string,
+) => {
   const accessOptions: SignOptions = { expiresIn: env.jwt.accessExpires as SignOptions['expiresIn'] };
-  const accessToken = jwt.sign({ sub: userId, role, email }, env.jwt.accessSecret, accessOptions);
+  const accessToken = jwt.sign({ sub: userCode, role, email }, env.jwt.accessSecret, accessOptions);
 
   const refreshToken = uuidv4();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
   await RefreshTokenRepo.create({
-    id: uuidv4(),
     userId,
     token: refreshToken,
     expiresAt,
   });
 
   return { accessToken, refreshToken };
-}
+};
 
-export async function verifyRefreshToken(token: string) {
+export const verifyRefreshToken = async (token: string) => {
   const stored = await RefreshTokenRepo.getOne({
     token,
     expiresAt: {
@@ -34,19 +39,20 @@ export async function verifyRefreshToken(token: string) {
 
   if (!stored) return null;
 
-  const user = await UserRepo.getById(String(stored.get('userId')));
+  const user = await UserRepo.getById(stored.get('userId') as number);
   if (!user || !user.get('isActive')) return null;
 
   await RefreshTokenRepo.delete({ token });
 
   return {
-    id: String(user.get('id')),
+    id: user.get('id') as number,
+    code: String(user.get('code')),
     role: String(user.get('role')),
     email: String(user.get('email')),
   };
-}
+};
 
-export async function authenticate(req: Request, res: Response, next: NextFunction) {
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
@@ -60,13 +66,14 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       email: string;
     };
 
-    const user = await UserRepo.getById(payload.sub);
+    const user = await UserRepo.getByCode(payload.sub);
     if (!user || !user.get('isActive')) {
       throw new AppError('User not found or deactivated', 401);
     }
 
     req.user = {
       id: String(user.get('id')),
+      code: String(user.get('code')),
       role: String(user.get('role')),
       email: String(user.get('email')),
     };
@@ -79,9 +86,9 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
       message: error instanceof Error ? error.message : 'Invalid or expired token',
     });
   }
-}
+};
 
-export function requireRole(...roles: string[]) {
+export const requireRole = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user || !roles.includes(req.user.role)) {
       return res.status(403).json({
@@ -93,4 +100,4 @@ export function requireRole(...roles: string[]) {
 
     return next();
   };
-}
+};

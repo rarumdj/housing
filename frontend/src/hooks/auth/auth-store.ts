@@ -20,7 +20,7 @@ const initialState: AuthSnapshot = {
   rememberMe: false,
 };
 
-function loadAuthState(): AuthSnapshot {
+const loadAuthState = (): AuthSnapshot => {
   try {
     const local = localStorage.getItem(AuthKeys.tokenStorage);
     const session = sessionStorage.getItem(AuthKeys.tokenStorage);
@@ -29,9 +29,9 @@ function loadAuthState(): AuthSnapshot {
   } catch {
     return initialState;
   }
-}
+};
 
-function persistState(state: AuthSnapshot) {
+const persistState = (state: AuthSnapshot) => {
   if (state.rememberMe) {
     localStorage.setItem(AuthKeys.tokenStorage, JSON.stringify(state));
     sessionStorage.removeItem(AuthKeys.tokenStorage);
@@ -40,9 +40,9 @@ function persistState(state: AuthSnapshot) {
 
   sessionStorage.setItem(AuthKeys.tokenStorage, JSON.stringify(state));
   localStorage.removeItem(AuthKeys.tokenStorage);
-}
+};
 
-function createAuthStore() {
+const createAuthStore = () => {
   let state: AuthSnapshot = typeof window === 'undefined' ? initialState : loadAuthState();
   const listeners = new Set<Listener>();
 
@@ -94,7 +94,7 @@ function createAuthStore() {
     },
     isAuthenticated: () => !!state.accessToken && !!state.user,
   };
-}
+};
 
 export const authStore = createAuthStore();
 

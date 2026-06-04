@@ -3,6 +3,7 @@ import AdminRoutes from '../modules/admin';
 import AuthRoutes from '../modules/auth';
 import BookingRoutes from '../modules/bookings';
 import LandlordRoutes from '../modules/landlords';
+import LocationRoutes from '../modules/locations';
 import MessageRoutes from '../modules/messages';
 import PaymentRoutes from '../modules/payments';
 import PropertyRoutes from '../modules/properties';
@@ -23,6 +24,7 @@ export default (app: Application) => {
   app.use(`${apiVersion}/tenants`, TenantRoutes);
   app.use(`${apiVersion}/landlords`, LandlordRoutes);
   app.use(`${apiVersion}/messages`, MessageRoutes);
+  app.use(`${apiVersion}/locations`, LocationRoutes);
   app.use(`${apiVersion}/properties/:propertyId/video`, VideoRoutes);
 
   app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {

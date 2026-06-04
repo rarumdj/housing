@@ -59,20 +59,12 @@ services:
         condition: service_started
     ports:
       - "${API_HOST_PORT:-4000}:4000"
+    # All API configuration lives in .env.docker (generated from
+    # .env.docker.example by `npm run docker:setup`). DB_HOST/REDIS point at the
+    # compose service names there. These override backend/.env inside the container.
     env_file:
       - path: .env.docker
-        required: false
-    environment:
-      NODE_ENV: development
-      PORT: 4000
-      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
-      DATABASE: ${DATABASE:-house_hunt}
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USER: root
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      DB_DIALECT: mysql
-      REDIS_URL: redis://redis:6379
+        required: true
     volumes:
       - ./backend/src:/app/backend/src
       - ./backend/config:/app/backend/config

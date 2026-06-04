@@ -17,12 +17,12 @@ export interface CardSelectorProps {
   className?: string;
 }
 
-export function CardSelector({
+export const CardSelector = ({
   option,
   selected,
   onSelect,
   className,
-}: CardSelectorProps) {
+}: CardSelectorProps) => {
   const iconContent =
     typeof option.icon === 'string' ? (
       <img src={option.icon} alt={option.title} className="size-12 shrink-0" />
@@ -64,4 +64,4 @@ export function CardSelector({
       </div>
     </button>
   );
-}
+};

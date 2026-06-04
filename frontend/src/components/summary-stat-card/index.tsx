@@ -20,7 +20,7 @@ export interface SummaryStatCardProps {
   valueFirst?: boolean;
 }
 
-export function SummaryStatCard({
+export const SummaryStatCard = ({
   icon,
   label,
   value,
@@ -32,7 +32,7 @@ export function SummaryStatCard({
   labelClassName,
   valueClassName,
   valueFirst = false,
-}: SummaryStatCardProps) {
+}: SummaryStatCardProps) => {
   if (isLoading) {
     return (
       <Card
@@ -124,4 +124,4 @@ export function SummaryStatCard({
       </CardContent>
     </Card>
   );
-}
+};

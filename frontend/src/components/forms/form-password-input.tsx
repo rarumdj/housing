@@ -10,13 +10,13 @@ export interface FormPasswordInputProps<T extends FieldValues>
   description?: string;
 }
 
-export function FormPasswordInput<T extends FieldValues>({
+export const FormPasswordInput = <T extends FieldValues,>({
   control,
   name,
   label,
   description,
   ...passwordProps
-}: FormPasswordInputProps<T>) {
+}: FormPasswordInputProps<T>) => {
   return (
     <FormController
       control={control}
@@ -28,4 +28,4 @@ export function FormPasswordInput<T extends FieldValues>({
       )}
     />
   );
-}
+};

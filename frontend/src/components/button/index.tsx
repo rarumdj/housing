@@ -12,7 +12,7 @@ type CustomButtonProps = ComponentProps<typeof UIButton> &
     iconPlacement?: 'left' | 'right';
   };
 
-function CustomButton({
+const CustomButton = ({
   className,
   variant,
   size = 'default',
@@ -22,7 +22,7 @@ function CustomButton({
   children,
   disabled,
   ...props
-}: CustomButtonProps) {
+}: CustomButtonProps) => {
   return (
     <UIButton
       variant={variant}
@@ -51,6 +51,6 @@ function CustomButton({
       </span>
     </UIButton>
   );
-}
+};
 
 export { CustomButton };

@@ -2,7 +2,7 @@ import { env } from './env';
 
 let queueInstance: { add: (name: string, payload: Record<string, unknown>) => Promise<unknown> } | null = null;
 
-async function getQueue() {
+const getQueue = async () => {
   if (!env.redis.url) return null;
   if (queueInstance) return queueInstance;
 
@@ -15,11 +15,11 @@ async function getQueue() {
     console.warn('[Queue] Redis/BullMQ unavailable. Continuing without background jobs.', error);
     return null;
   }
-}
+};
 
-export async function addVideoProcessingJob(payload: Record<string, unknown>) {
+export const addVideoProcessingJob = async (payload: Record<string, unknown>) => {
   const queue = await getQueue();
   if (!queue) return false;
   await queue.add('process-video', payload);
   return true;
-}
+};

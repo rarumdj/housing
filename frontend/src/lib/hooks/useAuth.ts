@@ -4,7 +4,7 @@ import api from '@/lib/api';
 import { getPostLoginPath } from '@/routes/keys';
 import { useAuthStore } from '@/store/authStore';
 
-export function useLogin() {
+export const useLogin = () => {
   const { setUser, setTokens } = useAuthStore();
   const navigate = useNavigate();
 
@@ -17,9 +17,9 @@ export function useLogin() {
       navigate(getPostLoginPath(data.user.role));
     },
   });
-}
+};
 
-export function useRegister() {
+export const useRegister = () => {
   const { setUser, setTokens } = useAuthStore();
   const navigate = useNavigate();
 
@@ -34,9 +34,9 @@ export function useRegister() {
       navigate(data.user.role === 'LANDLORD' ? '/landlord/onboard' : '/onboard');
     },
   });
-}
+};
 
-export function useLogout() {
+export const useLogout = () => {
   const { logout, refreshToken } = useAuthStore();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -49,9 +49,9 @@ export function useLogout() {
       navigate('/');
     },
   });
-}
+};
 
-export function useMe() {
+export const useMe = () => {
   const { isAuthenticated } = useAuthStore();
   return useQuery({
     queryKey: ['me'],
@@ -59,4 +59,4 @@ export function useMe() {
     enabled: isAuthenticated,
     staleTime: 1000 * 60 * 10,
   });
-}
+};

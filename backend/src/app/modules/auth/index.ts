@@ -10,6 +10,8 @@ const router = Router();
 
 router.post('/register', authLimiter, validate(Validators.create), handler(AuthenticationController.createUser));
 router.post('/login', authLimiter, validate(Validators.login), handler(AuthenticationController.login));
+router.post('/email-verification/intent', authLimiter, validate(Validators.emailIntent), handler(AuthenticationController.createEmailIntent));
+router.post('/email-verification/confirm', authLimiter, validate(Validators.confirmEmail), handler(AuthenticationController.confirmEmail));
 router.post('/refresh', validate(Validators.refreshToken), handler(AuthenticationController.refresh));
 router.post('/logout', authenticate, validate(Validators.logout), handler(AuthenticationController.logout));
 router.get('/me', authenticate, handler(AuthenticationController.me));

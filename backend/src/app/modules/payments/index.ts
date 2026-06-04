@@ -8,6 +8,7 @@ import { validate } from '../../utils/validator';
 const router = Router();
 
 router.post('/webhook', validate(Validators.webhook), handler(PaymentController.webhook));
+router.post('/webhook/flutterwave', validate(Validators.webhook), handler(PaymentController.flutterwaveWebhook));
 router.get('/history', authenticate, handler(PaymentController.history));
 
 export default router;

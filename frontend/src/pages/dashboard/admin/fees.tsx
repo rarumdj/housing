@@ -21,7 +21,7 @@ interface FeeFormState {
 
 const emptyForm: FeeFormState = { name: '', slug: '', type: 'PERCENTAGE', value: '', description: '' };
 
-export default function AdminFeesPage() {
+const AdminFeesPage = () => {
   const { data, isLoading } = useAdminFeesQuery();
   const createMutation = useCreateFeeMutation();
   const updateMutation = useUpdateFeeMutation();
@@ -41,7 +41,7 @@ export default function AdminFeesPage() {
 
   const openEdit = (fee: PlatformFee) => {
     setForm({ name: fee.name, slug: fee.slug, type: fee.type, value: String(fee.value), description: fee.description ?? '' });
-    setEditingId(fee.id);
+    setEditingId(fee.code);
     setShowForm(true);
   };
 
@@ -60,7 +60,7 @@ export default function AdminFeesPage() {
   };
 
   const handleToggle = (fee: PlatformFee) => {
-    updateMutation.mutate({ id: fee.id, isActive: !fee.isActive });
+    updateMutation.mutate({ id: fee.code, isActive: !fee.isActive });
   };
 
   const calcAmount = (fee: PlatformFee) =>
@@ -87,7 +87,7 @@ export default function AdminFeesPage() {
           <h3 className="mb-2 text-sm font-bold text-primary">Fee Preview (sample rent: {formatNaira(SAMPLE_RENT)}/yr)</h3>
           <div className="space-y-1 text-sm">
             {fees.filter((f) => f.isActive).map((f) => (
-              <div key={f.id} className="flex justify-between">
+              <div key={f.code} className="flex justify-between">
                 <span>{f.name} ({f.type === 'PERCENTAGE' ? `${f.value}%` : 'Flat'})</span>
                 <span className="font-medium">{formatNaira(calcAmount(f))}</span>
               </div>
@@ -190,7 +190,7 @@ export default function AdminFeesPage() {
         ) : (
           <div className="space-y-3">
             {fees.map((fee) => (
-              <div key={fee.id} className={cn('flex items-center gap-4 rounded-2xl border bg-background p-5 transition-colors', fee.isActive ? 'border-border' : 'border-dashed border-muted opacity-60')}>
+              <div key={fee.code} className={cn('flex items-center gap-4 rounded-2xl border bg-background p-5 transition-colors', fee.isActive ? 'border-border' : 'border-dashed border-muted opacity-60')}>
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-bold">{fee.name}</p>
@@ -214,7 +214,7 @@ export default function AdminFeesPage() {
                     <span className={cn('inline-block h-4 w-4 rounded-full bg-white transition-transform', fee.isActive ? 'translate-x-6' : 'translate-x-1')} />
                   </button>
                   <button onClick={() => openEdit(fee)} className="rounded-lg p-2 hover:bg-muted"><Edit className="h-4 w-4" /></button>
-                  <button onClick={() => deleteMutation.mutate(fee.id)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
+                  <button onClick={() => deleteMutation.mutate(fee.code)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                 </div>
               </div>
             ))}
@@ -223,4 +223,6 @@ export default function AdminFeesPage() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminFeesPage;

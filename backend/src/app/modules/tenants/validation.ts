@@ -28,3 +28,7 @@ export const updateProfile = Joi.object({
 });
 
 export const noop = Joi.object({});
+
+export const deleteDocument = Joi.object({
+  url: Joi.string().required(),
+});

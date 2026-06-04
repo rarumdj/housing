@@ -40,22 +40,22 @@ const CHART_CONFIG: ChartConfig = {
   },
 };
 
-function formatAxisValue(value: number): string {
+const formatAxisValue = (value: number): string => {
   if (value >= 1_000_000) return `${value / 1_000_000}M`;
   if (value >= 1_000) return `${value / 1_000}K`;
   return String(value);
-}
+};
 
-function formatTooltipValue(value: number, currencySymbol: string): string {
+const formatTooltipValue = (value: number, currencySymbol: string): string => {
   return `${currencySymbol}${value.toLocaleString()}`;
-}
+};
 
-export function RepaymentBarChart({
+export const RepaymentBarChart = ({
   data,
   currencySymbol = '₦',
   className,
   height = 320,
-}: RepaymentBarChartProps) {
+}: RepaymentBarChartProps) => {
   return (
     <ChartContainer
       config={CHART_CONFIG}
@@ -122,4 +122,4 @@ export function RepaymentBarChart({
       </RechartsBarChart>
     </ChartContainer>
   );
-}
+};

@@ -10,13 +10,13 @@ interface FormMultiSelectProps<T extends FieldValues>
   description?: string;
 }
 
-export function FormMultiSelect<T extends FieldValues>({
+export const FormMultiSelect = <T extends FieldValues,>({
   control,
   name,
   label,
   description,
   ...props
-}: FormMultiSelectProps<T>) {
+}: FormMultiSelectProps<T>) => {
   return (
     <FormController
       control={control}
@@ -33,4 +33,4 @@ export function FormMultiSelect<T extends FieldValues>({
       )}
     />
   );
-}
+};

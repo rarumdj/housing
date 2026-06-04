@@ -8,7 +8,7 @@ import { env } from '../../utils/env';
 import { addVideoProcessingJob } from '../../utils/queue';
 import { uploadToStorage } from '../../utils/storage';
 
-function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
+const haversineDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
   const radius = 6371000;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLng = ((lng2 - lng1) * Math.PI) / 180;
@@ -17,13 +17,13 @@ function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
     Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
 
   return radius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
+};
 
-function signPayload(payload: string, secret: string) {
+const signPayload = (payload: string, secret: string) => {
   return crypto.createHmac('sha256', secret).update(payload).digest('hex');
-}
+};
 
-export async function createSession(propertyId: string, landlordId: string) {
+export const createSession = async (propertyId: string, landlordId: string) => {
   const property = await PropertyRepo.getOwned(propertyId, landlordId);
   if (!property) {
     throw new AppError('Property not found', 404);
@@ -33,7 +33,6 @@ export async function createSession(propertyId: string, landlordId: string) {
   const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
 
   const session = await VideoSessionRepo.create({
-    id: uuidv4(),
     propertyId,
     nonce,
     expectedLat: property.get('lat'),
@@ -52,9 +51,9 @@ export async function createSession(propertyId: string, landlordId: string) {
     signature,
     expiresAt,
   };
-}
+};
 
-export async function uploadVideo(params: {
+export const uploadVideo = async (params: {
   propertyId: string;
   landlordId: string;
   buffer: Buffer;
@@ -64,7 +63,7 @@ export async function uploadVideo(params: {
   gpsLat: number;
   gpsLng: number;
   recordedAt: string;
-}) {
+}) => {
   const property = await PropertyRepo.getOwned(params.propertyId, params.landlordId);
   if (!property) {
     throw new AppError('Property not found', 404);
@@ -115,7 +114,6 @@ export async function uploadVideo(params: {
   const key = await uploadToStorage(params.buffer, params.mimeType, `videos/${params.propertyId}`);
 
   const media = await PropertyMediaRepo.create({
-    id: uuidv4(),
     propertyId: params.propertyId,
     type: 'VIDEO',
     url: key,
@@ -135,4 +133,4 @@ export async function uploadVideo(params: {
     media,
     message: '3D tour generation started',
   };
-}
+};

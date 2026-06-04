@@ -9,20 +9,20 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 interface Property {
-  id: string; title: string; address: string; lga: string; state: string;
+  id?: string; code: string; title: string; address: string; lga: string; state: string;
   priceAnnually: number; type: string;
   media: Array<{ url: string; isCover?: boolean; type?: string }>;
   _count?: { rooms: number };
   verificationStatus: string;
 }
 
-export function PropertyCard({ property, className }: { property: Property; className?: string }) {
+export const PropertyCard = ({ property, className }: { property: Property; className?: string }) => {
   const cover = property.media?.[0];
   const isVerified = property.verificationStatus === 'VERIFIED';
   const has3D = property.media?.some((m) => m.type === 'MODEL_3D' || m.type === 'TOUR_360');
 
   return (
-    <Link to={`/property/${property.id}`}
+    <Link to={`/property/${property.code}`}
       className={cn('group block rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg hover:shadow-black/5 transition-all duration-200', className)}>
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
         {cover
@@ -54,4 +54,4 @@ export function PropertyCard({ property, className }: { property: Property; clas
       </div>
     </Link>
   );
-}
+};

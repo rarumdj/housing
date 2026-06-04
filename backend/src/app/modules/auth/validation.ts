@@ -22,3 +22,12 @@ export const refreshToken = Joi.object({
 export const logout = Joi.object({
   refreshToken: Joi.string().required(),
 });
+
+export const emailIntent = Joi.object({
+  email: Joi.string().email().required(),
+});
+
+export const confirmEmail = Joi.object({
+  intentCode: Joi.string().required(),
+  otp: Joi.string().min(4).max(8).required(),
+});

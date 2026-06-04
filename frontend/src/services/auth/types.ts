@@ -19,7 +19,26 @@ export interface LogoutPayload {
   refreshToken: string | null;
 }
 
+export interface EmailIntentPayload {
+  email: string;
+}
+
+export interface ConfirmEmailPayload {
+  intentCode: string;
+  otp: string;
+}
+
+export interface RegisterResult {
+  requiresEmailVerification: boolean;
+  email: string;
+  role: 'LANDLORD' | 'TENANT';
+  firstName: string;
+  intentCode: string;
+}
+
 export type LoginResponse = BaseResponse<AuthSession>;
-export type RegisterResponse = BaseResponse<AuthSession>;
+export type RegisterResponse = BaseResponse<RegisterResult>;
+export type EmailIntentResponse = BaseResponse<{ intentCode: string | null; alreadyVerified: boolean }>;
+export type ConfirmEmailResponse = BaseResponse<AuthSession>;
 export type MeResponse = BaseResponse<AuthUser>;
 export type LogoutResponse = BaseResponse<null>;

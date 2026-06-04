@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import { dashboardKeys } from '@/routes/keys';
+import { toRequestMessage } from '@/lib/utils';
 import { PropertyForm, type PropertyFormValues } from '@/components/landlord/property-form';
 import {
   useCreatePropertyMutation,
@@ -12,7 +14,7 @@ import {
 } from '@/services/properties/queries';
 import type { PropertyMedia } from '@/types/domain';
 
-export default function CreatePropertyPage() {
+const CreatePropertyPage = () => {
   const navigate = useNavigate();
   const [propertyId, setPropertyId] = useState<string | null>(null);
   const [media, setMedia] = useState<PropertyMedia[]>([]);
@@ -30,15 +32,20 @@ export default function CreatePropertyPage() {
     }
 
     const result = await createMutation.mutateAsync(data);
-    const id = (result as unknown as { data: { id: string } }).data.id;
-    setPropertyId(id);
-    navigate(dashboardKeys.landlord.detail.build(id));
+    const code = (result as unknown as { data: { code: string } }).data.code;
+    setPropertyId(code);
+    navigate(dashboardKeys.landlord.detail.build(code));
   };
 
   const handlePublish = async () => {
     if (!propertyId) return;
-    await publishMutation.mutateAsync(propertyId);
-    navigate(dashboardKeys.landlord.properties.path);
+    try {
+      await publishMutation.mutateAsync(propertyId);
+      toast.success('Property submitted for review');
+      navigate(dashboardKeys.landlord.properties.path);
+    } catch (err) {
+      toast.error(toRequestMessage(err));
+    }
   };
 
   const handleUpload = async (files: File[]) => {
@@ -51,14 +58,14 @@ export default function CreatePropertyPage() {
   const handleDeleteMedia = (mediaId: string) => {
     if (!propertyId) return;
     deleteMutation.mutate({ propertyId, mediaId });
-    setMedia((prev) => prev.filter((m) => m.id !== mediaId));
+    setMedia((prev) => prev.filter((m) => m.code !== mediaId));
   };
 
   const handleSetCover = (mediaId: string) => {
     if (!propertyId) return;
     coverMutation.mutate({ propertyId, mediaId });
     setMedia((prev) =>
-      prev.map((m) => ({ ...m, isCover: m.id === mediaId })),
+      prev.map((m) => ({ ...m, isCover: m.code === mediaId })),
     );
   };
 
@@ -89,4 +96,6 @@ export default function CreatePropertyPage() {
       </div>
     </div>
   );
-}
+};
+
+export default CreatePropertyPage;

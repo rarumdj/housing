@@ -4,22 +4,22 @@ import AppError from '../../utils/appError';
 import { sendSuccess } from '../../utils/response';
 import * as VideoService from './service';
 
-async function getLandlordId(userId: string) {
+const getLandlordId = async (userId: string) => {
   const landlord = await LandlordRepo.getByUserId(userId);
   if (!landlord) {
     throw new AppError('Landlord profile not found', 404);
   }
 
   return String(landlord.get('id'));
-}
+};
 
-export async function createSession(req: Request, res: Response) {
+export const createSession = async (req: Request, res: Response) => {
   const landlordId = await getLandlordId(String(req.user?.id));
   const data = await VideoService.createSession(req.params.propertyId, landlordId);
   return sendSuccess(res, { statusCode: 201, data });
-}
+};
 
-export async function upload(req: Request, res: Response) {
+export const upload = async (req: Request, res: Response) => {
   if (!req.file) {
     throw new AppError('No video file uploaded', 400);
   }
@@ -39,4 +39,4 @@ export async function upload(req: Request, res: Response) {
   });
 
   return sendSuccess(res, { statusCode: 201, data });
-}
+};

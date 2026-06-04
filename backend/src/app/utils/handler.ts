@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 
 type AsyncHandler = (req: Request, res: Response, next: NextFunction) => Promise<unknown>;
 
-export default function handler(fn: AsyncHandler) {
+const handler = (fn: AsyncHandler) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       await fn(req, res, next);
@@ -10,4 +10,6 @@ export default function handler(fn: AsyncHandler) {
       next(error);
     }
   };
-}
+};
+
+export default handler;

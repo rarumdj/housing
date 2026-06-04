@@ -32,7 +32,7 @@ export interface FormControllerProps<T extends FieldValues> {
   fieldClassName?: string;
 }
 
-export function FormController<T extends FieldValues>({
+const FormController = <T extends FieldValues,>({
   name,
   control,
   label,
@@ -41,7 +41,7 @@ export function FormController<T extends FieldValues>({
   render,
   className,
   fieldClassName,
-}: FormControllerProps<T>) {
+}: FormControllerProps<T>) => {
   return (
     <Controller
       control={control}
@@ -70,6 +70,6 @@ export function FormController<T extends FieldValues>({
       )}
     />
   );
-}
+};
 
 export default FormController;

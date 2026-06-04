@@ -1,6 +1,10 @@
 export const authKeys = {
   login: { path: '/login' },
   register: { path: '/register' },
+  emailVerify: {
+    paramPath: '/email-verify/:code',
+    build: (code: string) => `/email-verify/${code}`,
+  },
 } as const;
 
 export const publicKeys = {
@@ -21,6 +25,7 @@ export const dashboardKeys = {
   },
   landlord: {
     home: { path: '/landlord/dashboard' },
+    onboarding: { path: '/landlord/onboarding' },
     properties: { path: '/landlord/properties' },
     create: { path: '/landlord/properties/new' },
     detail: {
@@ -59,8 +64,8 @@ export const ADMIN_DEMO = {
   password: 'Password123!',
 } as const;
 
-export function getPostLoginPath(role: string): string {
+export const getPostLoginPath = (role: string): string => {
   if (role === 'LANDLORD') return dashboardKeys.landlord.home.path;
   if (role === 'ADMIN') return dashboardKeys.admin.home.path;
   return dashboardKeys.tenant.home.path;
-}
+};

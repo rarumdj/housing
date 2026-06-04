@@ -1,6 +1,7 @@
 'use strict';
 
 const bcrypt = require('bcryptjs');
+const { generateCode } = require('../config/migration-helpers.cjs');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -9,8 +10,8 @@ module.exports = {
     const passwordHash = bcrypt.hashSync('Password123!', 12);
 
     await queryInterface.sequelize.query(
-      `INSERT INTO users (id, email, phone, passwordHash, role, firstName, lastName, isPhoneVerified, isEmailVerified, isActive, createdAt, updatedAt)
-       VALUES (:id, :email, :phone, :passwordHash, :role, :firstName, :lastName, :isPhoneVerified, :isEmailVerified, :isActive, :createdAt, :updatedAt)
+      `INSERT INTO users (code, email, phone, passwordHash, role, firstName, lastName, isPhoneVerified, isEmailVerified, isActive, createdAt, updatedAt)
+       VALUES (:code, :email, :phone, :passwordHash, :role, :firstName, :lastName, :isPhoneVerified, :isEmailVerified, :isActive, :createdAt, :updatedAt)
        ON DUPLICATE KEY UPDATE
          passwordHash = VALUES(passwordHash),
          role = VALUES(role),
@@ -20,7 +21,7 @@ module.exports = {
          updatedAt = VALUES(updatedAt)`,
       {
         replacements: {
-          id: 'demo-user-admin-1',
+          code: generateCode('usr'),
           email: 'admin@househunt.dev',
           phone: '+2348000000099',
           passwordHash,

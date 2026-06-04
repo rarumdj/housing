@@ -18,7 +18,7 @@ type SuccessDialogProps = {
   onAction?: () => void;
 };
 
-export function SuccessDialog({
+export const SuccessDialog = ({
   open,
   onOpenChange,
   title,
@@ -27,7 +27,7 @@ export function SuccessDialog({
   imageAlt = 'Success',
   actionLabel = 'Done',
   onAction,
-}: SuccessDialogProps) {
+}: SuccessDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -56,4 +56,4 @@ export function SuccessDialog({
       </DialogContent>
     </Dialog>
   );
-}
+};

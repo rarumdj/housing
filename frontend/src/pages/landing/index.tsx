@@ -6,7 +6,7 @@ import { authKeys, publicKeys } from '@/routes/keys';
 import { usePropertiesQuery } from '@/services/properties/queries';
 import { NIGERIAN_STATES } from '@/lib/utils';
 
-export default function LandingPage() {
+const LandingPage = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState('');
   const [type, setType] = useState('');
@@ -140,7 +140,7 @@ export default function LandingPage() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {featuredProperties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
+                <PropertyCard key={property.code} property={property} />
               ))}
             </div>
           </div>
@@ -233,4 +233,6 @@ export default function LandingPage() {
       </footer>
     </div>
   );
-}
+};
+
+export default LandingPage;

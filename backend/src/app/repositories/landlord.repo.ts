@@ -23,6 +23,8 @@ const LandlordRepo = {
     await Landlord.update(data, { where: { id } });
     return Landlord.findByPk(id);
   },
+
+  getRawByUserId: async (userId: string) => Landlord.findOne({ where: { userId } }),
 };
 
 export default LandlordRepo;

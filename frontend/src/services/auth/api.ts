@@ -8,6 +8,10 @@ import type {
   MeResponse,
   RegisterPayload,
   RegisterResponse,
+  EmailIntentPayload,
+  EmailIntentResponse,
+  ConfirmEmailPayload,
+  ConfirmEmailResponse,
 } from './types';
 
 const authApi = {
@@ -16,6 +20,12 @@ const authApi = {
   },
   async register(payload: RegisterPayload): Promise<RegisterResponse> {
     return Axios.post(AuthApiKeys.register, payload);
+  },
+  async createEmailIntent(payload: EmailIntentPayload): Promise<EmailIntentResponse> {
+    return Axios.post(AuthApiKeys.emailIntent, payload);
+  },
+  async confirmEmail(payload: ConfirmEmailPayload): Promise<ConfirmEmailResponse> {
+    return Axios.post(AuthApiKeys.confirmEmail, payload);
   },
   async me(): Promise<MeResponse> {
     return Axios.get(AuthApiKeys.me);

@@ -27,10 +27,10 @@ const {
   PanelResizeHandle: PrimitivePanelResizeHandleComponent;
 };
 
-function ResizablePanelGroup({
+const ResizablePanelGroup = ({
   className,
   ...props
-}: React.ComponentProps<PrimitivePanelGroupComponent>) {
+}: React.ComponentProps<PrimitivePanelGroupComponent>) => {
   return (
     <PrimitivePanelGroup
       data-slot="resizable-panel-group"
@@ -41,19 +41,19 @@ function ResizablePanelGroup({
       {...props}
     />
   );
-}
+};
 
-function ResizablePanel({ ...props }: React.ComponentProps<PrimitivePanelComponent>) {
+const ResizablePanel = ({ ...props }: React.ComponentProps<PrimitivePanelComponent>) => {
   return <PrimitivePanel data-slot="resizable-panel" {...props} />;
-}
+};
 
-function ResizableHandle({
+const ResizableHandle = ({
   withHandle,
   className,
   ...props
 }: React.ComponentProps<PrimitivePanelResizeHandleComponent> & {
   withHandle?: boolean;
-}) {
+}) => {
   return (
     <PrimitivePanelResizeHandle
       data-slot="resizable-handle"
@@ -66,6 +66,6 @@ function ResizableHandle({
       {withHandle && <div className="bg-border h-6 w-1 rounded-lg z-10 flex shrink-0" />}
     </PrimitivePanelResizeHandle>
   );
-}
+};
 
 export { ResizablePanelGroup, ResizablePanel, ResizableHandle };

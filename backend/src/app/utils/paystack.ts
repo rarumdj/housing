@@ -8,7 +8,7 @@ interface PaystackResponse {
   data: Record<string, unknown>;
 }
 
-async function paystackFetch(path: string, options?: RequestInit): Promise<PaystackResponse> {
+const paystackFetch = async (path: string, options?: RequestInit): Promise<PaystackResponse> => {
   if (!env.paystack.secretKey) {
     if (path.startsWith('/transaction/initialize')) {
       const payload = JSON.parse(String(options?.body || '{}')) as { reference?: string };
@@ -32,6 +32,14 @@ async function paystackFetch(path: string, options?: RequestInit): Promise<Payst
       };
     }
 
+    if (path.startsWith('/subaccount')) {
+      return {
+        status: true,
+        message: 'Paystack not configured. Returned mock subaccount.',
+        data: { subaccount_code: `ACCT_MOCK_${Date.now()}` },
+      };
+    }
+
     return {
       status: true,
       message: 'Paystack not configured. Returned mock response.',
@@ -48,7 +56,7 @@ async function paystackFetch(path: string, options?: RequestInit): Promise<Payst
   });
 
   return res.json() as Promise<PaystackResponse>;
-}
+};
 
 export const paystack = {
   initializeTransaction: (params: {
@@ -60,4 +68,15 @@ export const paystack = {
   }) => paystackFetch('/transaction/initialize', { method: 'POST', body: JSON.stringify(params) }),
 
   verifyTransaction: (reference: string) => paystackFetch(`/transaction/verify/${reference}`),
+
+  createSubaccount: (params: {
+    business_name: string;
+    settlement_bank: string;
+    account_number: string;
+    percentage_charge?: number;
+  }) =>
+    paystackFetch('/subaccount', {
+      method: 'POST',
+      body: JSON.stringify({ percentage_charge: 10, ...params }),
+    }),
 };

@@ -12,14 +12,14 @@ type FormOtpInputProps<T extends FieldValues> = {
   orientation?: 'vertical' | 'horizontal' | 'responsive';
 } & OtpInputProps;
 
-function FormOtpInput<T extends FieldValues>({
+const FormOtpInput = <T extends FieldValues,>({
   name,
   control,
   label,
   description,
   orientation,
   ...otpInputProps
-}: FormOtpInputProps<T>) {
+}: FormOtpInputProps<T>) => {
   return (
     <FormController
       name={name}
@@ -32,6 +32,6 @@ function FormOtpInput<T extends FieldValues>({
       )}
     />
   );
-}
+};
 
 export default FormOtpInput;

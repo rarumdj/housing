@@ -1,10 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Pencil, User, Briefcase, CreditCard, Shield, Users } from 'lucide-react';
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Pencil, User, Briefcase, CreditCard, Shield, Users, Upload, Trash2, FileText } from 'lucide-react';
 import { dashboardKeys } from '@/routes/keys';
-import { useTenantProfileQuery, useCompleteOnboardingMutation, useUpdateTenantProfileMutation } from '@/services/tenant/queries';
+import {
+  useTenantProfileQuery,
+  useCompleteOnboardingMutation,
+  useUpdateTenantProfileMutation,
+  useUploadTenantDocumentsMutation,
+  useDeleteTenantDocumentMutation,
+} from '@/services/tenant/queries';
+import { useCountriesQuery } from '@/services/locations/queries';
 import type { TenantProfilePayload, EmploymentStatus, MaritalStatus, NationalIdType } from '@/types/domain';
 import { TextInput } from '@/components/forms/atoms/text-input';
+import { PhoneInput } from '@/components/forms/atoms/phone-input';
+import { CurrencyAmountInput } from '@/components/forms/atoms/currency-amount-input';
+import { SearchSelect } from '@/components/forms/atoms/search-select';
 import { Textarea } from '@/components/ui/textarea';
 import { FieldLabel } from '@/components/ui/field';
 import { cn } from '@/lib/utils';
@@ -17,13 +27,15 @@ const STEPS = [
   { key: 'nextOfKin', label: 'Next of Kin', icon: Users },
 ] as const;
 
-function Input({
+const Input = ({
   label,
   value,
   onChange,
   type = 'text',
   placeholder,
   required,
+  min,
+  max,
 }: {
   label: string;
   value: string;
@@ -31,7 +43,9 @@ function Input({
   type?: string;
   placeholder?: string;
   required?: boolean;
-}) {
+  min?: string;
+  max?: string;
+}) => {
   return (
     <div className="space-y-1.5">
       <FieldLabel>
@@ -42,12 +56,23 @@ function Input({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
+        min={min}
+        max={max}
       />
     </div>
   );
-}
+};
 
-function Select({
+// Latest allowed date of birth so the tenant is at least 18 years old (YYYY-MM-DD).
+const maxDobForAdult = (): string => {
+  const today = new Date();
+  const d = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+  return d.toISOString().slice(0, 10);
+};
+
+const isAtLeast18 = (dob?: string): boolean => !!dob && dob <= maxDobForAdult();
+
+const Select = ({
   label,
   value,
   onChange,
@@ -59,7 +84,7 @@ function Select({
   onChange: (v: string) => void;
   options: { value: string; label: string }[];
   required?: boolean;
-}) {
+}) => {
   return (
     <div className="space-y-1.5">
       <FieldLabel>
@@ -82,9 +107,9 @@ function Select({
       </select>
     </div>
   );
-}
+};
 
-function TextareaField({
+const TextareaField = ({
   label,
   value,
   onChange,
@@ -94,7 +119,7 @@ function TextareaField({
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
-}) {
+}) => {
   return (
     <div className="space-y-1.5">
       <FieldLabel>{label}</FieldLabel>
@@ -106,16 +131,16 @@ function TextareaField({
       />
     </div>
   );
-}
+};
 
-function buildFormDefaults(profile?: Record<string, unknown> | null): TenantProfilePayload {
+const buildFormDefaults = (profile?: Record<string, unknown> | null): TenantProfilePayload => {
   return {
     employmentStatus: (profile?.employmentStatus as EmploymentStatus) ?? undefined,
     employerName: String(profile?.employerName ?? ''),
     monthlyIncome: profile?.monthlyIncome ? Number(profile.monthlyIncome) : undefined,
     maritalStatus: (profile?.maritalStatus as MaritalStatus) ?? undefined,
     dateOfBirth: String(profile?.dateOfBirth ?? ''),
-    nationality: String(profile?.nationality ?? 'Nigerian'),
+    nationality: String(profile?.nationality ?? 'Nigeria'),
     nationalIdType: (profile?.nationalIdType as NationalIdType) ?? undefined,
     nationalIdNumber: String(profile?.nationalIdNumber ?? ''),
     businessName: String(profile?.businessName ?? ''),
@@ -135,9 +160,126 @@ function buildFormDefaults(profile?: Record<string, unknown> | null): TenantProf
     emergencyContactName: String(profile?.emergencyContactName ?? ''),
     emergencyContactPhone: String(profile?.emergencyContactPhone ?? ''),
   };
+};
+
+const PhoneField = ({
+  label,
+  value,
+  onChange,
+  required,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+}) => (
+  <div className="space-y-1.5">
+    <FieldLabel>
+      {label} {required ? <span className="text-destructive">*</span> : null}
+    </FieldLabel>
+    <PhoneInput
+      value={value || undefined}
+      onChange={(v) => onChange(v || '')}
+      defaultCountry="NG"
+      placeholder="08012345678"
+    />
+  </div>
+);
+
+interface KycDoc {
+  label: string;
+  url: string;
+  uploadedAt?: string;
 }
 
-export default function TenantOnboardingPage() {
+const IdDocumentUpload = ({ documents }: { documents: KycDoc[] }) => {
+  const upload = useUploadTenantDocumentsMutation();
+  const remove = useDeleteTenantDocumentMutation();
+  const [files, setFiles] = useState<File[]>([]);
+  const [reupload, setReupload] = useState(false);
+
+  const hasDocs = documents.length > 0;
+  const isImage = (url: string) => /\.(png|jpe?g|gif|webp|bmp|svg)(\?|$)/i.test(url);
+
+  return (
+    <div className="rounded-xl border border-dashed border-border p-4">
+      <FieldLabel>Upload your ID (front/back, optional selfie)</FieldLabel>
+
+      {hasDocs ? (
+        <ul className="mt-3 space-y-2">
+          {documents.map((doc, index) => (
+            <li key={`${doc.url}-${index}`} className="flex items-center gap-3 rounded-lg border border-border bg-background p-2">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+                {isImage(doc.url) ? (
+                  <img src={doc.url} alt={doc.label} className="h-full w-full object-cover" />
+                ) : (
+                  <FileText className="h-5 w-5 text-muted-foreground" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{doc.label}</p>
+                <a href={doc.url} target="_blank" rel="noreferrer" className="text-xs text-primary underline-offset-4 hover:underline">
+                  View document
+                </a>
+              </div>
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+              <button
+                type="button"
+                onClick={() => remove.mutate(doc.url)}
+                disabled={remove.isPending}
+                aria-label={`Delete ${doc.label}`}
+                className="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {!hasDocs || reupload ? (
+        <>
+          <input
+            type="file"
+            multiple
+            accept="image/*,application/pdf"
+            onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
+            className="mt-3 block w-full text-sm text-muted-foreground file:mr-3 file:rounded-lg file:border-0 file:bg-primary file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-primary-foreground"
+          />
+          {files.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => upload.mutate({ files, labels: files.map((f) => f.name) }, { onSuccess: () => { setFiles([]); setReupload(false); } })}
+              disabled={upload.isPending}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted disabled:opacity-50"
+            >
+              <Upload className="h-4 w-4" /> {upload.isPending ? 'Uploading…' : `Upload ${files.length} file(s)`}
+            </button>
+          ) : null}
+          {reupload ? (
+            <button
+              type="button"
+              onClick={() => { setReupload(false); setFiles([]); }}
+              className="ml-2 mt-3 inline-flex items-center rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              Cancel
+            </button>
+          ) : null}
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setReupload(true)}
+          className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
+        >
+          <Upload className="h-4 w-4" /> Upload more / re-upload
+        </button>
+      )}
+    </div>
+  );
+};
+
+const TenantOnboardingPage = () => {
   const navigate = useNavigate();
   const { data: profileData, isLoading } = useTenantProfileQuery();
   const profile = profileData?.data;
@@ -147,31 +289,63 @@ export default function TenantOnboardingPage() {
   const updateMutation = useUpdateTenantProfileMutation();
 
   const [step, setStep] = useState(0);
+  const [incomeCurrency, setIncomeCurrency] = useState('NGN');
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
   const [formSeeded, setFormSeeded] = useState(false);
   const [form, setForm] = useState<TenantProfilePayload>(buildFormDefaults());
 
-  // Seed form once profile data arrives
+  const isStepComplete = (i: number, f: TenantProfilePayload): boolean => {
+    if (i === 0) return !!(f.maritalStatus && f.currentAddress && isAtLeast18(f.dateOfBirth));
+    if (i === 1) return !!f.employmentStatus;
+    if (i === 3) return !!(f.nationalIdType && f.nationalIdNumber);
+    if (i === 4) return !!(f.nextOfKinName && f.nextOfKinPhone && f.nextOfKinRelationship);
+    return true;
+  };
+
+  // For resume only: an optional step (Financial) counts as "done" once it has
+  // any data, so we don't jump past it to a later step.
+  const isStepResumeComplete = (i: number, f: TenantProfilePayload): boolean => {
+    if (i === 2) return !!(f.monthlyIncome || f.annualIncome || f.bankName || f.accountNumber);
+    return isStepComplete(i, f);
+  };
+
+  // Seed form once profile data arrives, and resume at the next incomplete step.
   useEffect(() => {
     if (profile && !formSeeded) {
-      setForm(buildFormDefaults(profile as unknown as Record<string, unknown>));
+      const seeded = buildFormDefaults(profile as unknown as Record<string, unknown>);
+      setForm(seeded);
+      if (!profile.isOnboarded) {
+        const firstIncomplete = STEPS.findIndex((_, i) => !isStepResumeComplete(i, seeded));
+        setStep(firstIncomplete === -1 ? 0 : firstIncomplete);
+      }
       setFormSeeded(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile, formSeeded]);
 
   const set = <K extends keyof TenantProfilePayload>(key: K, val: TenantProfilePayload[K]) =>
     setForm((prev) => ({ ...prev, [key]: val }));
 
-  const canNext = (): boolean => {
-    if (step === 0) return !!(form.maritalStatus && form.currentAddress && form.dateOfBirth);
-    if (step === 1) return !!form.employmentStatus;
-    if (step === 3) return !!(form.nationalIdType && form.nationalIdNumber);
-    if (step === 4) return !!(form.nextOfKinName && form.nextOfKinPhone && form.nextOfKinRelationship);
-    return true;
-  };
+  const { data: countriesData } = useCountriesQuery();
+  const countryOptions = (countriesData?.data ?? []).map((c) => ({ value: c.name, label: c.name, flag: c.flag }));
+
+  const canNext = (): boolean => isStepComplete(step, form);
 
   const mutation = isAlreadyOnboarded ? updateMutation : onboardingMutation;
+
+  // Persist the current step before advancing — the next step is only shown
+  // once the partial update succeeds, so progress is saved and prefills on return.
+  const goNext = () => {
+    setError('');
+    updateMutation.mutate(form, {
+      onSuccess: () => setStep((s) => Math.min(s + 1, STEPS.length - 1)),
+      onError: (err: unknown) => {
+        const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+        setError(msg || 'Could not save your progress. Please try again.');
+      },
+    });
+  };
 
   const handleSubmit = () => {
     setError('');
@@ -232,23 +406,28 @@ export default function TenantOnboardingPage() {
 
           {/* Step indicator */}
           <div className="mt-8 flex items-center gap-1">
-            {STEPS.map((s, i) => (
-              <button
-                key={s.key}
-                type="button"
-                onClick={() => setStep(i)}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs font-medium transition-all ${
-                  i === step
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : i < step
-                      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
-                      : 'bg-muted text-muted-foreground'
-                }`}
-              >
-                {i < step ? <Check className="h-3.5 w-3.5" /> : <s.icon className="h-3.5 w-3.5" />}
-                <span className="hidden sm:inline">{s.label}</span>
-              </button>
-            ))}
+            {STEPS.map((s, i) => {
+              // Allow navigating to already-reached steps; lock steps ahead unless onboarded.
+              const reachable = i <= step || isAlreadyOnboarded;
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  disabled={!reachable}
+                  onClick={() => reachable && setStep(i)}
+                  className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs font-medium transition-all ${
+                    i === step
+                      ? 'bg-primary text-primary-foreground shadow-md'
+                      : i < step
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200'
+                        : `bg-muted text-muted-foreground ${reachable ? '' : 'cursor-not-allowed'}`
+                  }`}
+                >
+                  {i < step ? <Check className="h-3.5 w-3.5" /> : <s.icon className="h-3.5 w-3.5" />}
+                  <span className="hidden sm:inline">{s.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Form */}
@@ -270,18 +449,25 @@ export default function TenantOnboardingPage() {
                     ]}
                     required
                   />
-                  <Input
-                    label="Date of Birth"
-                    type="date"
-                    value={form.dateOfBirth ?? ''}
-                    onChange={(v) => set('dateOfBirth', v)}
-                    required
-                  />
-                  <Input
+                  <div>
+                    <Input
+                      label="Date of Birth"
+                      type="date"
+                      value={form.dateOfBirth ?? ''}
+                      onChange={(v) => set('dateOfBirth', v)}
+                      max={maxDobForAdult()}
+                      required
+                    />
+                    {form.dateOfBirth && !isAtLeast18(form.dateOfBirth) ? (
+                      <p className="mt-1 text-xs text-destructive">You must be at least 18 years old.</p>
+                    ) : null}
+                  </div>
+                  <SearchSelect
                     label="Nationality"
                     value={form.nationality ?? ''}
                     onChange={(v) => set('nationality', v)}
-                    placeholder="Nigerian"
+                    options={countryOptions}
+                    searchPlaceholder="Search country…"
                   />
                   <Input
                     label="Number of Occupants"
@@ -363,19 +549,19 @@ export default function TenantOnboardingPage() {
               <div className="space-y-5">
                 <h2 className="font-display text-lg font-bold">Financial Information</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Input
-                    label="Monthly Income (NGN)"
-                    type="number"
-                    value={String(form.monthlyIncome ?? '')}
-                    onChange={(v) => set('monthlyIncome', Number(v) || undefined)}
-                    placeholder="0"
+                  <CurrencyAmountInput
+                    label="Monthly Income"
+                    value={form.monthlyIncome}
+                    onChange={(v) => set('monthlyIncome', v)}
+                    currency={incomeCurrency}
+                    onCurrencyChange={setIncomeCurrency}
                   />
-                  <Input
-                    label="Annual Income (NGN)"
-                    type="number"
-                    value={String(form.annualIncome ?? '')}
-                    onChange={(v) => set('annualIncome', Number(v) || undefined)}
-                    placeholder="0"
+                  <CurrencyAmountInput
+                    label="Annual Income"
+                    value={form.annualIncome}
+                    onChange={(v) => set('annualIncome', v)}
+                    currency={incomeCurrency}
+                    onCurrencyChange={setIncomeCurrency}
                   />
                   <Input
                     label="Bank Name"
@@ -420,6 +606,7 @@ export default function TenantOnboardingPage() {
                     required
                   />
                 </div>
+                <IdDocumentUpload documents={(profile as { kycDocs?: KycDoc[] } | undefined)?.kycDocs ?? []} />
               </div>
             )}
 
@@ -434,11 +621,10 @@ export default function TenantOnboardingPage() {
                     placeholder="Full name"
                     required
                   />
-                  <Input
+                  <PhoneField
                     label="Next of Kin Phone"
                     value={form.nextOfKinPhone ?? ''}
                     onChange={(v) => set('nextOfKinPhone', v)}
-                    placeholder="08012345678"
                     required
                   />
                   <Select
@@ -472,11 +658,10 @@ export default function TenantOnboardingPage() {
                     onChange={(v) => set('emergencyContactName', v)}
                     placeholder="Emergency contact name"
                   />
-                  <Input
+                  <PhoneField
                     label="Contact Phone"
                     value={form.emergencyContactPhone ?? ''}
                     onChange={(v) => set('emergencyContactPhone', v)}
-                    placeholder="08012345678"
                   />
                 </div>
               </div>
@@ -505,11 +690,15 @@ export default function TenantOnboardingPage() {
               {step < STEPS.length - 1 ? (
                 <button
                   type="button"
-                  disabled={!canNext()}
-                  onClick={() => setStep(step + 1)}
+                  disabled={!canNext() || updateMutation.isPending}
+                  onClick={goNext}
                   className="flex items-center gap-1.5 rounded-xl bg-primary px-5 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
                 >
-                  Next <ChevronRight className="h-4 w-4" />
+                  {updateMutation.isPending ? (
+                    <>Saving… <Loader2 className="h-4 w-4 animate-spin" /></>
+                  ) : (
+                    <>Next <ChevronRight className="h-4 w-4" /></>
+                  )}
                 </button>
               ) : (
                 <button
@@ -534,4 +723,6 @@ export default function TenantOnboardingPage() {
       </div>
     </div>
   );
-}
+};
+
+export default TenantOnboardingPage;

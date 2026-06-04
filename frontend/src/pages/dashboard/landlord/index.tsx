@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Check, Clock, Eye, Home, MessageSquare, Plus, TrendingUp, Users, X } from 'lucide-react';
+import { ArrowRight, Check, Clock, Eye, Home, MessageSquare, Plus, ShieldCheck, TrendingUp, Users, X } from 'lucide-react';
 import { dashboardKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useMyPropertiesQuery } from '@/services/properties/queries';
+import { useLandlordOnboardingQuery } from '@/services/landlord/queries';
 import { useLandlordBookingsQuery, useAcceptBookingMutation, useDeclineBookingMutation } from '@/services/bookings/queries';
 import { formatNaira } from '@/lib/utils';
 
@@ -14,11 +15,16 @@ const statusBadge: Record<string, string> = {
   ARCHIVED: 'bg-muted text-muted-foreground',
 };
 
-export default function LandlordDashboardPage() {
+const LandlordDashboardPage = () => {
   const navigate = useNavigate();
   const { user } = useAuthManager();
   const { data, isLoading } = useMyPropertiesQuery();
   const properties = data?.data ?? [];
+
+  const { data: onboardingData } = useLandlordOnboardingQuery();
+  const landlord = onboardingData?.data;
+  const onboardingCompleted = landlord?.onboardingStatus === 'COMPLETED';
+  const kycVerified = landlord?.verificationStatus === 'VERIFIED';
 
   const { data: bookingsData } = useLandlordBookingsQuery();
   const allBookings = bookingsData?.data ?? [];
@@ -52,15 +58,71 @@ export default function LandlordDashboardPage() {
               <MessageSquare className="h-4 w-4" />
               Messages
             </Link>
-            <Link
-              to={dashboardKeys.landlord.create.path}
-              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4" />
-              Add property
-            </Link>
+            {onboardingCompleted ? (
+              <Link
+                to={dashboardKeys.landlord.create.path}
+                className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4" />
+                Add property
+              </Link>
+            ) : (
+              <Link
+                to={dashboardKeys.landlord.onboarding.path}
+                className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Complete onboarding
+              </Link>
+            )}
           </div>
         </div>
+
+        {!onboardingCompleted ? (
+          <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 p-5 sm:flex-row sm:items-center sm:justify-between dark:border-amber-900/40 dark:bg-amber-950/20">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              <div>
+                <p className="font-semibold text-amber-900 dark:text-amber-200">Finish your onboarding to list properties</p>
+                <p className="text-sm text-amber-800/80 dark:text-amber-200/70">
+                  Complete identity, property and payout details before adding your first listing.
+                </p>
+              </div>
+            </div>
+            <Link
+              to={dashboardKeys.landlord.onboarding.path}
+              className="shrink-0 rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+            >
+              Continue
+            </Link>
+          </div>
+        ) : landlord?.verificationStatus === 'REJECTED' ? (
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/60 p-5 dark:border-red-900/40 dark:bg-red-950/20">
+            <X className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+            <div className="flex-1">
+              <p className="font-semibold text-red-900 dark:text-red-200">Identity verification was declined</p>
+              <p className="text-sm text-red-800/90 dark:text-red-200/80">
+                {landlord?.verificationNote || 'Please review your details and documents, then resubmit.'}
+              </p>
+              <Link
+                to={dashboardKeys.landlord.onboarding.path}
+                className="mt-2 inline-block rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Update & resubmit
+              </Link>
+            </div>
+          </div>
+        ) : !kycVerified ? (
+          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-blue-200 bg-blue-50/60 p-5 dark:border-blue-900/40 dark:bg-blue-950/20">
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+            <div>
+              <p className="font-semibold text-blue-900 dark:text-blue-200">Identity verification in review</p>
+              <p className="text-sm text-blue-800/80 dark:text-blue-200/70">
+                You can create draft listings now. Publishing unlocks once your identity is verified.
+              </p>
+            </div>
+          </div>
+        ) : null}
 
         {/* Stats Cards - clickable */}
         <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -107,19 +169,21 @@ export default function LandlordDashboardPage() {
               <div className="py-16 text-center">
                 <Home className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
                 <h3 className="mb-1 font-medium">No properties yet</h3>
-                <p className="mb-4 text-sm text-muted-foreground">Add your first property to get started</p>
+                <p className="mb-4 text-sm text-muted-foreground">
+                  {onboardingCompleted ? 'Add your first property to get started' : 'Complete onboarding to add your first property'}
+                </p>
                 <Link
-                  to={dashboardKeys.landlord.create.path}
+                  to={onboardingCompleted ? dashboardKeys.landlord.create.path : dashboardKeys.landlord.onboarding.path}
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
                 >
-                  <Plus className="h-4 w-4" />
-                  Add property
+                  {onboardingCompleted ? <Plus className="h-4 w-4" /> : <ShieldCheck className="h-4 w-4" />}
+                  {onboardingCompleted ? 'Add property' : 'Complete onboarding'}
                 </Link>
               </div>
             ) : (
               <div className="divide-y divide-border">
                 {properties.slice(0, 5).map((property) => (
-                  <div key={property.id} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/30">
+                  <div key={property.code} className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/30">
                     <div className="h-16 w-20 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
                       {property.media?.[0] ? (
                         <img src={property.media[0].url} alt={property.title} className="h-full w-full object-cover" />
@@ -138,7 +202,7 @@ export default function LandlordDashboardPage() {
                       </span>
                     </div>
                     <Link
-                      to={dashboardKeys.landlord.detail.build(property.id)}
+                      to={dashboardKeys.landlord.detail.build(property.code)}
                       className="rounded-lg p-2 transition-colors hover:bg-muted"
                     >
                       <ArrowRight className="h-4 w-4" />
@@ -163,7 +227,7 @@ export default function LandlordDashboardPage() {
                   {pendingApplications.slice(0, 5).map((booking) => {
                     const tenant = booking.tenant?.user;
                     return (
-                      <div key={booking.id} className="p-4">
+                      <div key={booking.code} className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                             {tenant ? `${tenant.firstName[0]}${tenant.lastName[0]}` : '??'}
@@ -179,20 +243,20 @@ export default function LandlordDashboardPage() {
                         </div>
                         <div className="mt-2 flex gap-2">
                           <Link
-                            to={dashboardKeys.landlord.applicationReview.build(booking.id)}
+                            to={dashboardKeys.landlord.applicationReview.build(booking.code)}
                             className="flex items-center gap-1 rounded-lg bg-primary px-2.5 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                           >
                             <Eye className="h-3 w-3" /> Review
                           </Link>
                           <button
-                            onClick={() => acceptMutation.mutate(booking.id)}
+                            onClick={() => acceptMutation.mutate(booking.code)}
                             disabled={acceptMutation.isPending}
                             className="flex items-center gap-1 rounded-lg bg-emerald-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-emerald-700"
                           >
                             <Check className="h-3 w-3" /> Accept
                           </button>
                           <button
-                            onClick={() => declineMutation.mutate({ id: booking.id, reason: '' })}
+                            onClick={() => declineMutation.mutate({ id: booking.code, reason: '' })}
                             disabled={declineMutation.isPending}
                             className="flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-700"
                           >
@@ -218,7 +282,7 @@ export default function LandlordDashboardPage() {
                   {activeLeases.slice(0, 5).map((booking) => {
                     const tenant = booking.tenant?.user;
                     return (
-                      <div key={booking.id} className="p-4">
+                      <div key={booking.code} className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-xs font-bold text-blue-600">
                             {tenant ? `${tenant.firstName[0]}${tenant.lastName[0]}` : '??'}
@@ -232,7 +296,7 @@ export default function LandlordDashboardPage() {
                             </p>
                           </div>
                           <Link
-                            to={dashboardKeys.landlord.detail.build(booking.propertyId)}
+                            to={dashboardKeys.landlord.detail.build(booking.property?.code ?? '')}
                             className="rounded-lg p-1.5 transition-colors hover:bg-muted"
                           >
                             <ArrowRight className="h-3.5 w-3.5" />
@@ -249,4 +313,6 @@ export default function LandlordDashboardPage() {
       </div>
     </div>
   );
-}
+};
+
+export default LandlordDashboardPage;

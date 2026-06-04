@@ -4,6 +4,8 @@ export const AuthApiKeys = {
   me: '/auth/me',
   logout: '/auth/logout',
   refresh: '/auth/refresh',
+  emailIntent: '/auth/email-verification/intent',
+  confirmEmail: '/auth/email-verification/confirm',
 } as const;
 
 export const AuthKeys = {

@@ -5,12 +5,12 @@ type PropertyMediaPreviewProps = {
   caption?: string;
 };
 
-export function PropertyMediaPreview({
+export const PropertyMediaPreview = ({
   title,
   variant = 'aerial',
   roomLabels = [],
   caption,
-}: PropertyMediaPreviewProps) {
+}: PropertyMediaPreviewProps) => {
   return (
     <div className="overflow-hidden rounded-[1.4rem] border border-stone-300/70 bg-[linear-gradient(145deg,#fff7ed,#ffedd5_45%,#e7e5e4)]">
       <div className="relative min-h-[220px] overflow-hidden px-5 py-6">
@@ -48,4 +48,4 @@ export function PropertyMediaPreview({
       </div>
     </div>
   );
-}
+};

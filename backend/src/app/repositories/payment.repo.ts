@@ -9,6 +9,11 @@ const PaymentRepo = {
     return Payment.findOne({ where: { paystackRef } });
   },
 
+  updateByProviderRef: async (providerRef: string, data: Record<string, unknown>) => {
+    await Payment.update(data, { where: { providerRef } });
+    return Payment.findOne({ where: { providerRef } });
+  },
+
   getByBookingIds: async (bookingIds: string[]) =>
     Payment.findAll({
       where: {

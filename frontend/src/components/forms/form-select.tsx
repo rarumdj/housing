@@ -12,7 +12,7 @@ export interface FormSelectProps<T extends FieldValues>
   options: SelectOption[];
 }
 
-export function FormSelect<T extends FieldValues>({
+export const FormSelect = <T extends FieldValues,>({
   control,
   name,
   label,
@@ -24,7 +24,7 @@ export function FormSelect<T extends FieldValues>({
   disabled,
   size,
   className,
-}: FormSelectProps<T>) {
+}: FormSelectProps<T>) => {
   return (
     <FormController
       control={control}
@@ -47,4 +47,4 @@ export function FormSelect<T extends FieldValues>({
       )}
     />
   );
-}
+};

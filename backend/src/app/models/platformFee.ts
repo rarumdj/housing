@@ -1,11 +1,18 @@
 import { DataTypes } from 'sequelize';
 import sequelize from './db';
+import { generateCode } from '../utils/utils';
 
 export const PlatformFee = sequelize.define('PlatformFee', {
   id: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true,
+  },
+  code: {
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    defaultValue: () => generateCode('fee'),
   },
   name: {
     type: DataTypes.STRING,

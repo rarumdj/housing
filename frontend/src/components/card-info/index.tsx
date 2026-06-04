@@ -12,7 +12,7 @@ export interface CardInfoProps {
   hideIcon?: boolean;
 }
 
-export function CardInfo({
+export const CardInfo = ({
   icon: Icon,
   iconClass,
   label,
@@ -20,7 +20,7 @@ export function CardInfo({
   suffix,
   className,
   hideIcon = true,
-}: CardInfoProps) {
+}: CardInfoProps) => {
   return (
     <div className={cn('flex items-center gap-4 px-6 py-5', className)}>
       {!hideIcon && (
@@ -42,4 +42,4 @@ export function CardInfo({
       </div>
     </div>
   );
-}
+};

@@ -9,10 +9,10 @@ const temporalTypes = new Set(['date', 'datetime-local', 'time', 'month', 'week'
 const temporalChromeClasses =
   'pr-10 [&::-webkit-calendar-picker-indicator]:pointer-events-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-moz-calendar-picker-indicator]:pointer-events-none [&::-moz-calendar-picker-indicator]:opacity-0';
 
-const TextInput = forwardRef<HTMLInputElement, InputProps>(function TextInput(
+const TextInput = forwardRef<HTMLInputElement, InputProps>((
   { className, size, type, disabled, ...props },
   ref
-) {
+) => {
   const innerRef = useRef<HTMLInputElement | null>(null);
 
   const setRefs = useCallback(

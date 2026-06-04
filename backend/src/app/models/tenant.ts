@@ -1,14 +1,21 @@
 import { DataTypes } from 'sequelize';
 import sequelize from './db';
+import { generateCode } from '../utils/utils';
 
 export const Tenant = sequelize.define('Tenant', {
   id: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
+    autoIncrement: true,
     primaryKey: true,
+  },
+  code: {
+    type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
+    defaultValue: () => generateCode('tnt'),
   },
   userId: {
-    type: DataTypes.STRING(64),
+    type: DataTypes.INTEGER.UNSIGNED,
     allowNull: false,
     unique: true,
   },
@@ -22,6 +29,7 @@ export const Tenant = sequelize.define('Tenant', {
     allowNull: false,
     defaultValue: 'PENDING',
   },
+  kycNote: DataTypes.TEXT,
   kycDocs: {
     type: DataTypes.JSON,
     allowNull: true,

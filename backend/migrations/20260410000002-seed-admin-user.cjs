@@ -1,6 +1,7 @@
 'use strict';
 
 const bcrypt = require('bcryptjs');
+const { generateCode } = require('../config/migration-helpers.cjs');
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,7 +11,7 @@ module.exports = {
 
     await queryInterface.bulkInsert('users', [
       {
-        id: 'demo-user-admin-1',
+        code: generateCode('usr'),
         email: 'admin@househunt.dev',
         phone: '+2348000000099',
         passwordHash,
@@ -27,6 +28,6 @@ module.exports = {
   },
 
   async down(queryInterface) {
-    await queryInterface.bulkDelete('users', { id: ['demo-user-admin-1'] });
+    await queryInterface.bulkDelete('users', { email: ['admin@househunt.dev'] });
   },
 };

@@ -42,3 +42,12 @@ export const PAYMENT_STATUSES = ['PENDING', 'SUCCESS', 'FAILED', 'REFUNDED', 'HE
 export const RENEWAL_STATUSES = ['PROPOSED', 'ACCEPTED', 'APPEALED', 'DECLINED', 'EXPIRED'] as const;
 export const SCREENING_BANDS = ['EXCELLENT', 'GOOD', 'FAIR', 'REVIEW'] as const;
 export const EMPLOYMENT_STATUSES = ['EMPLOYED', 'SELF_EMPLOYED', 'UNEMPLOYED', 'STUDENT', 'RETIRED'] as const;
+
+export const ONBOARDING_STATUSES = ['PENDING', 'IN_PROGRESS', 'COMPLETED'] as const;
+export const LANDLORD_OWNERSHIP_TYPES = ['OWNER', 'PROPERTY_MANAGER', 'AGENCY', 'REPRESENTATIVE'] as const;
+export const LANDLORD_OPERATION_TYPES = ['INDIVIDUAL', 'PROPERTY_MANAGEMENT_COMPANY', 'REAL_ESTATE_AGENCY'] as const;
+export const CONTACT_METHODS = ['IN_APP', 'EMAIL', 'PHONE', 'SMS'] as const;
+export const PAYOUT_PREFERENCES = ['INSTANT', 'DAILY', 'WEEKLY', 'MONTHLY'] as const;
+export const PAYMENT_PROVIDERS = ['paystack', 'flutterwave'] as const;
+export const LANDLORD_ID_TYPES = ['DRIVERS_LICENSE', 'PASSPORT', 'NATIONAL_ID'] as const;
+export const PORTFOLIO_SIZES = ['1', '2-5', '6-20', '20+'] as const;

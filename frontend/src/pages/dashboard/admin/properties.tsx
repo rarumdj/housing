@@ -24,7 +24,7 @@ const verBadge: Record<string, string> = {
   REJECTED: 'bg-red-100 text-red-700',
 };
 
-export default function AdminPropertiesPage() {
+const AdminPropertiesPage = () => {
   const [searchParams] = useSearchParams();
   const initialVer = searchParams.get('verificationStatus') ?? '';
 
@@ -80,10 +80,10 @@ export default function AdminPropertiesPage() {
               const vStatus = String(p.verificationStatus ?? 'PENDING');
               const thumb = pickListThumbnail(media as unknown as PropertyMedia[]);
 
-              const previewPath = dashboardKeys.admin.propertyDetail.build(String(p.id));
+              const previewPath = dashboardKeys.admin.propertyDetail.build(String(p.code));
 
               return (
-                <div key={String(p.id)} className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted/30">
+                <div key={String(p.code)} className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted/30">
                   <Link
                     to={previewPath}
                     className="group flex min-w-0 flex-1 items-center gap-4 rounded-xl outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-primary"
@@ -133,7 +133,7 @@ export default function AdminPropertiesPage() {
                     {vStatus === 'PENDING' && (
                       <>
                         <button
-                          onClick={() => verifyMutation.mutate({ id: String(p.id), verificationStatus: 'VERIFIED' })}
+                          onClick={() => verifyMutation.mutate({ id: String(p.code), verificationStatus: 'VERIFIED' })}
                           disabled={verifyMutation.isPending}
                           className="rounded-lg bg-emerald-600 p-2 text-white hover:bg-emerald-700"
                           title="Approve"
@@ -141,7 +141,7 @@ export default function AdminPropertiesPage() {
                           <Check className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => verifyMutation.mutate({ id: String(p.id), verificationStatus: 'REJECTED' })}
+                          onClick={() => verifyMutation.mutate({ id: String(p.code), verificationStatus: 'REJECTED' })}
                           disabled={verifyMutation.isPending}
                           className="rounded-lg bg-red-600 p-2 text-white hover:bg-red-700"
                           title="Reject"
@@ -151,7 +151,7 @@ export default function AdminPropertiesPage() {
                       </>
                     )}
                     <button
-                      onClick={() => deleteMutation.mutate(String(p.id))}
+                      onClick={() => deleteMutation.mutate(String(p.code))}
                       disabled={deleteMutation.isPending}
                       className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                       title="Archive"
@@ -175,4 +175,6 @@ export default function AdminPropertiesPage() {
       </div>
     </div>
   );
-}
+};
+
+export default AdminPropertiesPage;
