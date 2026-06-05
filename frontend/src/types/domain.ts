@@ -144,11 +144,22 @@ export interface PropertySummary {
 export interface PropertyDetail extends PropertySummary {
   description: string;
   cautionDeposit?: number;
+  legalFee?: number;
+  serviceCharge?: number;
+  tenantPaysAgencyFee?: boolean;
+  willingToWorkWithAgents?: boolean;
+  amenities?: string[];
   availableFrom: string;
   isFurnished?: boolean;
+  isSemiFurnished?: boolean;
   hasGenerator?: boolean;
   hasSecurity?: boolean;
   hasParking?: boolean;
+  hasElevator?: boolean;
+  hasPool?: boolean;
+  totalRooms?: number;
+  floorLevel?: number | null;
+  buildingFloors?: number | null;
 }
 
 export interface PropertyTourLink {

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Bell, ClipboardCheck, FileText, Home, Pencil, Search, UserCheck } from 'lucide-react';
+import { ArrowRight, Bell, ClipboardCheck, Clock, FileText, Home, Pencil, Search, ShieldCheck, UserCheck, X } from 'lucide-react';
 import { dashboardKeys, publicKeys } from '@/routes/keys';
 import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import { useTenantBookingsQuery, useTenantProfileQuery } from '@/services/tenant/queries';
@@ -11,7 +11,10 @@ const TenantDashboardPage = () => {
   const { data: profileData } = useTenantProfileQuery();
   const bookings = data?.data ?? [];
   const activeBooking = bookings.find((booking) => booking.status === 'ACTIVE');
+  const profile = profileData?.data as { kycStatus?: string; kycNote?: string } | undefined;
   const isOnboarded = profileData?.data?.isOnboarded ?? user?.tenant?.isOnboarded;
+  const kycStatus = profile?.kycStatus ?? user?.tenant?.kycStatus;
+  const kycNote = profile?.kycNote;
 
   return (
     <div className="min-h-screen bg-muted/10">
@@ -43,6 +46,37 @@ const TenantDashboardPage = () => {
                   Complete Onboarding
                 </Link>
               </div>
+            </div>
+          </div>
+        ) : kycStatus === 'REJECTED' ? (
+          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50/60 p-5 dark:border-red-900/40 dark:bg-red-950/20">
+            <X className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
+            <div className="flex-1">
+              <p className="font-semibold text-red-900 dark:text-red-200">Your KYC was declined</p>
+              <p className="text-sm text-red-800/90 dark:text-red-200/80">
+                {kycNote || 'Please review your details and documents, then resubmit.'}
+              </p>
+              <Link
+                to={dashboardKeys.tenant.onboarding.path}
+                className="mt-2 inline-block rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-700"
+              >
+                Update & resubmit
+              </Link>
+            </div>
+          </div>
+        ) : kycStatus === 'VERIFIED' ? (
+          <div className="mb-8 flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900/40 dark:bg-emerald-950/20">
+            <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-600" />
+            <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">Your KYC is verified — you're all set to apply.</p>
+          </div>
+        ) : kycStatus ? (
+          <div className="mb-8 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/60 p-5 dark:border-amber-900/40 dark:bg-amber-950/20">
+            <Clock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+            <div>
+              <p className="font-semibold text-amber-900 dark:text-amber-200">KYC verification pending</p>
+              <p className="text-sm text-amber-800/80 dark:text-amber-200/80">
+                Your identity verification is under review. We'll let you know once it's approved.
+              </p>
             </div>
           </div>
         ) : null}

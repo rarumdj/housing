@@ -38,6 +38,16 @@ export const deleteDocument = async (req: Request, res: Response) => {
   return sendSuccess(res, { message: 'Document deleted' });
 };
 
+export const sendPhoneOtp = async (req: Request, res: Response) => {
+  const data = await TenantService.sendPhoneOtp(String(req.user?.id));
+  return sendSuccess(res, { message: 'Verification code sent', data });
+};
+
+export const verifyPhoneOtp = async (req: Request, res: Response) => {
+  const data = await TenantService.verifyPhoneOtp(String(req.user?.id), req.body.code);
+  return sendSuccess(res, { message: 'Phone verified', data });
+};
+
 export const myBookings = async (req: Request, res: Response) => {
   const data = await TenantService.getBookings(String(req.user?.id));
   return sendSuccess(res, { data });

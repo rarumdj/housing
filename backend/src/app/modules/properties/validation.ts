@@ -1,9 +1,9 @@
 import Joi from 'joi';
-import { PROPERTY_TYPES, ROOM_TYPES } from '../../utils/constants';
+import { PROPERTY_AMENITIES, PROPERTY_TYPES, ROOM_TYPES } from '../../utils/constants';
 
 const baseProperty = {
   title: Joi.string().trim().required(),
-  description: Joi.string().trim().required(),
+  description: Joi.string().trim().min(60).required(),
   type: Joi.string().valid(...PROPERTY_TYPES).required(),
   address: Joi.string().trim().required(),
   lga: Joi.string().trim().required(),
@@ -13,6 +13,11 @@ const baseProperty = {
   priceMonthly: Joi.number().min(0).required(),
   priceAnnually: Joi.number().min(0).required(),
   cautionDeposit: Joi.number().min(0).required(),
+  legalFee: Joi.number().min(0).default(0),
+  serviceCharge: Joi.number().min(0).default(0),
+  tenantPaysAgencyFee: Joi.boolean().default(false),
+  willingToWorkWithAgents: Joi.boolean().default(false),
+  amenities: Joi.array().items(Joi.string().valid(...PROPERTY_AMENITIES)).default([]),
   availableFrom: Joi.date().iso().required(),
   isFurnished: Joi.boolean().default(false),
   isSemiFurnished: Joi.boolean().default(false),
@@ -30,7 +35,7 @@ export const create = Joi.object(baseProperty);
 
 export const update = Joi.object({
   title: Joi.string().trim(),
-  description: Joi.string().trim(),
+  description: Joi.string().trim().min(60),
   type: Joi.string().valid(...PROPERTY_TYPES),
   address: Joi.string().trim(),
   lga: Joi.string().trim(),
@@ -40,6 +45,11 @@ export const update = Joi.object({
   priceMonthly: Joi.number().min(0),
   priceAnnually: Joi.number().min(0),
   cautionDeposit: Joi.number().min(0),
+  legalFee: Joi.number().min(0),
+  serviceCharge: Joi.number().min(0),
+  tenantPaysAgencyFee: Joi.boolean(),
+  willingToWorkWithAgents: Joi.boolean(),
+  amenities: Joi.array().items(Joi.string().valid(...PROPERTY_AMENITIES)),
   availableFrom: Joi.date().iso(),
   isFurnished: Joi.boolean(),
   isSemiFurnished: Joi.boolean(),

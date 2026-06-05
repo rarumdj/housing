@@ -29,3 +29,19 @@ export const useStatesQuery = (countryIso?: string) =>
     enabled: !!countryIso,
     staleTime: Infinity,
   });
+
+export const useNigeriaStatesQuery = () =>
+  useQuery({
+    queryKey: ['locations', 'ng', 'states'],
+    queryFn: () => Axios.get<unknown, BaseResponse<string[]>>('/locations/ng/states'),
+    staleTime: Infinity,
+  });
+
+export const useNigeriaLgasQuery = (state?: string) =>
+  useQuery({
+    queryKey: ['locations', 'ng', 'lgas', state],
+    queryFn: () =>
+      Axios.get<unknown, BaseResponse<string[]>>(`/locations/ng/states/${encodeURIComponent(state ?? '')}/lgas`),
+    enabled: !!state,
+    staleTime: Infinity,
+  });

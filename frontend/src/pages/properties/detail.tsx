@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ImageOff,
   Loader2,
@@ -50,6 +51,35 @@ const AmenityBadge = ({ active, children }: { active: boolean; children: string 
     >
       {children}
     </span>
+  );
+};
+
+const AmenitiesIncluded = ({ amenities }: { amenities: string[] }) => {
+  const [open, setOpen] = useState(false);
+
+  if (amenities.length === 0) return null;
+
+  return (
+    <div className="mt-6 border-t border-border pt-5">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2 text-left"
+      >
+        <h3 className="text-sm font-semibold">What's included ({amenities.length})</h3>
+        <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open ? (
+        <div className="mt-3 max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-border bg-muted/20 p-3">
+          <div className="flex flex-wrap gap-2">
+            {amenities.map((amenity) => (
+              <AmenityBadge key={amenity} active>{amenity}</AmenityBadge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
   );
 };
 
@@ -292,6 +322,7 @@ const PropertyDetailPage = () => {
                   <AmenityBadge active={!!property.hasGenerator}>Generator</AmenityBadge>
                   <AmenityBadge active={!!property.isFurnished}>Furnished</AmenityBadge>
                 </div>
+                <AmenitiesIncluded amenities={property.amenities ?? []} />
               </div>
             </aside>
           </div>

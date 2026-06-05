@@ -14,6 +14,8 @@ router.get('/me', authenticate, requireRole('TENANT'), handler(TenantController.
 router.get('/me/profile', authenticate, requireRole('TENANT'), handler(TenantController.profile));
 router.put('/me/profile', authenticate, requireRole('TENANT'), validate(Validators.updateProfile), handler(TenantController.updateProfile));
 router.post('/me/onboarding', authenticate, requireRole('TENANT'), validate(Validators.updateProfile), handler(TenantController.completeOnboarding));
+router.post('/me/phone/send-otp', authenticate, requireRole('TENANT'), handler(TenantController.sendPhoneOtp));
+router.post('/me/phone/verify-otp', authenticate, requireRole('TENANT'), validate(Validators.verifyOtp), handler(TenantController.verifyPhoneOtp));
 router.post('/me/documents', authenticate, requireRole('TENANT'), upload.array('files', 6), handler(TenantController.uploadDocuments));
 router.delete('/me/documents', authenticate, requireRole('TENANT'), validate(Validators.deleteDocument), handler(TenantController.deleteDocument));
 router.get('/me/bookings', authenticate, requireRole('TENANT'), handler(TenantController.myBookings));

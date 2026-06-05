@@ -85,11 +85,22 @@ const EditPropertyPage = () => {
             priceMonthly: property.priceMonthly,
             priceAnnually: property.priceAnnually,
             cautionDeposit: property.cautionDeposit,
+            legalFee: property.legalFee,
+            serviceCharge: property.serviceCharge,
+            tenantPaysAgencyFee: property.tenantPaysAgencyFee,
+            willingToWorkWithAgents: property.willingToWorkWithAgents,
+            amenities: property.amenities,
             availableFrom: property.availableFrom?.split('T')[0],
             isFurnished: property.isFurnished,
+            isSemiFurnished: property.isSemiFurnished,
             hasGenerator: property.hasGenerator,
             hasSecurity: property.hasSecurity,
             hasParking: property.hasParking,
+            hasElevator: property.hasElevator,
+            hasPool: property.hasPool,
+            totalRooms: property.totalRooms,
+            floorLevel: property.floorLevel,
+            buildingFloors: property.buildingFloors,
           }}
           existingMedia={property.media || []}
           propertyId={id}

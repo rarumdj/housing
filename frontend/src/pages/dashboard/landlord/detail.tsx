@@ -71,7 +71,12 @@ const LandlordPropertyDetailPage = () => {
     );
   }
 
-  const coverImage = property.media?.find((m: { isCover?: boolean }) => m.isCover) ?? property.media?.[0];
+  const photoMedia = property.media?.filter((m: { type?: string }) => m.type !== 'VIDEO') ?? [];
+  const coverImage =
+    photoMedia.find((m: { isCover?: boolean }) => m.isCover) ??
+    photoMedia[0] ??
+    property.media?.find((m: { isCover?: boolean }) => m.isCover) ??
+    property.media?.[0];
   const videos = property.media?.filter((m: { type?: string }) => m.type === 'VIDEO') ?? [];
 
   return (
@@ -168,7 +173,16 @@ const LandlordPropertyDetailPage = () => {
           <div className="space-y-6">
             {coverImage && (
               <div className="overflow-hidden rounded-2xl">
-                <img src={coverImage.url} alt={property.title} className="h-64 w-full object-cover sm:h-80" />
+                {coverImage.type === 'VIDEO' ? (
+                  <video
+                    src={coverImage.url}
+                    poster={coverImage.thumbnailUrl}
+                    controls
+                    className="h-64 w-full bg-black object-cover sm:h-80"
+                  />
+                ) : (
+                  <img src={coverImage.url} alt={property.title} className="h-64 w-full object-cover sm:h-80" />
+                )}
               </div>
             )}
 

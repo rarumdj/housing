@@ -35,17 +35,34 @@ export const PropertyCard = ({ property, className }: PropertyCardProps) => {
       )}
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        {cover ? (
-          <img
-            src={cover.url}
-            alt={property.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <span className="text-sm text-muted-foreground">No photo yet</span>
-          </div>
-        )}
+        {(() => {
+          if (!cover) {
+            return (
+              <div className="flex h-full w-full items-center justify-center">
+                <span className="text-sm text-muted-foreground">No photo yet</span>
+              </div>
+            );
+          }
+          const isVideo = cover.type === 'VIDEO';
+          const posterSrc = isVideo ? cover.thumbnailUrl : cover.url;
+          if (posterSrc) {
+            return (
+              <img
+                src={posterSrc}
+                alt={property.title}
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            );
+          }
+          if (isVideo) {
+            return <video src={cover.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />;
+          }
+          return (
+            <div className="flex h-full w-full items-center justify-center">
+              <span className="text-sm text-muted-foreground">No photo yet</span>
+            </div>
+          );
+        })()}
 
         <div className="absolute left-3 top-3 flex gap-1.5">
           <span className="rounded-lg bg-background/90 px-2 py-1 text-xs font-medium backdrop-blur-sm">

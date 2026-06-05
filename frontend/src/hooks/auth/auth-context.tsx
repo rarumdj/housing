@@ -6,6 +6,8 @@ const AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     configureAxiosAuth({
       getAccessToken: () => authStore.getSnapshot().accessToken,
+      getRefreshToken: () => authStore.getSnapshot().refreshToken,
+      setTokens: (accessToken, refreshToken) => authStore.setTokens(accessToken, refreshToken),
       logout: () => authStore.signOut(),
     });
   }, []);

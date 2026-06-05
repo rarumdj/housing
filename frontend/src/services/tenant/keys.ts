@@ -4,6 +4,8 @@ export const TenantApiKeys = {
   documents: '/tenants/me/documents',
   bookings: '/tenants/me/bookings',
   leases: '/tenants/me/leases',
+  sendPhoneOtp: '/tenants/me/phone/send-otp',
+  verifyPhoneOtp: '/tenants/me/phone/verify-otp',
 } as const;
 
 export const TenantQueryKeys = {

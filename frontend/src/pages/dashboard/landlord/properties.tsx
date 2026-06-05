@@ -112,9 +112,19 @@ const LandlordPropertiesPage = () => {
                 className="flex items-center gap-4 rounded-2xl border border-border bg-background p-4 transition-colors hover:bg-muted/30"
               >
                 <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-muted">
-                  {property.media?.[0] ? (
-                    <img src={property.media[0].url} alt={property.title} className="h-full w-full object-cover" />
-                  ) : null}
+                  {(() => {
+                    const cover = property.media?.[0];
+                    if (!cover) return null;
+                    const isVideo = cover.type === 'VIDEO';
+                    const posterSrc = isVideo ? cover.thumbnailUrl : cover.url;
+                    if (posterSrc) {
+                      return <img src={posterSrc} alt={property.title} className="h-full w-full object-cover" />;
+                    }
+                    if (isVideo) {
+                      return <video src={cover.url} muted playsInline preload="metadata" className="h-full w-full object-cover" />;
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 <div className="min-w-0 flex-1">

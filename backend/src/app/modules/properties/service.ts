@@ -4,7 +4,7 @@ import PropertyRepo from '../../repositories/property.repo';
 import PropertyRoomRepo from '../../repositories/propertyRoom.repo';
 import BookingRepo from '../../repositories/booking.repo';
 import AppError from '../../utils/appError';
-import { uploadToStorage, deleteFromStorage } from '../../utils/storage';
+import { uploadToStorage, deleteFromStorage, deriveVideoThumbnailUrl } from '../../utils/storage';
 import { getMockPropertyById, searchMockProperties } from './mock';
 
 const shouldUseMockPropertyData = (error: unknown) => {
@@ -92,7 +92,7 @@ export const publishProperty = async (id: string, landlordId: string) => {
     throw new AppError('Your identity must be verified before publishing a listing', 403);
   }
 
-  const mediaCount = await PropertyMediaRepo.countByPropertyId(id);
+  const mediaCount = await PropertyMediaRepo.countByPropertyId(property.get('id') as number);
   if (mediaCount === 0) {
     throw new AppError('Upload at least one photo or video before publishing', 400);
   }
@@ -211,11 +211,13 @@ export const uploadMedia = async (propertyId: string, landlordId: string, files:
     const folder = file.mimetype.startsWith('video/') ? 'properties/videos' : 'properties/photos';
     const url = await uploadToStorage(file.buffer, file.mimetype, folder);
     const mediaType = inferMediaType(file.mimetype);
+    const thumbnailUrl = mediaType === 'VIDEO' ? deriveVideoThumbnailUrl(url) : undefined;
 
     const media = await PropertyMediaRepo.create({
       propertyId: pid,
       type: mediaType,
       url,
+      thumbnailUrl,
       isCover: existingCount === 0 && i === 0,
       orderIndex: existingCount + i,
     });

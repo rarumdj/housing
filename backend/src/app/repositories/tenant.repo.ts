@@ -2,7 +2,7 @@ import { Booking, Lease, Payment, Property, Renewal, Tenant, User } from '../mod
 
 const PROFILE_ATTRIBUTES = [
   'id', 'userId', 'employmentStatus', 'employerName', 'monthlyIncome',
-  'screeningScore', 'screeningBand', 'kycStatus', 'kycDocs', 'bankConnected',
+  'screeningScore', 'screeningBand', 'kycStatus', 'kycNote', 'kycDocs', 'bankConnected',
   'monoAccountId', 'isOnboarded',
   'maritalStatus', 'dateOfBirth', 'nationality',
   'nationalIdType', 'nationalIdNumber',

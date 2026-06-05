@@ -9,12 +9,15 @@ import { usePropertiesQuery } from '@/services/properties/queries';
 
 const propertyTypes = [
   { value: '', label: 'All types' },
-  { value: 'SELF_CONTAINED', label: 'Self Con' },
-  { value: 'ONE_BEDROOM', label: '1 Bed' },
-  { value: 'TWO_BEDROOM', label: '2 Bed' },
-  { value: 'THREE_BEDROOM', label: '3 Bed' },
-  { value: 'DUPLEX', label: 'Duplex' },
-  { value: 'FLAT', label: 'Flat' },
+  { value: 'STUDIO_APARTMENT', label: 'Studio' },
+  { value: 'FLAT_APARTMENT', label: 'Flat' },
+  { value: 'DETACHED', label: 'Detached' },
+  { value: 'SEMI_DETACHED', label: 'Semi-Detached' },
+  { value: 'TERRACE', label: 'Terrace' },
+  { value: 'BUNGALOW', label: 'Bungalow' },
+  { value: 'MAISONETTE', label: 'Maisonette' },
+  { value: 'PENTHOUSE', label: 'Penthouse' },
+  { value: 'SELF_CONTAINED', label: 'Self-Contained' },
 ];
 
 const SearchPage = () => {

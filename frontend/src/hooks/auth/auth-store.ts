@@ -78,6 +78,11 @@ const createAuthStore = () => {
       persistState(state);
       emit();
     },
+    setTokens: (accessToken: string, refreshToken: string) => {
+      state = { ...state, accessToken, refreshToken };
+      persistState(state);
+      emit();
+    },
     signOut: () => {
       const lastSignedOutUserEmail = state.user?.email?.trim();
 

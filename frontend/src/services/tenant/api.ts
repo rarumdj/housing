@@ -33,6 +33,14 @@ const tenantApi = {
   async bookings(): Promise<TenantBookingsResponse> {
     return Axios.get(TenantApiKeys.bookings);
   },
+
+  async sendPhoneOtp(): Promise<BaseResponse<{ sent?: boolean; alreadyVerified?: boolean; devCode?: string }>> {
+    return Axios.post(TenantApiKeys.sendPhoneOtp, {});
+  },
+
+  async verifyPhoneOtp(code: string): Promise<BaseResponse<{ verified: boolean }>> {
+    return Axios.post(TenantApiKeys.verifyPhoneOtp, { code });
+  },
 };
 
 export default tenantApi;

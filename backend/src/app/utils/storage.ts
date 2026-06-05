@@ -62,6 +62,25 @@ export const uploadToStorage = async (buffer: Buffer, mimeType: string, folder: 
   return payload.secure_url;
 };
 
+/**
+ * Derive a still-frame thumbnail URL for a Cloudinary-hosted video.
+ * Cloudinary can render a frame as an image by adding the `so_0` (start offset)
+ * transformation and requesting a `.jpg` extension. Returns undefined for
+ * non-Cloudinary URLs (e.g. local dev uploads) where this isn't supported.
+ */
+export const deriveVideoThumbnailUrl = (videoUrl: string): string | undefined => {
+  if (!/res\.cloudinary\.com/.test(videoUrl) || !videoUrl.includes('/upload/')) {
+    return undefined;
+  }
+
+  const withFrame = videoUrl.replace('/upload/', '/upload/so_0/');
+  if (/\.(mp4|mov|webm|mkv|avi|m4v|ogv)(\?.*)?$/i.test(withFrame)) {
+    return withFrame.replace(/\.(mp4|mov|webm|mkv|avi|m4v|ogv)(\?.*)?$/i, '.jpg');
+  }
+
+  return `${withFrame}.jpg`;
+};
+
 export const getPresignedUrl = async (key: string, expiresIn = 3600) => {
   void expiresIn;
   return key;

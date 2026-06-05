@@ -62,6 +62,31 @@ export const Property = sequelize.define('Property', {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+  legalFee: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  serviceCharge: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0,
+  },
+  tenantPaysAgencyFee: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  willingToWorkWithAgents: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  amenities: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: [],
+  },
   availableFrom: {
     type: DataTypes.DATE,
     allowNull: false,

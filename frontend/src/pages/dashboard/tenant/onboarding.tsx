@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Pencil, User, Briefcase, CreditCard, Shield, Users, Upload, Trash2, FileText } from 'lucide-react';
+import { Check, CheckCircle2, ChevronLeft, ChevronRight, Loader2, Pencil, Phone, User, Briefcase, CreditCard, Shield, Users, Upload, Trash2, FileText } from 'lucide-react';
 import { dashboardKeys } from '@/routes/keys';
 import {
   useTenantProfileQuery,
@@ -8,8 +8,11 @@ import {
   useUpdateTenantProfileMutation,
   useUploadTenantDocumentsMutation,
   useDeleteTenantDocumentMutation,
+  useSendTenantPhoneOtpMutation,
+  useVerifyTenantPhoneOtpMutation,
 } from '@/services/tenant/queries';
 import { useCountriesQuery } from '@/services/locations/queries';
+import { useAuthManager } from '@/hooks/auth/use-auth-manager';
 import type { TenantProfilePayload, EmploymentStatus, MaritalStatus, NationalIdType } from '@/types/domain';
 import { TextInput } from '@/components/forms/atoms/text-input';
 import { PhoneInput } from '@/components/forms/atoms/phone-input';
@@ -279,6 +282,71 @@ const IdDocumentUpload = ({ documents }: { documents: KycDoc[] }) => {
   );
 };
 
+const PhoneVerification = () => {
+  const { user, updateUser } = useAuthManager();
+  const sendOtp = useSendTenantPhoneOtpMutation();
+  const verifyOtp = useVerifyTenantPhoneOtpMutation();
+  const [code, setCode] = useState('');
+  const [devCode, setDevCode] = useState<string | null>(null);
+  const [error, setError] = useState('');
+
+  if (user?.isPhoneVerified) {
+    return (
+      <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-200">
+        <CheckCircle2 className="h-4 w-4" /> Phone number verified
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-xl border border-border bg-muted/20 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium">
+        <Phone className="h-4 w-4 text-primary" /> Verify your phone number
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        We'll send a one-time code to {user?.phone ?? 'your phone number'}.
+      </p>
+      {!sendOtp.isSuccess ? (
+        <button
+          type="button"
+          onClick={() => sendOtp.mutate(undefined, { onSuccess: (r) => setDevCode(r.data?.devCode ?? null) })}
+          disabled={sendOtp.isPending}
+          className="mt-3 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        >
+          {sendOtp.isPending ? 'Sending…' : 'Send code via SMS'}
+        </button>
+      ) : (
+        <div className="mt-3 space-y-2">
+          <div className="flex gap-2">
+            <TextInput value={code} onChange={(e) => setCode(e.target.value)} placeholder="Enter 6-digit code" />
+            <button
+              type="button"
+              onClick={() => {
+                setError('');
+                verifyOtp.mutate(code, {
+                  onSuccess: () => {
+                    if (user) updateUser({ ...user, isPhoneVerified: true });
+                  },
+                  onError: (err: unknown) => {
+                    const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+                    setError(msg || 'Invalid code');
+                  },
+                });
+              }}
+              disabled={verifyOtp.isPending || code.length < 4}
+              className="shrink-0 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              Verify
+            </button>
+          </div>
+          {devCode ? <p className="text-xs text-muted-foreground">Dev code: <span className="font-mono">{devCode}</span></p> : null}
+          {error ? <p className="text-xs text-destructive">{error}</p> : null}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const TenantOnboardingPage = () => {
   const navigate = useNavigate();
   const { data: profileData, isLoading } = useTenantProfileQuery();
@@ -435,6 +503,7 @@ const TenantOnboardingPage = () => {
             {step === 0 && (
               <div className="space-y-5">
                 <h2 className="font-display text-lg font-bold">Personal Information</h2>
+                <PhoneVerification />
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Select
                     label="Marital Status"

@@ -2,12 +2,11 @@ import BookingRepo from '../../repositories/booking.repo';
 import LandlordRepo from '../../repositories/landlord.repo';
 import LeaseRepo from '../../repositories/lease.repo';
 import PropertyRepo from '../../repositories/property.repo';
-import UserRepo from '../../repositories/user.repo';
 import AppError from '../../utils/appError';
 import { uploadToStorage, deleteFromStorage } from '../../utils/storage';
-import { sendOtpSms } from '../../utils/sms';
-import { env } from '../../utils/env';
 import { createPayoutAccount, type PaymentProvider } from '../../utils/paymentProvider';
+
+export { sendPhoneOtp, verifyPhoneOtp } from '../../utils/phoneOtp';
 
 const ONBOARDING_REQUIRED_FIELDS: string[] = [
   'dateOfBirth',
@@ -37,8 +36,6 @@ const PROMOTED_FIELDS = [
   'contactMethod',
   'payoutPreference',
 ] as const;
-
-const OTP_TTL_MS = 10 * 60 * 1000;
 
 export const getMe = async (userId: string) => {
   return LandlordRepo.getByUserId(userId);
@@ -126,56 +123,6 @@ export const completeOnboarding = async (userId: string, payload: Record<string,
   }
 
   return LandlordRepo.updateByUserId(userId, update);
-};
-
-export const sendPhoneOtp = async (userId: string) => {
-  const user = await UserRepo.getById(userId);
-  if (!user) {
-    throw new AppError('User not found', 404);
-  }
-
-  if (user.get('isPhoneVerified')) {
-    return { alreadyVerified: true };
-  }
-
-  const code = String(Math.floor(100000 + Math.random() * 900000));
-  await UserRepo.update(
-    { phoneOtpCode: code, phoneOtpExpires: new Date(Date.now() + OTP_TTL_MS) },
-    { id: userId },
-  );
-
-  const result = await sendOtpSms(String(user.get('phone')), code);
-
-  // When SMS is not configured (dev), surface the code so the flow is testable.
-  return {
-    sent: true,
-    ...(result.delivered ? {} : { devCode: env.nodeEnv === 'production' ? undefined : code }),
-  };
-};
-
-export const verifyPhoneOtp = async (userId: string, code: string) => {
-  const user = await UserRepo.getById(userId);
-  if (!user) {
-    throw new AppError('User not found', 404);
-  }
-
-  const storedCode = user.get('phoneOtpCode') as string | null;
-  const expires = user.get('phoneOtpExpires') as Date | null;
-
-  if (!storedCode || storedCode !== code) {
-    throw new AppError('Invalid verification code', 400);
-  }
-
-  if (expires && new Date(expires).getTime() < Date.now()) {
-    throw new AppError('Verification code has expired', 400);
-  }
-
-  await UserRepo.update(
-    { isPhoneVerified: true, phoneOtpCode: null, phoneOtpExpires: null },
-    { id: userId },
-  );
-
-  return { verified: true };
 };
 
 export const connectPayout = async (userId: string, payload: { provider: PaymentProvider; bankCode: string; accountNumber: string; accountName: string; bankName?: string; payoutPreference?: string }) => {

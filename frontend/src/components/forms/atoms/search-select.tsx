@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Check, ChevronDown, Search } from 'lucide-react';
+import { Check, ChevronDown, Plus, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { FieldLabel } from '@/components/ui/field';
@@ -20,6 +20,8 @@ interface SearchSelectProps {
   searchPlaceholder?: string;
   required?: boolean;
   disabled?: boolean;
+  /** Allow entering a custom value that is not in the options list. */
+  allowCustom?: boolean;
 }
 
 export const SearchSelect = ({
@@ -31,17 +33,26 @@ export const SearchSelect = ({
   searchPlaceholder = 'Search…',
   required,
   disabled,
+  allowCustom = false,
 }: SearchSelectProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
 
   const selected = options.find((o) => o.value === value);
+  const displayLabel = selected?.label ?? (value || placeholder);
+
+  const trimmedQuery = query.trim();
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = trimmedQuery.toLowerCase();
     if (!q) return options;
     return options.filter((o) => o.label.toLowerCase().includes(q));
-  }, [query, options]);
+  }, [trimmedQuery, options]);
+
+  const showCustomOption =
+    allowCustom &&
+    trimmedQuery.length > 0 &&
+    !options.some((o) => o.label.toLowerCase() === trimmedQuery.toLowerCase());
 
   const select = (v: string) => {
     onChange(v);
@@ -59,16 +70,16 @@ export const SearchSelect = ({
       <Popover open={open} onOpenChange={(next) => { setOpen(next); if (!next) setQuery(''); }}>
         <PopoverTrigger
           type="button"
-          disabled={disabled || options.length === 0}
+          disabled={disabled || (options.length === 0 && !allowCustom)}
           className={cn(
             'flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-2.5 text-sm shadow-xs transition-[color,box-shadow]',
             'focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50',
             'disabled:pointer-events-none disabled:opacity-50',
           )}
         >
-          <span className={cn('flex min-w-0 items-center gap-2 truncate', !selected && 'text-muted-foreground')}>
+          <span className={cn('flex min-w-0 items-center gap-2 truncate', !selected && !value && 'text-muted-foreground')}>
             {selected?.flag ? <span className="text-base leading-none">{selected.flag}</span> : null}
-            <span className="truncate">{selected?.label ?? placeholder}</span>
+            <span className="truncate">{displayLabel}</span>
           </span>
           <ChevronDown className={cn('size-4 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')} />
         </PopoverTrigger>
@@ -86,7 +97,19 @@ export const SearchSelect = ({
             </div>
           </div>
           <ul className="max-h-[280px] overflow-y-auto overscroll-contain p-1" role="listbox">
-            {filtered.length === 0 ? (
+            {showCustomOption ? (
+              <li role="option" aria-selected={false}>
+                <button
+                  type="button"
+                  onClick={() => select(trimmedQuery)}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted/80"
+                >
+                  <Plus className="size-4 shrink-0 text-primary" />
+                  <span className="flex-1 truncate">Use “{trimmedQuery}”</span>
+                </button>
+              </li>
+            ) : null}
+            {filtered.length === 0 && !showCustomOption ? (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">No results.</li>
             ) : (
               filtered.map((o) => {

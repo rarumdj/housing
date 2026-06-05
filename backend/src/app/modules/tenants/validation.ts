@@ -32,3 +32,7 @@ export const noop = Joi.object({});
 export const deleteDocument = Joi.object({
   url: Joi.string().required(),
 });
+
+export const verifyOtp = Joi.object({
+  code: Joi.string().min(4).max(8).required(),
+});

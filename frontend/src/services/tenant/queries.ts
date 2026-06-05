@@ -51,3 +51,16 @@ export const useTenantBookingsQuery = () =>
     queryKey: [TenantQueryKeys.bookings],
     queryFn: () => tenantApi.bookings(),
   });
+
+export const useSendTenantPhoneOtpMutation = () =>
+  useMutation({
+    mutationFn: () => tenantApi.sendPhoneOtp(),
+  });
+
+export const useVerifyTenantPhoneOtpMutation = () => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (code: string) => tenantApi.verifyPhoneOtp(code),
+    onSuccess: () => qc.invalidateQueries({ queryKey: [TenantQueryKeys.profile] }),
+  });
+};

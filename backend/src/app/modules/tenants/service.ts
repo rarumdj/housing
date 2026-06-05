@@ -2,6 +2,8 @@ import TenantRepo from '../../repositories/tenant.repo';
 import AppError from '../../utils/appError';
 import { uploadToStorage, deleteFromStorage } from '../../utils/storage';
 
+export { sendPhoneOtp, verifyPhoneOtp } from '../../utils/phoneOtp';
+
 const ONBOARDING_REQUIRED_FIELDS = [
   'employmentStatus',
   'nationalIdType',

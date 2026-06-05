@@ -3,15 +3,38 @@ export const ROLES = ['TENANT', 'LANDLORD', 'ADMIN'] as const;
 export const VERIFICATION_STATUSES = ['PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED'] as const;
 export const PROPERTY_STATUSES = ['DRAFT', 'PENDING_VERIFICATION', 'ACTIVE', 'RENTED', 'ARCHIVED'] as const;
 export const PROPERTY_TYPES = [
+  'STUDIO_APARTMENT',
+  'FLAT_APARTMENT',
+  'DETACHED',
+  'SEMI_DETACHED',
+  'TERRACE',
+  'BUNGALOW',
+  'MAISONETTE',
+  'PENTHOUSE',
+  'WHOLE_BUILDING',
   'SELF_CONTAINED',
+  // Legacy values retained for backward compatibility with existing listings
   'ONE_BEDROOM',
   'TWO_BEDROOM',
   'THREE_BEDROOM',
   'FOUR_BEDROOM_PLUS',
   'DUPLEX',
-  'BUNGALOW',
   'FLAT',
   'MINI_FLAT',
+] as const;
+
+export const PROPERTY_AMENITIES = [
+  '24hrs Electricity', '24hrs Security', 'Automated Gate', 'Basketball Court', 'Boardroom',
+  'Borehole', 'Call to Access/ID pass', 'Car Park', 'CCTV', 'Central water system',
+  "Children's playground / Park area", 'Cinema', 'Communal Generator', 'Communal Swimming pool',
+  'Concierge Services', 'Coworking space', 'Dedicated Transformer', 'Drainage system',
+  'Electric charging station', 'Elevator', 'Estate clubhouse or Event hall', 'Estate intercom',
+  'Estate management office', 'Estate Patrol', 'Estate shuttle service', 'Facility manager office',
+  'Fitness Room', 'Fitted Kitchen', 'Football pitch', 'Garage', 'Gas Meter', 'Gated Community',
+  'Gatehouse', 'Golf Court', 'Good road network', 'Green area / Garden', 'Internet/WiFi', 'Inverter',
+  'Laundromat', 'Maintenance Room', 'Mini-mart', 'Prepaid Meter', 'Private swimming pool',
+  'Restaurant', 'Rooftop Garden', 'Rooftop Terrace', 'Salon', 'Sauna', 'Security House',
+  'Tennis Court', 'Waste disposal & management system', 'Water Meter', 'Water Treatment Plant',
 ] as const;
 export const MEDIA_TYPES = ['PHOTO', 'VIDEO', 'MODEL_3D', 'TOUR_360'] as const;
 export const ROOM_TYPES = [

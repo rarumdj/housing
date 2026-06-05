@@ -11,7 +11,7 @@ const TYPE_LABELS: Record<string, string> = {
 interface Property {
   id?: string; code: string; title: string; address: string; lga: string; state: string;
   priceAnnually: number; type: string;
-  media: Array<{ url: string; isCover?: boolean; type?: string }>;
+  media: Array<{ url: string; isCover?: boolean; type?: string; thumbnailUrl?: string }>;
   _count?: { rooms: number };
   verificationStatus: string;
 }
@@ -25,10 +25,20 @@ export const PropertyCard = ({ property, className }: { property: Property; clas
     <Link to={`/property/${property.code}`}
       className={cn('group block rounded-2xl overflow-hidden bg-card border border-border hover:shadow-lg hover:shadow-black/5 transition-all duration-200', className)}>
       <div className="relative aspect-[4/3] bg-muted overflow-hidden">
-        {cover
-          ? <img src={cover.url} alt={property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-          : <div className="w-full h-full flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo yet</span></div>
-        }
+        {(() => {
+          if (!cover) {
+            return <div className="w-full h-full flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo yet</span></div>;
+          }
+          const isVideo = cover.type === 'VIDEO';
+          const posterSrc = isVideo ? cover.thumbnailUrl : cover.url;
+          if (posterSrc) {
+            return <img src={posterSrc} alt={property.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />;
+          }
+          if (isVideo) {
+            return <video src={cover.url} muted playsInline preload="metadata" className="w-full h-full object-cover" />;
+          }
+          return <div className="w-full h-full flex items-center justify-center"><span className="text-muted-foreground text-sm">No photo yet</span></div>;
+        })()}
         <div className="absolute top-3 left-3 flex gap-1.5">
           <span className="px-2 py-1 rounded-lg bg-background/90 backdrop-blur-sm text-xs font-medium">{TYPE_LABELS[property.type] ?? property.type}</span>
           {isVerified && <span className="px-2 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-medium flex items-center gap-1"><CheckCircle className="w-3 h-3"/>Verified</span>}

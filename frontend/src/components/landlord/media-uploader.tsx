@@ -88,33 +88,31 @@ export const MediaUploader = ({ existingMedia = [], onUpload, onDelete, onSetCov
                 </div>
               )}
 
-              <div className="absolute inset-x-0 top-0 flex items-center justify-between p-1.5 opacity-0 transition-opacity group-hover:opacity-100">
-                {media.isCover && (
-                  <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-medium text-primary-foreground">
-                    Cover
-                  </span>
-                )}
-                {!media.isCover && onSetCover && media.code && (
-                  <button
-                    type="button"
-                    onClick={() => onSetCover(media.code!)}
-                    className="rounded bg-background/80 p-1 text-xs hover:bg-background"
-                    title="Set as cover"
-                  >
-                    <Star className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                <div className="flex-1" />
-                {onDelete && media.code && (
-                  <button
-                    type="button"
-                    onClick={() => onDelete(media.code!)}
-                    className="rounded bg-destructive/80 p-1 text-destructive-foreground hover:bg-destructive"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
+              {media.isCover ? (
+                <span className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-md bg-primary px-1.5 py-0.5 text-[10px] font-semibold text-primary-foreground shadow-sm">
+                  <Star className="h-3 w-3 fill-current" /> Cover
+                </span>
+              ) : onSetCover && media.code ? (
+                <button
+                  type="button"
+                  onClick={() => onSetCover(media.code!)}
+                  className="absolute left-1.5 top-1.5 flex items-center gap-1 rounded-md bg-background/90 px-1.5 py-0.5 text-[10px] font-medium shadow-sm transition-colors hover:bg-background"
+                  title="Set as cover"
+                >
+                  <Star className="h-3 w-3" /> Set cover
+                </button>
+              ) : null}
+
+              {onDelete && media.code && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(media.code!)}
+                  className="absolute right-1.5 top-1.5 rounded-md bg-destructive/90 p-1 text-destructive-foreground shadow-sm transition-colors hover:bg-destructive"
+                  title="Remove"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
 
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/50 px-2 py-1">
                 <span className="text-[10px] font-medium uppercase text-white">
